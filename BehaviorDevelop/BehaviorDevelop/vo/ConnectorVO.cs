@@ -36,5 +36,17 @@ namespace BehaviorDevelop.vo
 		/// <summary>接続相手の要素名</summary>
     	public string targetObjName { get; set; }	
 
+		/// <summary>接続元要素のguid</summary>
+    	public string srcObjGuid { get; set; }	
+
+		/// <summary>接続元要素の名前</summary>
+    	public string srcObjName { get; set; }	
+    	
+		/// <summary>接続先要素のguid</summary>
+    	public string destObjGuid { get; set; }	
+
+		/// <summary>接続先要素の名前</summary>
+    	public string destObjName { get; set; }	
+    	
 	}
 }
