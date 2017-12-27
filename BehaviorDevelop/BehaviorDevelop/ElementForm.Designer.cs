@@ -53,14 +53,15 @@ namespace BehaviorDevelop
 			this.panel.Margin = new System.Windows.Forms.Padding(3, 3, 3, 30);
 			this.panel.MinimumSize = new System.Drawing.Size(400, 300);
 			this.panel.Name = "panel";
-			this.panel.Size = new System.Drawing.Size(733, 422);
+			this.panel.Size = new System.Drawing.Size(822, 413);
 			this.panel.TabIndex = 0;
 			this.panel.WrapContents = false;
 			// 
 			// btnCommit
 			// 
 			this.btnCommit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.btnCommit.Location = new System.Drawing.Point(587, 441);
+			this.btnCommit.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+			this.btnCommit.Location = new System.Drawing.Point(676, 432);
 			this.btnCommit.Name = "btnCommit";
 			this.btnCommit.Size = new System.Drawing.Size(75, 23);
 			this.btnCommit.TabIndex = 1;
@@ -71,7 +72,8 @@ namespace BehaviorDevelop
 			// btnCancel
 			// 
 			this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.btnCancel.Location = new System.Drawing.Point(668, 441);
+			this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+			this.btnCancel.Location = new System.Drawing.Point(757, 432);
 			this.btnCancel.Name = "btnCancel";
 			this.btnCancel.Size = new System.Drawing.Size(75, 23);
 			this.btnCancel.TabIndex = 2;
@@ -81,9 +83,11 @@ namespace BehaviorDevelop
 			// 
 			// ElementForm
 			// 
+			this.AcceptButton = this.btnCommit;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(755, 471);
+			this.CancelButton = this.btnCancel;
+			this.ClientSize = new System.Drawing.Size(844, 462);
 			this.Controls.Add(this.btnCancel);
 			this.Controls.Add(this.btnCommit);
 			this.Controls.Add(this.panel);

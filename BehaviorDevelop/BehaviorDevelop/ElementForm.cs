@@ -68,6 +68,7 @@ namespace BehaviorDevelop
 			foreach( AttributeVO a in attrs ) {
 				Label attrLabel = new Label();
 				attrLabel.Text =  "+ " + a.name ;
+				attrLabel.TextAlign = ContentAlignment.MiddleLeft ;
 //	            attrLabel.AutoSize=true;
 	            attrLabel.Anchor = ((System.Windows.Forms.AnchorStyles)
 	                                (System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right));
@@ -92,15 +93,14 @@ namespace BehaviorDevelop
 	            mthText.Text = m.behavior;
 				string[] ary = m.behavior.Split('\n');
 	            if ( ary.Length > 10 ) {
-		            mthText.Size = new Size(720,200);
+		            mthText.Size = new Size(800,200);
 	            } else if( ary.Length > 3 ) {
-		            mthText.Size = new Size(820,100);
+		            mthText.Size = new Size(800,100);
 	            } else {
-		            mthText.Size = new Size(720,40);
+		            mthText.Size = new Size(800,40);
 	            }
 //				mthText.Anchor = ((System.Windows.Forms.AnchorStyles)
 //	                                (System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right));
-	            
 
 	            mthText.ReadOnly = true;
 	            mthText.Multiline = true;
