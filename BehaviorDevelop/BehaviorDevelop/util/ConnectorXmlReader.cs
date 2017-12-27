@@ -69,7 +69,8 @@ namespace BehaviorDevelop.util
             			if ( objguid != null && !myelem.guid.Equals(objguid)) {
 	            			convo.targetObjName = node.SelectSingleNode("@name").Value;
 		                    convo.targetObjGuid = node.SelectSingleNode("@guid").Value;
-		                    return convo;            			}
+		                    return convo;
+            			}
 	            	}
 	            } // end of for
             } else {
@@ -80,6 +81,54 @@ namespace BehaviorDevelop.util
             return convo;
         }
         #endregion
-		
+        
+		#region "接続リスト全読込み"
+        // 処理対象XML例：
+        // <connector  targetProject='Logical'  lastUpdated='2017/10/13 10:27:32'  targetModel='Logical'  >
+        //   <srcObject guid='{11EF4332-5CB7-4ecd-8E78-0E50A6E7D3E7}'  name='共通設計モデル'  path='/論理モデル/レイヤ別ビュー/フレームワーク_STEP3移管対象/'  stereotype='fw.adesk_cmn' />
+        //   <destObject guid='{11EF4332-5CB7-4ecd-8E78-0E50A6E7D3E7}'  name='共通設計モデル'  path='/論理モデル/レイヤ別ビュー/フレームワーク_STEP3移管対象/'  stereotype='fw.adesk_cmn' />
+        // </connector>
+
+        /// <summary>
+        /// All_Connectors.xml を読み、リスト化する
+        /// </summary>
+        /// <returns>ConnectorVOのリスト</returns>
+        public List<ConnectorVO> readConnectorAll()
+        {
+        	List<ConnectorVO> outList = new List<ConnectorVO>();
+        	
+            // connectorノードを全て取得する
+            XmlNodeList connectorNodes = this.xmlDoc.SelectNodes("//connector");
+
+            if ( connectorNodes != null ) { 
+            	foreach (XmlNode connectorNode in connectorNodes)
+            	{
+            		ConnectorVO convo = new ConnectorVO();
+	            	convo.connectionType = connectorNode.SelectSingleNode("@connType").Value;
+	            	convo.guid = connectorNode.SelectSingleNode("@guid").Value;
+	            	convo.name = connectorNode.SelectSingleNode("@name").Value;
+	            	
+		            foreach (XmlNode node in connectorNode.ChildNodes) {
+		            	if( "startObject".Equals(node.Name) ) {
+	            			convo.srcObjName = node.SelectSingleNode("@name").Value;
+		                    convo.srcObjGuid = node.SelectSingleNode("@guid").Value;
+		            	}
+	
+		            	if( "endObject".Equals(node.Name) ) {
+	            			convo.destObjName = node.SelectSingleNode("@name").Value;
+		                    convo.destObjGuid = node.SelectSingleNode("@guid").Value;
+		            	}
+		            } // end of foreach
+
+	            	outList.Add(convo);
+            	} // end of foreach
+            } 
+            
+            return outList;
+        }
+        #endregion
+
+
+        
 	}
 }
