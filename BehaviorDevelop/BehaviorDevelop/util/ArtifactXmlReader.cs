@@ -114,6 +114,7 @@ namespace BehaviorDevelop.util
     			if ( "element".Equals(pkgNode.Name) ) {
     				ElementVO elem = new ElementVO {
     					name = pkgNode.SelectSingleNode("@name").Value,
+    					eaType = pkgNode.SelectSingleNode("@type").Value,
     					guid = pkgNode.SelectSingleNode("@guid").Value
     				};
 
