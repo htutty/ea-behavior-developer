@@ -28,7 +28,7 @@ namespace BehaviorDevelop
 		
 		string projectPath { get; set; }
 		
-		ElementForm elemForm { get; set; }		
+		ElementForm elemForm { get; set; }
 
 		Dictionary<string, TreeNode> treeNodeMap = new Dictionary<string, TreeNode>();
 		
@@ -63,7 +63,10 @@ namespace BehaviorDevelop
 
 		void MainFormLoad(object sender, EventArgs e)
 		{
-			
+			this.treeView1.Nodes.Clear();
+			this.treeNodeMap.Clear();
+			this.tabControl1.TabPages.Clear();
+
 			// artifactList.Items.Clear();
 			artifacts = ArtifactsXmlReader.readArtifactList(projectPath);
 					
@@ -79,11 +82,6 @@ namespace BehaviorDevelop
 			}
 
 			this.treeView1.Nodes.Add(rootNode);
-		}
-		
-		void MainFormLoad__(object sender, EventArgs e)
-		{
-//			tabControl1.TabPages.Clear();
 		}
 		
 		private TreeNode addPackageNodes( string pathName ) {
@@ -111,15 +109,6 @@ namespace BehaviorDevelop
 			myNode.Nodes.Add(newNode);
 			return newNode;
 		}
-		
-//		void TreeView1NodeMouseClick__(object sender, TreeNodeMouseClickEventArgs e) {
-//			if ( e.Node.Tag != null ) {
-//				int idx = (int)e.Node.Tag;
-//				atfForm = new ArtifactForm( artifacts[idx] );
-//				atfForm.Show(this);
-//				activateArtifactPanel( artifacts[idx] );
-//			}
-//		}
 		
 
 		private void activateArtifactPanel(ArtifactVO atf) {
@@ -158,11 +147,12 @@ namespace BehaviorDevelop
 			
 			TabPage atfPage = new TabPage();
 			atfPage.Controls.Add(spCnt);
-			atfPage.Text = ((atf.package.stereoType != null) ? "<<" + atf.package.stereoType + ">> " : "" ) + atf.name ;
-//			atfPage.Text = atf.name ;
+//			atfPage.Text = ((atf.package.stereoType != null) ? "<<" + atf.package.stereoType + ">> " : "" ) + atf.name ;
+			atfPage.Text = atf.name ;
 			
 			atfPage.Tag = atf.guid ;
 			tabControl1.TabPages.Add(atfPage) ;
+			atfPage.Focus();
 		}
 
 		
@@ -175,10 +165,11 @@ namespace BehaviorDevelop
 			pacLabel.Text = "          ".Substring(1, depth) +"□" + pac.name ;
 			pacLabel.AutoSize = true ;
 			elemPanel.Controls.Add(pacLabel);
+
+			addElementLabels(elemPanel, pac.elements, depth+1);
 			
 			foreach( PackageVO c in pac.childPackageList ) {
 				addPackageLabels(elemPanel, c, depth+1);
-				addElementLabels(elemPanel, c.elements, depth+1);
 			}
 			
 		}
@@ -191,13 +182,14 @@ namespace BehaviorDevelop
 //	            elemLabel.Size = new Size(340,20);
 //	            
 //				panel.Controls.Add(elemLabel);
-				
-				Button btnElemOpen = new Button();
-				btnElemOpen.Click += new System.EventHandler(this.BtnElemOpenClick);
-				btnElemOpen.Text = "■" + elem.name;
-				btnElemOpen.Tag = elem;
-				btnElemOpen.AutoSize = true ;
-				elemPanel.Controls.Add(btnElemOpen);
+				if ( !"Note".Equals(elem.eaType ) ) {
+					Button btnElemOpen = new Button();
+					btnElemOpen.Click += new System.EventHandler(this.BtnElemOpenClick);
+					btnElemOpen.Text = "■" + elem.name;
+					btnElemOpen.Tag = elem;
+					btnElemOpen.AutoSize = true ;
+					elemPanel.Controls.Add(btnElemOpen);
+				}
 				
 //				addAttributeLabels(elem.attributes, depth+2);
 //				addMethodLabels(elem.methods, depth+2);
@@ -236,9 +228,16 @@ namespace BehaviorDevelop
 		{
 
 			if ( e.Node.Tag != null ) {
+				
+				// 待機状態
+				Cursor.Current = Cursors.WaitCursor;
+
 //				MessageBox.Show("ノードクリック : " + e.Node + "/" + e.Node.Tag);
 //				int idx = (int)e.Node.Tag;
 				activateArtifactPanel( (ArtifactVO)e.Node.Tag );
+				
+				// 標準に戻す
+				Cursor.Current = Cursors.Default;
 			}		
 		}
 		
@@ -253,6 +252,44 @@ namespace BehaviorDevelop
 		
 		void OpenToolStripMenuItemClick(object sender, EventArgs e)
 		{
+			//OpenFileDialogクラスのインスタンスを作成
+			OpenFileDialog dialog = new OpenFileDialog();
+			
+			//はじめに「ファイル名」で表示される文字列を指定する
+			dialog.FileName = "project.bdprj";
+			//はじめに表示されるフォルダを指定する
+			//指定しない（空の文字列）の時は、現在のディレクトリが表示される
+//			dialog.InitialDirectory = @"C:\";
+			dialog.InitialDirectory = "";
+
+			//[ファイルの種類]に表示される選択肢を指定する
+			//指定しないとすべてのファイルが表示される
+			dialog.Filter = "振る舞いプロジェクトファイル(*.bdprj)|*.bdprj|すべてのファイル(*.*)|*.*";
+			//[ファイルの種類]ではじめに選択されるものを指定する
+			//1番目の「すべてのファイル」が選択されているようにする
+			dialog.FilterIndex = 1;
+			//タイトルを設定する
+			dialog.Title = "開くプロジェクトファイルを選択してください";
+			//ダイアログボックスを閉じる前に現在のディレクトリを復元するようにする
+			dialog.RestoreDirectory = true;
+			//存在しないファイルの名前が指定されたとき警告を表示する
+			//デフォルトでTrueなので指定する必要はない
+			dialog.CheckFileExists = true;
+			//存在しないパスが指定されたとき警告を表示する
+			//デフォルトでTrueなので指定する必要はない
+			dialog.CheckPathExists = true;
+			
+			//ダイアログを表示する
+			if (dialog.ShowDialog() == DialogResult.OK)
+			{
+			    //OKボタンがクリックされたとき、選択されたファイル名を表示する
+			    Console.WriteLine(dialog.FileName);
+
+			    string prjfile = dialog.FileName;
+			    this.projectPath = Path.GetDirectoryName(prjfile);
+				this.Text = prjfile;
+				this.MainFormLoad(this, null);
+			}
 			
 		}
 		
