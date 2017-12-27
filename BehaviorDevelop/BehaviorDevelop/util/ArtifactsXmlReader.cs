@@ -57,7 +57,7 @@ namespace BehaviorDevelop.util
 
             foreach (XmlNode atfNode in artifactsNode.ChildNodes)
             {
-                // 相互参照対象
+                // 成果物ノードを読み込んで vo を１件作成
                 ArtifactVO atf = new ArtifactVO()
                 {
                 	name = atfNode.SelectSingleNode("@name").Value,
