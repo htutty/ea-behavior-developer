@@ -19,7 +19,9 @@ namespace ElementIndexer
 //			// TODO: Implement Functionality Here
 //			
 			DatabaseWriter writer = new DatabaseWriter();
-			writer.write();
+			writer.writeAllConnector();
+			writer.writeElements();
+			
 			
 			Console.Write("Press any key to continue . . . ");
 			Console.ReadKey(true);
