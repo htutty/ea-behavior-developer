@@ -77,6 +77,10 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="SearchElementListForm.cs" />
+    <Compile Include="SearchElementListForm.Designer.cs">
+      <DependentUpon>SearchElementListForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="usercontrol\SyntaxRichTextBox.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -91,6 +95,7 @@
     <Compile Include="util\ArtifactXmlReader.cs" />
     <Compile Include="util\ArtifactsXmlReader.cs" />
     <Compile Include="util\ConnectorXmlReader.cs" />
+    <Compile Include="util\ElementSearcher.cs" />
     <Compile Include="util\ElementsXmlReader.cs" />
     <Compile Include="util\StringUtil.cs" />
     <Compile Include="vo\ArtifactVO.cs" />
@@ -100,6 +105,7 @@
     <Compile Include="vo\CompareItem.cs" />
     <Compile Include="vo\CompareProperty.cs" />
     <Compile Include="vo\CrossReference.cs" />
+    <Compile Include="vo\ElementSearchVO.cs" />
     <Compile Include="vo\ElementVO.cs" />
     <Compile Include="vo\Item.cs" />
     <Compile Include="vo\MethodVO.cs" />
@@ -116,6 +122,9 @@
       <DependentUpon>MethodBehaviorEditForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx" />
+    <EmbeddedResource Include="SearchElementListForm.resx">
+      <DependentUpon>SearchElementListForm.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

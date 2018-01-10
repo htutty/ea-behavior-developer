@@ -197,6 +197,47 @@ namespace BehaviorDevelop.util
     		elemvo.methods = retMethList;
     		elemvo.connectors = retConnList;
         }
+
+        
+        public List<ElementVO> readAllElements(ArtifactVO artifact, string project_dir)
+        {
+			string target_dir = null;
+			if ( project_dir != null ) {
+				target_dir = project_dir;
+			} else {
+	            target_dir = ConfigurationManager.AppSettings["artifact_dir"];
+			}
+
+            string fileName = target_dir + "/" + "atf_" + artifact.guid.Substring(1, 36) + ".xml"  ;
+
+            // XMLテキストをロードする
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.Load( fileName );
+            
+        	List<ElementVO> retList = new List<ElementVO>();
+
+            // elementノードを全て取得する
+            XmlNodeList elemNodes = xmlDoc.SelectNodes("//element");
+
+            if ( elemNodes != null ) { 
+            	foreach( XmlNode elemNode in elemNodes ) {
+	            	ElementVO elemvo = new ElementVO();
+	            	foreach(XmlAttribute attr in elemNode.Attributes) {
+    					switch( attr.Name ) {
+    						case "name" : elemvo.name = attr.Value; break;
+    						case "alias" : elemvo.alias = attr.Value; break;
+    						case "type" : elemvo.eaType = attr.Value; break;
+    						case "stereotype" : elemvo.stereoTypeEx = attr.Value; break;
+    						case "guid" : elemvo.guid = attr.Value; break;
+    					}
+    				}
+					retList.Add(elemvo);
+            	}
+	        }
+            
+            return retList;
+        }
+
         
 	}
 }

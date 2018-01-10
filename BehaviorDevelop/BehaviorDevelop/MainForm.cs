@@ -29,6 +29,7 @@ namespace BehaviorDevelop
 		string projectPath { get; set; }
 		
 		ElementForm elemForm { get; set; }
+		SearchElementListForm searchElemListForm { get; set; }
 
 		Dictionary<string, TreeNode> treeNodeMap = new Dictionary<string, TreeNode>();
 		
@@ -61,6 +62,7 @@ namespace BehaviorDevelop
 			this.Text = prjfile;
 		}
 
+		
 		void MainFormLoad(object sender, EventArgs e)
 		{
 			this.treeView1.Nodes.Clear();
@@ -110,8 +112,8 @@ namespace BehaviorDevelop
 			return newNode;
 		}
 		
-
-		private void activateArtifactPanel(ArtifactVO atf) {
+		
+		public ArtifactVO activateArtifactPanel(ArtifactVO atf) {
 			ArtifactXmlReader atfReader = new ArtifactXmlReader();
 			// 成果物パッケージ別のXMLファイル読み込み
 			atfReader.readArtifactDesc(atf, projectPath);
@@ -153,6 +155,8 @@ namespace BehaviorDevelop
 			atfPage.Tag = atf.guid ;
 			tabControl1.TabPages.Add(atfPage) ;
 			atfPage.Focus();
+			
+			return atf ;
 		}
 
 		
@@ -203,8 +207,13 @@ namespace BehaviorDevelop
 			Button btn = (Button)sender;
 			ElementVO elem = (ElementVO)btn.Tag;
 //			MessageBox.Show( "guid =" + elem.guid );
-			elemForm = new ElementForm( elem );
-			elemForm.Show(this);
+			openNewElementForm(elem);
+		}
+		
+		
+		public void openNewElementForm(ElementVO elemvo) {
+			ElementForm eForm = new ElementForm( elemvo );
+			eForm.Show(this);			
 		}
 		
 		
@@ -221,8 +230,6 @@ namespace BehaviorDevelop
 			return targetNode;
 		}
 				
-
-
 		
 		void TreeView1NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
 		{
@@ -295,7 +302,16 @@ namespace BehaviorDevelop
 		
 		void ClassToolStripMenuItemClick(object sender, EventArgs e)
 		{
-			
+			searchElemListForm = new SearchElementListForm( );
+			searchElemListForm.Show(this);
+		}
+		
+		public ArtifactVO getArtifactByGuid(string guid) {
+			TreeNode tn = null;
+            treeNodeMap.TryGetValue(guid, out tn);
+
+            ArtifactVO atfvo = (ArtifactVO)tn.Tag;
+			return activateArtifactPanel(atfvo);
 		}
 		
 		
