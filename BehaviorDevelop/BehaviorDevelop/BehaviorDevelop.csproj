@@ -97,6 +97,7 @@
     <Compile Include="util\ConnectorXmlReader.cs" />
     <Compile Include="util\ElementSearcher.cs" />
     <Compile Include="util\ElementsXmlReader.cs" />
+    <Compile Include="util\ProjectSetting.cs" />
     <Compile Include="util\StringUtil.cs" />
     <Compile Include="vo\ArtifactVO.cs" />
     <Compile Include="vo\AttributeMethod.cs" />
@@ -110,6 +111,7 @@
     <Compile Include="vo\Item.cs" />
     <Compile Include="vo\MethodVO.cs" />
     <Compile Include="vo\PackageVO.cs" />
+    <Compile Include="vo\ProjectSettingVO.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="ElementForm.resx">
