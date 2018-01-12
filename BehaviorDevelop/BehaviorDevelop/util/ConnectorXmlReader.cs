@@ -21,11 +21,11 @@ namespace BehaviorDevelop.util
 	{
 		private XmlDocument xmlDoc = null;
 		
-		public ConnectorXmlReader()
+		public ConnectorXmlReader(string project_dir)
 		{
-            string target_dir = ConfigurationManager.AppSettings["artifact_dir"];
+            // string target_dir = ConfigurationManager.AppSettings["artifact_dir"];
             string target_file = ConfigurationManager.AppSettings["connectors_file"];
-			string fileName = target_dir + "/" + target_file;
+			string fileName = project_dir + "/" + target_file;
 
 			// XMLテキストをロードする
             this.xmlDoc = new XmlDocument();

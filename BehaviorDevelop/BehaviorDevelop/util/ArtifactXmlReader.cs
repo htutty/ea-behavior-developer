@@ -19,12 +19,15 @@ namespace BehaviorDevelop.util
 	public class ArtifactXmlReader
 	{
 		ConnectorXmlReader connReader = null;
+		string projectPath = null;
 		
-		public ArtifactXmlReader()
+		public ArtifactXmlReader(string project_dir)
 		{
         	if ( this.connReader　== null ) {
-        		this.connReader = new ConnectorXmlReader();
+        		this.connReader = new ConnectorXmlReader(project_dir);
         	}
+			
+			this.projectPath = project_dir;
 		}
 		
 		#region "アーティファクトファイル読み込み"
@@ -38,15 +41,15 @@ namespace BehaviorDevelop.util
         /// 
         /// </summary>
         /// <returns>ArtifactVOのリスト</returns>
-        public void readArtifactDesc(ArtifactVO artifact, string project_dir)
+        public void readArtifactDesc(ArtifactVO artifact)
         {
         	if ( this.connReader　== null ) {
-        		this.connReader = new ConnectorXmlReader();
+        		this.connReader = new ConnectorXmlReader(this.projectPath);
         	}
         	
 			string target_dir = null;
-			if ( project_dir != null ) {
-				target_dir = project_dir;
+			if ( this.projectPath != null ) {
+				target_dir = this.projectPath;
 			} else {
 	            target_dir = ConfigurationManager.AppSettings["artifact_dir"];
 			}
@@ -202,8 +205,8 @@ namespace BehaviorDevelop.util
         public List<ElementVO> readAllElements(ArtifactVO artifact, string project_dir)
         {
 			string target_dir = null;
-			if ( project_dir != null ) {
-				target_dir = project_dir;
+			if ( this.projectPath != null ) {
+				target_dir = this.projectPath;
 			} else {
 	            target_dir = ConfigurationManager.AppSettings["artifact_dir"];
 			}
