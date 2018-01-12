@@ -14,14 +14,17 @@ namespace ElementIndexer
 	{
 		public static void Main(string[] args)
 		{
-//			Console.WriteLine("Hello World!");
-//			
-//			// TODO: Implement Functionality Here
-//			
-			DatabaseWriter writer = new DatabaseWriter();
-			writer.writeAllConnector();
-			writer.writeElements();
-			
+			//コマンドライン引数を配列で取得する
+			string[] cmds = System.Environment.GetCommandLineArgs();
+
+			if (cmds.Length >= 2) {
+				DatabaseWriter writer = new DatabaseWriter(cmds[1], cmds[2]);
+				writer.writeAllConnector();
+				writer.writeElements();
+			} else {
+				Console.WriteLine("引数が足りません");
+				Console.WriteLine("usage: ElementIndexer.exe <targetDir> <db_file>");
+			}
 			
 			Console.Write("Press any key to continue . . . ");
 			Console.ReadKey(true);

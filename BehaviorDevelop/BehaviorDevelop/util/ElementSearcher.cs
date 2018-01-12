@@ -18,12 +18,13 @@ namespace BehaviorDevelop.util
 	/// </summary>
 	public class ElementSearcher
 	{
-		const string db_file = "element_idx.db";
+		string db_file = null;
 		SQLiteConnection conn;
 
 		public ElementSearcher()
 		{
-			this.conn = new SQLiteConnection("Data Source="+db_file);
+			this.db_file = ProjectSetting.getVO().dbName;
+			this.conn = new SQLiteConnection("Data Source="+this.db_file);
 		}
 
 		public List<ElementSearchVO> findByKeyword(string keyword) {
