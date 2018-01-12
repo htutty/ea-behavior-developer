@@ -20,15 +20,23 @@ namespace ElementIndexer
 	/// </summary>
 	public class DatabaseWriter
 	{
-		const string db_file = "element_idx.db";
+		string db_file ;
+		string projectDir = null;
+			
 		SQLiteConnection conn;
 		SQLiteTransaction transaction = null;
 		Int32 elementRecCount = 0;
 
-	    public DatabaseWriter()
+	    public DatabaseWriter(string dir, string dbfile)
 		{
-			try { 
-				this.conn = new SQLiteConnection("Data Source="+db_file);
+//	    	this.db_file = "C:\\Users\\ctc0065\\" + dbfile;
+	    	this.db_file = dbfile;
+	    	this.projectDir = dir ; 
+	    	
+			try {
+	    		Console.WriteLine("projectdir = " + this.projectDir);
+	    		Console.WriteLine("dbfile = " + this.db_file);
+				this.conn = new SQLiteConnection("Data Source="+this.db_file);
 			} catch(Exception e) {
 				throw e ;
 			}
@@ -38,16 +46,18 @@ namespace ElementIndexer
 		
 		public void writeAllConnector() {
 			
+			Console.Write("inserting connector table ");
+			
 			conn.Open();
 			recreateConnectorTable();
 			
-		    Int32 recCount = 0;
-		    SQLiteTransaction sqlt = null;
+			Int32 recCount = 0;
+			SQLiteTransaction sqlt = null;
+			
+			ConnectorXmlReader connReader = new ConnectorXmlReader(projectDir);
+			List<ConnectorVO> conns = connReader.readConnectorAll();
 		    
-		    ConnectorXmlReader connReader = new ConnectorXmlReader();
-		    List<ConnectorVO> conns = connReader.readConnectorAll();
-		    
-		   　string sql = @"insert into t_connector 
+			string sql = @"insert into t_connector 
 					(connGuid, connName, connType, 
 					 srcObjGuid, srcObjName, 
 					 destObjGuid, destObjName 
@@ -58,36 +68,36 @@ namespace ElementIndexer
 					) " ;
 		    
 		    foreach( ConnectorVO convo in conns ) {
-		    	if ( recCount % 2000 == 0 ) {
-		    		sqlt = conn.BeginTransaction();
-		    	}
-		   　	
-		    	using (SQLiteCommand command2 = conn.CreateCommand()) {		
+				if ( recCount % 2000 == 0 ) {
+					sqlt = conn.BeginTransaction();
+				}
+			
+				using (SQLiteCommand command2 = conn.CreateCommand()) {		
                     SQLiteParameter[] parameters = new SQLiteParameter[]{
-                    　new SQLiteParameter("@connGuid",convo.guid),
-                    　new SQLiteParameter("@connName",convo.name),
-                    　new SQLiteParameter("@connType",convo.connectionType),
-                    　new SQLiteParameter("@srcObjGuid",convo.srcObjGuid),
-                    　new SQLiteParameter("@srcObjName",convo.srcObjName),
-                    　new SQLiteParameter("@destObjGuid",convo.destObjGuid),
-                    　new SQLiteParameter("@destObjName",convo.destObjName)
+                      new SQLiteParameter("@connGuid",convo.guid),
+                      new SQLiteParameter("@connName",convo.name),
+                      new SQLiteParameter("@connType",convo.connectionType),
+                      new SQLiteParameter("@srcObjGuid",convo.srcObjGuid),
+                      new SQLiteParameter("@srcObjName",convo.srcObjName),
+                      new SQLiteParameter("@destObjGuid",convo.destObjGuid),
+                      new SQLiteParameter("@destObjName",convo.destObjName)
                     };
 		    					    
-		   　		command2.CommandText = sql;
-		   　		command2.Parameters.AddRange(parameters);
+		     		command2.CommandText = sql;
+		     		command2.Parameters.AddRange(parameters);
 		        	command2.ExecuteNonQuery();
 		    	}
 		    	
-		   　	if ( (recCount + 1) % 2000 == 0 && recCount > 0) {
-		   　		Console.WriteLine("record count reached " + (recCount + 1) + " records. will commit" );
+		     	if ( (recCount + 1) % 2000 == 0 && recCount > 0) {
+		     		Console.Write("." );
 	    			sqlt.Commit();
 		    	}
-		   　	
+		     	
 	            recCount++;
 		    }
 		    
 		    sqlt.Commit();
-		   　Console.WriteLine( recCount + " records commited." );
+		    Console.WriteLine(".  done(" + recCount + "records)" );
 		    
 		    conn.Close();
 		}
@@ -132,7 +142,7 @@ namespace ElementIndexer
 		        command.ExecuteNonQuery();
 		    }
 			
-		}		
+		}
 
 		
 		private void createConnectorTable() {
@@ -158,11 +168,13 @@ namespace ElementIndexer
 		
 		public void writeElements() {
 			
+			Console.Write("inserting element table ");
+
 			conn.Open();
 			recreateElementTable();
 		    
-			ArtifactXmlReader atfReader = new ArtifactXmlReader();
-			IList<ArtifactVO> artifacts = ArtifactsXmlReader.readArtifactList(null);
+			ArtifactXmlReader atfReader = new ArtifactXmlReader(this.projectDir);
+			IList<ArtifactVO> artifacts = ArtifactsXmlReader.readArtifactList(this.projectDir);
 
 			string target_dir = null;
 			target_dir = ConfigurationManager.AppSettings["artifact_dir"];
@@ -179,8 +191,8 @@ namespace ElementIndexer
 			}
 		    
             transaction.Commit();
-		   　Console.WriteLine( elementRecCount + " records commited." );
-		   　
+			Console.WriteLine(".  done(" + elementRecCount + "records)" );
+			
             conn.Close();
 		}
 
@@ -195,41 +207,41 @@ namespace ElementIndexer
 				writeElement(atf, elem);
 				// Console.WriteLine("insert element : " + elementRecCount + " records." );
 
-		   　	if ( (elementRecCount + 1) % 2000 == 0 && elementRecCount > 0) {
-		   　		Console.WriteLine("record count reached " + (elementRecCount + 1) + " records. will commit" );
-	    			transaction.Commit();
-		    	}
-		   　	
-	            elementRecCount++;
+				if ( (elementRecCount + 1) % 2000 == 0 && elementRecCount > 0) {
+					Console.Write("." );
+					transaction.Commit();
+				}
+				
+				elementRecCount++;
 			}
 		}
 
 		
 		private void writeElement(ArtifactVO atf, ElementVO elem) {
 
-		   　string sql = @"insert into t_element
+			string sql = @"insert into t_element
 					(elemGuid, elemName, elemAlias, elemType, elemStereotype, 
 					 artifactGuid, artifactName, artifactPath
 					) values ( 
 					 @elemGuid, @elemName, @elemAlias, @elemType, @elemStereotype, 
 					 @artifactGuid, @artifactName, @artifactPath
 					) " ;
-		   　
+		
 	    	using (SQLiteCommand command2 = conn.CreateCommand()) {		
                 SQLiteParameter[] parameters = new SQLiteParameter[]{
-                　new SQLiteParameter("@elemGuid",elem.guid)
-                　, new SQLiteParameter("@elemName",elem.name)
-                　, new SQLiteParameter("@elemAlias",elem.alias)
-                　, new SQLiteParameter("@elemType",elem.eaType)
-                　, new SQLiteParameter("@elemStereotype",elem.stereoTypeEx)
-                　, new SQLiteParameter("@artifactGuid",atf.guid)
-                　, new SQLiteParameter("@artifactName",atf.name)
+                  new SQLiteParameter("@elemGuid",elem.guid)
+                  , new SQLiteParameter("@elemName",elem.name)
+                  , new SQLiteParameter("@elemAlias",elem.alias)
+                  , new SQLiteParameter("@elemType",elem.eaType)
+                  , new SQLiteParameter("@elemStereotype",elem.stereoTypeEx)
+                  , new SQLiteParameter("@artifactGuid",atf.guid)
+                  , new SQLiteParameter("@artifactName",atf.name)
                  , new SQLiteParameter("@artifactPath",atf.pathName)
-		   　	};
+				};
 	    					    
-	   　		command2.CommandText = sql;
-	   　		command2.Parameters.AddRange(parameters);
-	        	command2.ExecuteNonQuery();
+				command2.CommandText = sql;
+				command2.Parameters.AddRange(parameters);
+				command2.ExecuteNonQuery();
 	    	}
 	    	
 		}
