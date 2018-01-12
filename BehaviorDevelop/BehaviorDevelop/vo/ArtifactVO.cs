@@ -15,10 +15,6 @@ namespace BehaviorDevelop.vo
 	/// </summary>
 	public class ArtifactVO
 	{
-		public ArtifactVO()
-		{
-		}
-
         /// <summary>
         /// 名前
         /// </summary>
@@ -74,5 +70,9 @@ namespace BehaviorDevelop.vo
         /// </summary>
         public PackageVO package { get; set; }
         
+		public ArtifactVO()
+		{
+		}
+
 	}
 }
