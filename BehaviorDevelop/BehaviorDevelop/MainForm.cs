@@ -9,6 +9,7 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 using BehaviorDevelop.util;
@@ -41,10 +42,12 @@ namespace BehaviorDevelop
 			//
 			InitializeComponent();
 			
-			string projectfile = "All_Artifacts.xml";
-			projectPath = ConfigurationManager.AppSettings["artifact_dir"];
+//			string projectfile = "All_Artifacts.xml";
+//			projectPath = ConfigurationManager.AppSettings["artifact_dir"];
+//			
+//			this.Text = projectPath + "\\" + projectfile;
 			
-			this.Text = projectPath + "\\" + projectfile;
+			projectPath = null;
 		}
 
 
@@ -55,11 +58,14 @@ namespace BehaviorDevelop
 			//
 			InitializeComponent();
 			
-			//
-			// TODO: Add constructor code after the InitializeComponent() call.
-			//
-			projectPath = Path.GetDirectoryName(prjfile);
-			this.Text = prjfile;
+			if( ProjectSetting.load(prjfile) ) {
+				projectPath = Path.GetDirectoryName(prjfile);
+				this.Text = prjfile;
+			} else {
+				MessageBox.Show("プロジェクトファイル読み込みに失敗しました。　再度正しいファイルを選択して下さい。");
+				projectPath = null;
+			}
+			
 		}
 
 		
@@ -69,15 +75,34 @@ namespace BehaviorDevelop
 			this.treeNodeMap.Clear();
 			this.tabControl1.TabPages.Clear();
 
+			if ( this.projectPath != null && !existDbFile(ProjectSetting.getVO().dbName) ) {
+				string dbfile = ProjectSetting.getVO().dbName;
+				//ファイルを開いて終了まで待機する
+				Process p = Process.Start("C:\\DesignHistory\\ea-behavior-developer\\BehaviorDevelop\\ElementIndexer\\bin\\Debug\\ElementIndexer.exe", this.projectPath + " " + dbfile );
+
+				MessageBox.Show("内部データベースを構築します。\n構築処理が完了後、OKボタンを押してください");
+				
+
+				p.WaitForExit();
+			}
+			
+			initProject();
+		}
+
+		private Boolean existDbFile(string dbpath) {
+			return File.Exists(dbpath);
+		}
+		
+		
+		private void initProject() {
 			// artifactList.Items.Clear();
-			artifacts = ArtifactsXmlReader.readArtifactList(projectPath);
-					
+			this.artifacts = ArtifactsXmlReader.readArtifactList(projectPath);
+				
 			for ( int i=0; i < artifacts.Count; i++ ) {
 				ArtifactVO atf = artifacts[i];
 				TreeNode packageNode = addPackageNodes(atf.pathName);
 				
 				TreeNode atfNode = new TreeNode(atf.name, 2, 1);
-//				atfNode.Tag = i;
 				atfNode.Tag = atf;
 				packageNode.Nodes.Add(atfNode);
 				treeNodeMap.Add(atf.guid, atfNode);
@@ -85,6 +110,7 @@ namespace BehaviorDevelop
 
 			this.treeView1.Nodes.Add(rootNode);
 		}
+
 		
 		private TreeNode addPackageNodes( string pathName ) {
 			char[] delimiterChars = { '/' };
@@ -100,6 +126,7 @@ namespace BehaviorDevelop
 			return mynode;
 		}
 		
+
 		private TreeNode searchSubNodeByName( TreeNode myNode, String name ) {
 			foreach( TreeNode n in myNode.Nodes ) {
 				if ( n.Text.Equals(name) == true ) {
@@ -114,9 +141,17 @@ namespace BehaviorDevelop
 		
 		
 		public ArtifactVO activateArtifactPanel(ArtifactVO atf) {
-			ArtifactXmlReader atfReader = new ArtifactXmlReader();
+			foreach( TabPage page in tabControl1.TabPages ) {
+				string guid = (string)(page.Tag);
+				if (guid.Equals(atf.guid)) {
+					tabControl1.SelectedTab = page;
+					return atf;
+				}
+			}
+			
+			ArtifactXmlReader atfReader = new ArtifactXmlReader(projectPath);
 			// 成果物パッケージ別のXMLファイル読み込み
-			atfReader.readArtifactDesc(atf, projectPath);
+			atfReader.readArtifactDesc(atf);
 
 			// 新しく開くアーティファクト内のフォルダツリーを作成
 			TreeView folderTree = new TreeView();
@@ -153,8 +188,11 @@ namespace BehaviorDevelop
 			atfPage.Text = atf.name ;
 			
 			atfPage.Tag = atf.guid ;
-			tabControl1.TabPages.Add(atfPage) ;
-			atfPage.Focus();
+			
+			// 作成したタブページをタブコントロールに追加し、そのタブを選択状態にする
+			tabControl1.TabPages.Add(atfPage);
+			tabControl1.SelectedTab = atfPage;
+//			atfPage.Focus();
 			
 			return atf ;
 		}
@@ -292,10 +330,17 @@ namespace BehaviorDevelop
 			    //OKボタンがクリックされたとき、選択されたファイル名を表示する
 			    Console.WriteLine(dialog.FileName);
 
+
 			    string prjfile = dialog.FileName;
-			    this.projectPath = Path.GetDirectoryName(prjfile);
-				this.Text = prjfile;
-				this.MainFormLoad(this, null);
+			    if (ProjectSetting.load(prjfile)) {
+				    this.projectPath = Path.GetDirectoryName(prjfile);
+					this.Text = prjfile;
+					
+					this.MainFormLoad(this, null);
+			    } else {
+					MessageBox.Show("プロジェクトファイル読み込みに失敗しました。　再度正しいファイルを選択して下さい。");
+					projectPath = null;
+			    }
 			}
 			
 		}
