@@ -1,0 +1,50 @@
+﻿<?xml version="1.0"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Product Id="*"
+		Name="BehaviorDevelop"
+		Language="1033"
+		Version="1.0.0.0"
+		UpgradeCode="E1AD64CB-1408-4C8B-96CB-2F0B61176C79"
+		Manufacturer="CTC">
+		<Package Description="#Description"
+			Comments="Comments"
+			InstallerVersion="200"
+			Compressed="yes"/>
+		<!--
+			Source media for the installation. 
+ 			Specifies a single cab file to be embedded in the installer's .msi. 
+		-->
+		<Media Id="1" Cabinet="contents.cab" EmbedCab="yes" CompressionLevel="high"/>
+		
+		<Property Id='ALLUSERS' Value='2' />
+		<Property Id='MSIINSTALLPERUSER' Value='1' />
+		
+		<!-- Installation directory and files are defined in Files.wxs -->
+		<Directory Id="TARGETDIR" Name="SourceDir"/>
+		
+		<Feature Id="Complete"
+		         Title="BehaviorDevelop"
+		         Description="browse model and behavior"
+		         Level="1">
+
+		        <ComponentRef Id="MyComponent"/>
+				<ComponentRef Id="BehaviorDevelop.exe"/>
+				<ComponentRef Id="BehaviorDevelop.exe.config"/>
+			    <ComponentRef Id="ElementIndexer.exe"/>
+			    <ComponentRef Id="ElementIndexer.exe.config"/>
+				<ComponentRef Id="System.Data.SQLite.dll"/> 
+		
+
+		</Feature>
+		
+		<!-- 
+			Using the Wix UI library
+ 
+			WixUI_InstallDir does not allow the user to choose 
+			features but adds a dialog to let the user choose a 
+			directory where the product will be installed
+		-->
+		<Property Id="WIXUI_INSTALLDIR">INSTALLDIR</Property>
+		<UIRef Id="WixUI_InstallDir"/>
+	</Product>
+</Wix>

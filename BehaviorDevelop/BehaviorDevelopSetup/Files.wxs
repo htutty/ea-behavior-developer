@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" ?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Fragment>
+		<DirectoryRef Id="TARGETDIR">
+			<Directory Id="ProgramFilesFolder" Name="PFiles">
+				<Directory Id="INSTALLDIR" Name="BehaviorDevelop">
+					<Component Id="MyComponent" Guid="AF65FD93-6595-40F1-8B4F-C7ED82B9E9A8" DiskId="1">
+						<File Id="LicenseFile" Name="license.rtf" Source="license.rtf"/>
+					</Component>
+					
+					<Component Id="BehaviorDevelop.exe" Guid="A1A07D0E-E4DA-4D3C-AC0F-311B2B858159">
+				    	<File Id="BehaviorDevelop.exe" Name="BehaviorDevelop.exe"
+			                  DiskId="1" Source="..\BehaviorDevelop\bin\Release\BehaviorDevelop.exe" />
+									<!-- Component Id="BehaviorDevelop.reg" Guid="3ACFB94D-BC86-41F7-AED0-614F69F55D6A" Directory="ProgramFilesFolder" -->
+					<!-- ProgId Id='BehaviorDevelop.bdprjfile' Description='BehaviorDevelop project file'>
+					  <Extension Id='bdprj' ContentType='application/bdprj'>
+					     <Verb Id='open' Command='Open' TargetFile='FileId' Argument='"%1"' />
+					  </Extension>
+					</ProgId -->
+
+			    	<RegistryValue Root='HKCU' Key='Software\BehaviorDevelop'
+			                     Name='BehaviorDevelop.exe'
+			                     Value='[%ProgramFilesFolder]'
+			                     KeyPath='yes' Type="expandable"/>
+			    	
+				    <RegistryValue Root="HKCU" Key="SOFTWARE\BehaviorDevelop\Capabilities" Name="ApplicationDescription" Value="browse model and behavior" Type="string" />
+				    <RegistryValue Root="HKCU" Key="SOFTWARE\BehaviorDevelop\Capabilities" Name="ApplicationIcon" Value="[APPLICATIONFOLDER]BehaviorDevelop.exe,0" Type="string" />
+				    <RegistryValue Root="HKCU" Key="SOFTWARE\BehaviorDevelop\Capabilities" Name="ApplicationName" Value="BehaviorDevelop" Type="string" />
+				    <RegistryValue Root="HKCU" Key="SOFTWARE\BehaviorDevelop\Capabilities\DefaultIcon" Value="[APPLICATIONFOLDER]BehaviorDevelop.exe,0" Type="string" />
+				    <RegistryValue Root="HKCU" Key="SOFTWARE\BehaviorDevelop\Capabilities\FileAssociations" Name=".bdprj" Value="BehaviorDevelop.ProjectDocument" Type="string" />
+				    <!-- RegistryValue Root="HKCU" Key="SOFTWARE\AcmeFoobar\Capabilities\MIMEAssociations" Name="application/xyz" Value="AcmeFoobar.Document" Type="string" / -->
+				    <RegistryValue Root="HKCU" Key="SOFTWARE\BehaviorDevelop\Capabilities\shell\open\command" Value="&quot;[APPLICATIONFOLDER]BehaviorDevelop.exe&quot; &quot;%1&quot;" Type="string" />
+
+				    <RegistryValue Root="HKCU" Key="SOFTWARE\RegisteredApplications" Name="BehaviorDevelop" Value="SOFTWARE\BehaviorDevelop\Capabilities" Type="string" />
+
+				    <RegistryValue Root="HKCU" Key="SOFTWARE\Classes\.bdprj" Name="Content Type" Value="application/bdprj" Type="string" />
+				    <RegistryValue Root="HKCU" Key="SOFTWARE\Classes\.bdprj\BehaviorDevelop.ProjectDocument\ShellNew" Value="" Type="string" />
+				    <RegistryValue Root="HKCU" Key="SOFTWARE\Classes\.bdprj\OpenWithList\BehaviorDevelop.exe" Value="" Type="string" />
+				    <RegistryValue Root="HKCU" Key="SOFTWARE\Classes\.bdprj\OpenWithProgids" Name="BehaviorDevelop.ProjectDocument" Value="" Type="string" />
+				    <RegistryValue Root="HKCU" Key="SOFTWARE\Classes\Applications\BehaviorDevelop.exe\SupportedTypes" Name=".bdprj" Value="" Type="string" />
+				    <RegistryValue Root="HKCU" Key="SOFTWARE\Classes\Applications\BehaviorDevelop.exe\shell\open\command" Value="&quot;[APPLICATIONFOLDER]BehaviorDevelop.exe&quot; &quot;%1&quot;" Type="string" />
+
+				</Component>
+
+					
+				    <Component Id="BehaviorDevelop.exe.config" Guid="E6B5A8FA-F637-4A8E-B6F6-288C408F9557">
+			            <File Id="BehaviorDevelop.exe.config" Name="BehaviorDevelop.exe.config" KeyPath="yes"
+			                  DiskId="1" Source="..\BehaviorDevelop\bin\Release\BehaviorDevelop.exe.config" />
+			        </Component>
+
+					<Component Id="ElementIndexer.exe" Guid="4E99D269-5675-4AF6-85E6-E02DDD465628">
+				    	<File Id="ElementIndexer.exe" Name="ElementIndexer.exe" KeyPath="yes"
+			                  DiskId="1" Source="..\ElementIndexer\bin\Release\ElementIndexer.exe" />
+					</Component>
+
+				    <Component Id="ElementIndexer.exe.config" Guid="0427807A-2576-432F-B020-A08EE0909EBA">
+				    	<File Id="ElementIndexer.exe.config" Name="ElementIndexer.exe.config" KeyPath="yes"
+			                  DiskId="1" Source="..\ElementIndexer\bin\Release\ElementIndexer.exe.config" />
+					</Component>
+					
+				    <Component Id="System.Data.SQLite.dll" Guid="9C126019-DF9B-4048-9961-ECE476234676">
+						<File Id="System.Data.SQLite.dll" Name="System.Data.SQLite.dll" KeyPath="yes"
+			                  DiskId="1" Source="..\BehaviorDevelop\bin\Release\System.Data.SQLite.dll" />
+					</Component>
+				</Directory>
+			</Directory>
+		</DirectoryRef>
+	</Fragment>
+</Wix>
