@@ -7,7 +7,10 @@
  * To change this template use Tools | Options | Coding | Edit Standard Headers.
  */
 using System;
+using System.IO;
 using System.Windows.Forms;
+using BehaviorDevelop.util;
+using BehaviorDevelop.vo;
 
 namespace BehaviorDevelop
 {
@@ -29,7 +32,7 @@ namespace BehaviorDevelop
 			string[] cmds = System.Environment.GetCommandLineArgs();
 			MainForm form = null;
 			
-			if (cmds.Length > 1) {
+			if (cmds != null && cmds.Length > 1) {
 				string lin = "";
 				//コマンドライン引数を列挙する
 				for ( int i=0; i < cmds.Length; i++ ) {
@@ -37,14 +40,25 @@ namespace BehaviorDevelop
 					lin = lin + i + ":" + cmd + ", ";
 				}
 	//			Console.WriteLine("コマンドライン引数 = " + lin);
-//				MessageBox.Show("コマンドライン引数 = " + lin);
+				MessageBox.Show("コマンドライン引数 = " + lin);
 				
 				form = new MainForm(cmds[1]);
 			} else {
 				form = new MainForm();
 			}
 			
+			// プロファイルディレクトリを参照し、無ければ作成
+			checkAndMakeProfileDir();
+			
 			Application.Run(form);
+		}
+		
+		
+		private static void checkAndMakeProfileDir() {
+			string pdir = ProjectSetting.GetAppProfileDir();
+			if (!Directory.Exists(pdir)) {
+				Directory.CreateDirectory(pdir);
+			}
 		}
 		
 	}
