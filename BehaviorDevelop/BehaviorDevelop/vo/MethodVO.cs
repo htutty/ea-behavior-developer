@@ -13,11 +13,8 @@ namespace BehaviorDevelop.vo
 	/// <summary>
 	/// Description of MethodVO.
 	/// </summary>
-	public class MethodVO
+	public class MethodVO : IComparable<MethodVO>
 	{
-		public MethodVO()
-		{	
-		}
 		
 		// 	Public Name ' As String
 		/// <summary>名前</summary>
@@ -42,5 +39,32 @@ namespace BehaviorDevelop.vo
     	//	Public Behavior ' As String
 		/// <summary>振る舞い</summary>
     	public string behavior { get; set; }
+    	
+		/// <summary>戻り型</summary>
+    	public string returnType { get; set; }
+    	
+		/// <summary>可視性</summary>
+    	public string visibility { get; set; }
+    	
+		/// <summary>並び順</summary>
+    	public Int32 pos { get; set; }
+
+		/// <summary>ステレオタイプ</summary>
+    	public string stereoType { get; set; }
+    	
+    	/// <summary>
+        /// 変更有りフラグ : ' '=変更無し, C=追加(Create) U=変更(Update) D=削除(Delete)
+        /// </summary>
+        public char changed { get; set; }
+    	
+		public MethodVO()
+		{
+			changed = ' ';
+		}
+		
+		public int CompareTo( MethodVO o ) {
+			return ((this.pos - o.pos) == 0 ? this.name.CompareTo(o.name):(this.pos - o.pos));
+		}
+    	
 	}
 }

@@ -7,6 +7,7 @@
  * To change this template use Tools | Options | Coding | Edit Standard Headers.
  */
 using System;
+using System.Text;
 using System.Collections.Generic;
 
 namespace BehaviorDevelop.vo
@@ -14,12 +15,8 @@ namespace BehaviorDevelop.vo
 	/// <summary>
 	/// Description of PackageVO.
 	/// </summary>
-	public class PackageVO
+	public class PackageVO : IComparable<PackageVO>
 	{
-		public PackageVO()
-		{
-		}
-
         /// <summary>
         /// GUID
         /// </summary>
@@ -61,6 +58,11 @@ namespace BehaviorDevelop.vo
         public bool isControlled { get; set; }
 
         /// <summary>
+        /// ツリーノード上の並び順
+        /// </summary>
+        public int treePos { get; set; }
+
+        /// <summary>
         /// 更新日時
         /// </summary>
         public string updateDate { get; set; }
@@ -68,11 +70,58 @@ namespace BehaviorDevelop.vo
         /// <summary>
         /// 子パッケージリスト
         /// </summary>
-        public IList<PackageVO> childPackageList { get; set; }
+        public List<PackageVO> childPackageList { get; set; }
         
         /// <summary>
         /// 要素リスト
         /// </summary>
-        public IList<ElementVO> elements { get; set; }
+        public List<ElementVO> elements { get; set; }
+        
+        /// <summary>
+        /// 変更有りフラグ : ' '=変更無し, C=追加(Create) U=変更(Update) D=削除(Delete)
+        /// </summary>
+        public char changed { get; set; }
+        
+        
+        public PackageVO()
+		{
+        	changed = ' ';
+		}
+
+        public int CompareTo( PackageVO o ) {
+			return ((this.treePos - o.treePos) == 0 ? this.name.CompareTo(o.name):(this.treePos - o.treePos));
+		}
+        
+        public void sortElements() {
+        	if (elements.Count > 0) {
+	        	elements.Sort();
+        	}
+        }
+        
+        public void sortChildPackages() {
+        	if (childPackageList.Count > 0 ) {
+	        	childPackageList.Sort();
+        	}
+        }
+        
+        public string toDescriptorString() {
+			StringBuilder sb = new StringBuilder();
+			
+			sb.Append("Package " + this.name + " {" + "\r\n");
+			
+			foreach(PackageVO packvo in this.childPackageList) {
+				sb.Append(packvo.toDescriptorString());
+			}
+			
+			foreach(ElementVO elemvo in this.elements) {
+				sb.Append(elemvo.toDescriptorString());
+			}
+
+			sb.Append("}" + "\r\n");
+			
+			return sb.ToString();
+   		}
+   		
+        
 	}
 }

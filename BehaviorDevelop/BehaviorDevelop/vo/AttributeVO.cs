@@ -13,12 +13,8 @@ namespace BehaviorDevelop.vo
 	/// <summary>
 	/// Description of AttributeVO.
 	/// </summary>
-	public class AttributeVO
+	public class AttributeVO : IComparable<AttributeVO>
 	{
-		public AttributeVO()
-		{
-		}
-
 		// 	Public Name ' As String
 		/// <summary>名前</summary>
     	public string name { get; set; }
@@ -39,5 +35,26 @@ namespace BehaviorDevelop.vo
 		/// <summary>ノート</summary>
     	public string notes { get; set; }
  
+    	/// <summary>並び順</summary>
+    	public Int32 pos { get; set; }
+
+		/// <summary>ステレオタイプ</summary>
+    	public string stereoType { get; set; }
+    	
+    	/// <summary>
+        /// 変更有りフラグ : ' '=変更無し, C=追加(Create) U=変更(Update) D=削除(Delete)
+        /// </summary>
+        public char changed { get; set; }
+
+        public AttributeVO()
+		{
+        	changed = ' ';
+		}
+
+		public int CompareTo( AttributeVO o ) {
+			return ((this.pos - o.pos) == 0 ? this.name.CompareTo(o.name):(this.pos - o.pos));
+		}
+    		
+    	
 	}
 }

@@ -13,7 +13,7 @@ namespace BehaviorDevelop.vo
 	/// <summary>
 	/// Description of ArtifactVO.
 	/// </summary>
-	public class ArtifactVO
+	public class ArtifactVO : IComparable<ArtifactVO>
 	{
         /// <summary>
         /// 名前
@@ -70,9 +70,19 @@ namespace BehaviorDevelop.vo
         /// </summary>
         public PackageVO package { get; set; }
         
+        /// <summary>
+        /// 変更有りフラグ : ' '=変更無し, C=追加(Create) U=変更(Update) D=削除(Delete)
+        /// </summary>
+        public char changed { get; set; }
+        
 		public ArtifactVO()
 		{
+			changed = ' ';
 		}
-
+		
+		public int CompareTo(ArtifactVO o) {
+			return (this.guid.CompareTo(o.guid));
+		}
+		
 	}
 }

@@ -7,6 +7,7 @@
  * To change this template use Tools | Options | Coding | Edit Standard Headers.
  */
 using System;
+using System.Text;
 using System.Collections.Generic;
 
 namespace BehaviorDevelop.vo
@@ -14,12 +15,8 @@ namespace BehaviorDevelop.vo
 	/// <summary>
 	/// Description of ElementVO.
 	/// </summary>
-	public class ElementVO
+	public class ElementVO : IComparable<ElementVO>
 	{
-		public ElementVO()
-		{
-		}
-
 		// 	Public Name ' As String
 		/// <summary>名前</summary>
     	public string name { get; set; }
@@ -30,18 +27,17 @@ namespace BehaviorDevelop.vo
 
 		//	Public Attributes ' As Collection
 		/// <summary>属性コレクション</summary>
-    	public IList<AttributeVO> attributes { get; set; }
+    	public List<AttributeVO> attributes { get; set; }
 
 		//	Public Author ' As String
 		/// <summary>作成者名</summary>
     	public string author { get; set; }
     	
-		//	Public StereoTypeEx ' As String
 		/// <summary>ステレオタイプのコレクション</summary>
-    	public string stereoTypeEx { get; set; }
+    	public string stereoType { get; set; }
 
 		// <summary>接続コレクション</summary>
-    	public IList<ConnectorVO> connectors { get; set; }
+    	public List<ConnectorVO> connectors { get; set; }
 
     	//	Public Created ' As Date
 		/// <summary>作成日時</summary>
@@ -65,7 +61,7 @@ namespace BehaviorDevelop.vo
 
 		//	Public Methods ' As Collection
     	/// <summary>操作コレクション</summary>
-    	public IList<MethodVO> methods { get; set; }
+    	public List<MethodVO> methods { get; set; }
     	
 		//	Public Modified ' As Date
 		/// <summary>最終更新日時</summary>
@@ -130,6 +126,58 @@ namespace BehaviorDevelop.vo
 		//	Public ParentID ' As Long
 		// <summary>親要素ID（親の場合は0）</summary>
     	// public int parentID { get; set; }
-        	
+        
+    	/// <summary>
+        /// 変更有りフラグ : ' '=変更無し, C=追加(Create) U=変更(Update) D=削除(Delete)
+        /// </summary>
+        public char changed { get; set; }
+    	
+   		public ElementVO()
+		{
+   			changed = ' ';
+		}
+   		
+		public int CompareTo( ElementVO o ) {
+			return ((this.treePos - o.treePos) == 0 ? this.name.CompareTo(o.name):(this.treePos - o.treePos));
+		}
+   		
+   		public void sortMethods() {
+   			methods.Sort();
+   		}
+   		
+   		public void sortAttributes() {
+   			attributes.Sort();
+   		}
+   		
+   		public string toDescriptorString() {
+			StringBuilder sb = new StringBuilder();
+			
+			sb.Append("Class " + this.name + " {" + "\r\n");
+			
+			foreach(AttributeVO attrvo in this.attributes) {
+				sb.Append("  [Attribute] " + attrvo.name + " ;" + "\r\n"); 
+			}
+
+			foreach(ConnectorVO convo in this.connectors) {
+				sb.Append("  [Connector " + convo.connectorType + "] " + convo.targetObjName + ": " + convo.targetObjGuid  + ";" + "\r\n"); 
+			}
+
+			foreach(MethodVO mthvo in this.methods) {
+				sb.Append("\r\n");
+				sb.Append("  [Method] " + mthvo.name + " {" + "\r\n");
+
+				if (mthvo.behavior != null) {
+					string[] ary = mthvo.behavior.Split('\n');
+					for(Int16 i = 0; i < ary.Length; i++ ){
+						sb.Append( "    " + ary[i] + "\n");
+					}
+				}
+				sb.Append("  }\r\n");
+			}
+			sb.Append("}" + "\r\n");
+			
+			return sb.ToString();
+   		}
+   		
 	}
 }
