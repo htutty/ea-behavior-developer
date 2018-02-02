@@ -39,13 +39,11 @@ namespace BehaviorDevelop
 			this.panel = new System.Windows.Forms.FlowLayoutPanel();
 			this.btnCommit = new System.Windows.Forms.Button();
 			this.btnCancel = new System.Windows.Forms.Button();
+			this.buttonCopyContent = new System.Windows.Forms.Button();
 			this.SuspendLayout();
 			// 
 			// panel
 			// 
-			this.panel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-									| System.Windows.Forms.AnchorStyles.Left) 
-									| System.Windows.Forms.AnchorStyles.Right)));
 			this.panel.AutoScroll = true;
 			this.panel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.panel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
@@ -81,6 +79,18 @@ namespace BehaviorDevelop
 			this.btnCancel.UseVisualStyleBackColor = true;
 			this.btnCancel.Click += new System.EventHandler(this.BtnCancelClick);
 			// 
+			// buttonCopyContent
+			// 
+			this.buttonCopyContent.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.buttonCopyContent.Cursor = System.Windows.Forms.Cursors.Default;
+			this.buttonCopyContent.Location = new System.Drawing.Point(12, 432);
+			this.buttonCopyContent.Name = "buttonCopyContent";
+			this.buttonCopyContent.Size = new System.Drawing.Size(95, 23);
+			this.buttonCopyContent.TabIndex = 3;
+			this.buttonCopyContent.Text = "クラス内容コピー";
+			this.buttonCopyContent.UseVisualStyleBackColor = true;
+			this.buttonCopyContent.Click += new System.EventHandler(this.ButtonCopyContentClick);
+			// 
 			// ElementForm
 			// 
 			this.AcceptButton = this.btnCommit;
@@ -88,13 +98,16 @@ namespace BehaviorDevelop
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this.btnCancel;
 			this.ClientSize = new System.Drawing.Size(844, 462);
+			this.Controls.Add(this.buttonCopyContent);
 			this.Controls.Add(this.btnCancel);
 			this.Controls.Add(this.btnCommit);
 			this.Controls.Add(this.panel);
 			this.Name = "ElementForm";
 			this.Text = "クラスプロパティ";
+			this.Resize += new System.EventHandler(this.ElementFormResize);
 			this.ResumeLayout(false);
 		}
+		private System.Windows.Forms.Button buttonCopyContent;
 		private System.Windows.Forms.Button btnCancel;
 		private System.Windows.Forms.Button btnCommit;
 		private System.Windows.Forms.FlowLayoutPanel panel;

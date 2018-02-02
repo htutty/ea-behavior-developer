@@ -50,7 +50,7 @@ namespace BehaviorDevelop
 			myElement = element;
 			
 			// 
-			this.Text = "■クラス: " + myElement.name;
+			this.Text = "クラス: " + myElement.name + " " + myElement.guid;
 			
 			addElementLabels(myElement);
 		}
@@ -85,34 +85,42 @@ namespace BehaviorDevelop
 				mthLabel.Text = m.name ;
 	            mthLabel.AutoSize=true;
 //	            mthLabel.Anchor = ((System.Windows.Forms.AnchorStyles)
-//	                                (System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right));
+//	                                (System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right));
 	            mthLabel.BackColor = Color.Magenta;
 	            panel.Controls.Add(mthLabel);
 	            
 	            TextBox mthText = new TextBox();
-	            mthText.Text = m.behavior;
-				string[] ary = m.behavior.Split('\n');
-	            if ( ary.Length > 10 ) {
-		            mthText.Size = new Size(800,200);
-	            } else if( ary.Length > 3 ) {
-		            mthText.Size = new Size(800,100);
-	            } else {
-		            mthText.Size = new Size(800,40);
-	            }
-//				mthText.Anchor = ((System.Windows.Forms.AnchorStyles)
-//	                                (System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right));
-
+				setTextBoxSize(mthText, m.behavior);
+				
 	            mthText.ReadOnly = true;
 	            mthText.Multiline = true;
 	            mthText.WordWrap = false;
-	            mthText.ScrollBars = ScrollBars.Both;
+
+	            // 複数行のテキストボックスは自動サイズが利かない（常に1行分の高さになる）
+//	            mthText.AutoSize = true;
 	            mthText.DoubleClick += new System.EventHandler(this.MethodTextBoxDoubleClick);
 	            mthText.Tag = m ;
-	            // mthText.ScrollBars = true;
 				panel.Controls.Add(mthText);
 				
 				this.methods.Add(m);
 			}
+		}
+		
+		void setTextBoxSize(TextBox mthText, string behavior) {
+            mthText.Text = behavior;
+            
+            // テキストボックスのサイズ設定
+			string[] ary = behavior.Split('\n');
+			Int32 height = 16 + ary.Length * 12;
+			Int32 width = panel.Size.Width - 24;
+            if ( height > 800 ) {
+	            mthText.Size = new Size(width, 800);
+	            mthText.ScrollBars = ScrollBars.Vertical;
+            } else {
+	            mthText.Size = new Size(width, height);
+	            mthText.ScrollBars = ScrollBars.None;
+            }
+
 		}
 		
 		
@@ -136,9 +144,29 @@ namespace BehaviorDevelop
 		}
 		
 		
-		void TextBox1DoubleClick(object sender, EventArgs e)
+		void ElementFormResize(object sender, EventArgs e)
 		{
+			// 変更後のフォームサイズ
+            Size newFormSize = this.Size;
+			
+			this.panel.Width = newFormSize.Width - 32;
+			this.panel.Height = newFormSize.Height - 80;
+			
+			foreach( Control c in panel.Controls ) {
+				c.Width = newFormSize.Width - 60 ;
+			}
+
+		}
+
 		
+		void ButtonCopyContentClick(object sender, EventArgs e)
+		{
+			try {
+				Clipboard.SetText(myElement.toDescriptorString());
+				MessageBox.Show( "クラス情報がクリップボードにコピーされました" );
+			} catch(Exception ex) {
+				Console.WriteLine(ex.Message);
+			}
 		}
 	}
 }
