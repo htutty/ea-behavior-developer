@@ -33,9 +33,9 @@ namespace BehaviorDevelop.util
         /// 
         /// </summary>
         /// <returns>ArtifactVOのリスト</returns>
-        public static IList<ArtifactVO> readArtifactList(string project_dir)
+        public static List<ArtifactVO> readArtifactList(string project_dir)
         {
-            IList<ArtifactVO> artifactList = new List<ArtifactVO>();
+            List<ArtifactVO> artifactList = new List<ArtifactVO>();
 			// string fileName = "C:/DesignHistory/ea-artifacts/unify_asweadb/20171101/All_Artifacts.xml";
 			
 			string target_dir = null;
@@ -46,6 +46,10 @@ namespace BehaviorDevelop.util
 			}
 
 			string target_file = ConfigurationManager.AppSettings["artifacts_file"];
+			if (target_file == null) {
+				target_file = "All_Artifacts.xml";
+			}
+			
 			string fileName = target_dir + "/" + target_file;
             
             // XMLテキストをロードする
