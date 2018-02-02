@@ -33,7 +33,7 @@ namespace BehaviorDevelop.util
 		}
 		
 		
-		#region "接続リスト読み込み"
+		#region "GUIDによる接続リスト読み込み"
         // 処理対象XML例：
         // <artifacts  targetProject='Logical'  lastUpdated='2017/10/13 10:27:32'  targetModel='Logical'  >
         //   <artifact  guid='{11EF4332-5CB7-4ecd-8E78-0E50A6E7D3E7}'  name='共通設計モデル'  path='/論理モデル/レイヤ別ビュー/フレームワーク_STEP3移管対象/'  stereotype='fw.adesk_cmn' />
@@ -50,7 +50,7 @@ namespace BehaviorDevelop.util
             XmlNode connectorNode = this.xmlDoc.SelectSingleNode("//connector[@guid='" + convo.guid + "']");
 
             if ( connectorNode != null ) { 
-            	convo.connectionType = connectorNode.SelectSingleNode("@connType").Value;
+            	convo.connectorType = connectorNode.SelectSingleNode("@connType").Value;
             	
 	            foreach (XmlNode node in connectorNode.ChildNodes) {
             		string objguid ;
@@ -104,7 +104,7 @@ namespace BehaviorDevelop.util
             	foreach (XmlNode connectorNode in connectorNodes)
             	{
             		ConnectorVO convo = new ConnectorVO();
-	            	convo.connectionType = connectorNode.SelectSingleNode("@connType").Value;
+	            	convo.connectorType = connectorNode.SelectSingleNode("@connType").Value;
 	            	convo.guid = connectorNode.SelectSingleNode("@guid").Value;
 	            	convo.name = connectorNode.SelectSingleNode("@name").Value;
 	            	
