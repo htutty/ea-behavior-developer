@@ -303,7 +303,7 @@ namespace BehaviorDevelop
                 ElementVO destObject = elemReader.readElementByGUID(cref.ElementGUID);
                 
                 // タイプ
-                cref.Type = convo.connectionType;
+                cref.Type = convo.connectorType;
 
 				// コメント
 //                cref.Notes = connector.Notes;

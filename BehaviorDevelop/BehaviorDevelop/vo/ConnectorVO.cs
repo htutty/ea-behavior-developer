@@ -28,7 +28,7 @@ namespace BehaviorDevelop.vo
     	public string guid { get; set; }	
 
 		/// <summary>接続の種類 (Dependency, Association, etc)</summary>
-    	public string connectionType { get; set; }	
+    	public string connectorType { get; set; }	
     	
 		/// <summary>接続相手の要素guid</summary>
     	public string targetObjGuid { get; set; }	
