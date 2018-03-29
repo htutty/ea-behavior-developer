@@ -6,6 +6,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BehaviorDevelop", "Behavior
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElementIndexer", "ElementIndexer\ElementIndexer.csproj", "{7D84D9EC-C053-4015-8ACA-E43D27199450}"
 EndProject
+Project("{CFEE4113-1246-4D54-95CB-156813CB8593}") = "BehaviorDevelopSetup", "BehaviorDevelopSetup\BehaviorDevelopSetup.wixproj", "{988D72B8-78BA-4C9B-9C91-71D9CA9F3196}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectDiffMaker", "ProjectDiffMaker\ProjectDiffMaker.csproj", "{C7D0C9F4-6425-4706-B909-2CA50C785D29}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,5 +24,13 @@ Global
 		{7D84D9EC-C053-4015-8ACA-E43D27199450}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7D84D9EC-C053-4015-8ACA-E43D27199450}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7D84D9EC-C053-4015-8ACA-E43D27199450}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{988D72B8-78BA-4C9B-9C91-71D9CA9F3196}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{988D72B8-78BA-4C9B-9C91-71D9CA9F3196}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{988D72B8-78BA-4C9B-9C91-71D9CA9F3196}.Release|Any CPU.Build.0 = Release|Any CPU
+		{988D72B8-78BA-4C9B-9C91-71D9CA9F3196}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7D0C9F4-6425-4706-B909-2CA50C785D29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7D0C9F4-6425-4706-B909-2CA50C785D29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7D0C9F4-6425-4706-B909-2CA50C785D29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7D0C9F4-6425-4706-B909-2CA50C785D29}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 EndGlobal
