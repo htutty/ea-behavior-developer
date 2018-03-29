@@ -20,6 +20,7 @@ namespace BehaviorDevelop.util
 	public class ElementsXmlReader
 	{
 		private XmlDocument xmlDoc = null;
+		ConnectorSearcher connSearcher = null;
 
 		public ElementsXmlReader()
 		{
@@ -27,6 +28,10 @@ namespace BehaviorDevelop.util
             string target_file = ConfigurationManager.AppSettings["elements_file"];
 			string fileName = target_dir + "/" + target_file;
 
+			if ( connSearcher == null ) {
+				this.connSearcher = new ConnectorSearcher();
+			}
+			
 			// XMLテキストをロードする
             this.xmlDoc = new XmlDocument();
             this.xmlDoc.Load( fileName );
@@ -63,8 +68,8 @@ namespace BehaviorDevelop.util
         }
 
         private void readElementContents( ElementVO elemvo, XmlNode parentNode ) {
-        	IList<AttributeVO> retAttrList = new List<AttributeVO>();
-        	IList<MethodVO> retMethList = new List<MethodVO>();        	
+        	List<AttributeVO> retAttrList = new List<AttributeVO>();
+        	List<MethodVO> retMethList = new List<MethodVO>();        	
         	IList<ConnectorVO> retConnList = new List<ConnectorVO>();        	
         	
     		foreach (XmlNode elemNode in parentNode.ChildNodes)
@@ -124,10 +129,13 @@ namespace BehaviorDevelop.util
 //            	}
 
     		}
-    		
-    		elemvo.attributes = retAttrList;
+
+			elemvo.attributes = retAttrList;
+    		elemvo.sortAttributes();
     		elemvo.methods = retMethList;
-    		elemvo.connectors = retConnList;
+    		elemvo.sortMethods();
+
+    		elemvo.connectors = connSearcher.findByObjectGuid(elemvo.guid);
         }
                 
 	}

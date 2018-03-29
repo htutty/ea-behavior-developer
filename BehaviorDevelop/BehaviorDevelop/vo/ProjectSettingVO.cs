@@ -26,7 +26,12 @@ namespace BehaviorDevelop.vo
         /// </summary>
         public string dbName { get; set; }
 		
-		public ProjectSettingVO()
+        /// <summary>
+        /// artifactsFile
+        /// </summary>
+        public string artifactsFile { get; set; }
+
+        public ProjectSettingVO()
 		{
 		}
 	}

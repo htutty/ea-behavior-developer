@@ -50,15 +50,24 @@ namespace BehaviorDevelop.vo
 	            			break;
 	            			
 	            		case "dbName":
-            				settingvo.dbName = "C:\\Users\\ctc0065\\" + settingNode.InnerText;
+            				settingvo.dbName = settingNode.InnerText;
             				break;
 
+	            		case "artifactsFile":
+            				settingvo.artifactsFile = settingNode.InnerText;
+            				break;
+            				
 	            		default:
 	            			// do nothing
             				break;
 	            	}
 	            }
             } 
+            
+            // dbファイル名が取得できたら、プロファイルディレクトリを追加
+            if (settingvo.dbName != null) {
+            	settingvo.dbName = GetAppProfileDir() + settingvo.dbName ;
+            }
             
             vo = settingvo;
             return true;
@@ -67,6 +76,11 @@ namespace BehaviorDevelop.vo
     	public static ProjectSettingVO getVO( ) {
        		return vo;
         }
-    		
+    	
+        
+        public static string GetAppProfileDir() {
+        	return System.Environment.GetEnvironmentVariable("USERPROFILE") + "\\.bd\\";
+        }
+        
 	}
 }

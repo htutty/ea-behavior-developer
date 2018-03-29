@@ -10,9 +10,23 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <AppDesignerFolder>Properties</AppDesignerFolder>
+    <ApplicationIcon>Resources\ICON_BEHAVIOR.ico</ApplicationIcon>
+    <NoWin32Manifest>False</NoWin32Manifest>
+    <SignAssembly>False</SignAssembly>
+    <DelaySign>False</DelaySign>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+    <NoStdLib>False</NoStdLib>
+    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+    <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
+    <BaseAddress>4194304</BaseAddress>
+    <RegisterForComInterop>False</RegisterForComInterop>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <FileAlignment>4096</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <OutputPath>bin\Debug\</OutputPath>
@@ -29,6 +43,7 @@
     <Optimize>True</Optimize>
     <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
     <DefineConstants>TRACE</DefineConstants>
+    <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EA">
@@ -81,6 +96,10 @@
     <Compile Include="SearchElementListForm.Designer.cs">
       <DependentUpon>SearchElementListForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="SplashForm.cs" />
+    <Compile Include="SplashForm.Designer.cs">
+      <DependentUpon>SplashForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="usercontrol\SyntaxRichTextBox.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -94,6 +113,7 @@
     <Compile Include="usercontrol\vo\HistoryBehavior.cs" />
     <Compile Include="util\ArtifactXmlReader.cs" />
     <Compile Include="util\ArtifactsXmlReader.cs" />
+    <Compile Include="util\ConnectorSearcher.cs" />
     <Compile Include="util\ConnectorXmlReader.cs" />
     <Compile Include="util\ElementSearcher.cs" />
     <Compile Include="util\ElementsXmlReader.cs" />
@@ -112,6 +132,7 @@
     <Compile Include="vo\MethodVO.cs" />
     <Compile Include="vo\PackageVO.cs" />
     <Compile Include="vo\ProjectSettingVO.cs" />
+    <Compile Include="vo\TaggedValueVO.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="ElementForm.resx">
@@ -127,13 +148,13 @@
     <EmbeddedResource Include="SearchElementListForm.resx">
       <DependentUpon>SearchElementListForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="SplashForm.resx">
+      <DependentUpon>SplashForm.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="Resources\18.png" />
-    <None Include="Resources\3.png" />
-    <None Include="Resources\4.png" />
-    <None Include="Resources\80.png" />
+    <None Include="Resources\ICON_BEHAVIOR.ico" />
     <None Include="Resources\NumberingOFF.png" />
     <None Include="Resources\NumberingON.png" />
   </ItemGroup>
