@@ -17,14 +17,29 @@ namespace ProjectDiffMaker
 			//コマンドライン引数を配列で取得する
 			string[] cmds = System.Environment.GetCommandLineArgs();
 
-			if (cmds.Length >= 2) {
-				ArtifactsDiffer differ = new ArtifactsDiffer(cmds[1], cmds[2]);
+			if (cmds.Length >= 4) {
+				ArtifactsDiffer differ = new ArtifactsDiffer(cmds[2], cmds[3]);
+				
+				if ( "-skipnotes".Equals(cmds[1]) ) {
+					differ.skipElementTPosFlg = true;
+					differ.skipAttributeNoteFlg = true;
+					differ.skipMethodNoteFlg = true;
+					differ.skipAttributePosFlg = true;
+					differ.skipMethodPosFlg = true;
+				} else if ( "-all".Equals(cmds[1]) ) {
+					differ.skipElementTPosFlg = false;
+					differ.skipAttributeNoteFlg = false;
+					differ.skipMethodNoteFlg = false;
+					differ.skipAttributePosFlg = false;
+					differ.skipMethodPosFlg = false;
+				}
+				
 				differ.readBothArtifacts();
 				differ.mergeAllArtifacts();
-				differ.outputMerged(cmds[3]);
+				differ.outputMerged(cmds[4]);
 			} else {
 				Console.WriteLine("引数が足りません");
-				Console.WriteLine("usage: ProjectDiffMaker.exe <比較元.bdprj> <比較先.bdprj> <diffOutputDir> ");
+				Console.WriteLine("usage: ProjectDiffMaker.exe <動作モード(-all/-skipnotes)> <比較元Dir> <比較先Dir> <diffOutputDir> ");
 			}
 			
 //			Console.Write("Press any key to continue . . . ");
