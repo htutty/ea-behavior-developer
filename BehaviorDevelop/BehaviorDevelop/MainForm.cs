@@ -9,12 +9,11 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
+using System.IO;
 using BehaviorDevelop.util;
 using BehaviorDevelop.vo;
-using System.IO;
 
 namespace BehaviorDevelop
 {
@@ -25,15 +24,13 @@ namespace BehaviorDevelop
 	{
 		TreeNode rootNode = new TreeNode("ルート");
 		
-		IList<ArtifactVO> artifacts;
+		private IList<ArtifactVO> artifacts;
 		
-		string projectPath { get; set; }
-		
-		ElementForm elemForm { get; set; }
-		SearchElementListForm searchElemListForm { get; set; }
+		private string projectPath { get; set; }
+		private ElementForm elemForm { get; set; }
+		private SearchElementListForm searchElemListForm { get; set; }
 
-		Dictionary<string, TreeNode> treeNodeMap = new Dictionary<string, TreeNode>();
-		
+		private Dictionary<string, TreeNode> treeNodeMap = new Dictionary<string, TreeNode>();
 		
 		public MainForm()
 		{
@@ -41,11 +38,6 @@ namespace BehaviorDevelop
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
-			
-//			string projectfile = "All_Artifacts.xml";
-//			projectPath = ConfigurationManager.AppSettings["artifact_dir"];
-//			
-//			this.Text = projectPath + "\\" + projectfile;
 			
 			projectPath = null;
 		}
@@ -73,20 +65,20 @@ namespace BehaviorDevelop
 		{
 			this.treeView1.Nodes.Clear();
 			this.treeNodeMap.Clear();
-			this.tabControl1.TabPages.Clear();
+//			this.tabControl1.TabPages.Clear();
 
-			if ( this.projectPath != null && !existDbFile(ProjectSetting.getVO().dbName) ) {
-				string dbfile = ProjectSetting.getVO().dbName;
-				//ファイルを開いて終了まで待機する
-				Process p = Process.Start("C:\\DesignHistory\\ea-behavior-developer\\BehaviorDevelop\\ElementIndexer\\bin\\Debug\\ElementIndexer.exe", this.projectPath + " " + dbfile );
-
-				MessageBox.Show("内部データベースを構築します。\n構築処理が完了後、OKボタンを押してください");
-				
-
-				p.WaitForExit();
+			if ( this.projectPath != null) {
+				initProject();
+				// 使用するDBファイルの存在チェック
+				if ( !existDbFile(ProjectSetting.getVO().dbName) ) {
+					// 読み込みが終わるまでモーダルでスプラッシュ画面を開く
+					SplashForm splashForm = new SplashForm();
+					
+					splashForm.Show();
+					splashForm.CloseOnLoadComplete(this.projectPath, ProjectSetting.getVO().dbName);
+				}
 			}
 			
-			initProject();
 		}
 
 		private Boolean existDbFile(string dbpath) {
@@ -95,14 +87,21 @@ namespace BehaviorDevelop
 		
 		
 		private void initProject() {
+			string artifactsFileName = ProjectSetting.getVO().artifactsFile;
 			// artifactList.Items.Clear();
-			this.artifacts = ArtifactsXmlReader.readArtifactList(projectPath);
+			this.artifacts = ArtifactsXmlReader.readArtifactList(projectPath, artifactsFileName);
 				
+			string atfnodename;
 			for ( int i=0; i < artifacts.Count; i++ ) {
 				ArtifactVO atf = artifacts[i];
 				TreeNode packageNode = addPackageNodes(atf.pathName);
 				
-				TreeNode atfNode = new TreeNode(atf.name, 2, 1);
+				if (atf.changed == ' ' ) {
+					atfnodename = atf.name;
+				} else {
+					atfnodename = atf.name + " [" + atf.changed + "]" ;
+				}
+				TreeNode atfNode = new TreeNode(atfnodename, 2, 1);
 				atfNode.Tag = atf;
 				packageNode.Nodes.Add(atfNode);
 				treeNodeMap.Add(atf.guid, atfNode);
@@ -141,9 +140,12 @@ namespace BehaviorDevelop
 		
 		
 		public ArtifactVO activateArtifactPanel(ArtifactVO atf) {
+			// 既にタブページで対象の成果物を開いていないかをチェックする
 			foreach( TabPage page in tabControl1.TabPages ) {
+				// 開こうとしている成果物のGUIDとページで記憶しているGUIDが一致したら
 				string guid = (string)(page.Tag);
-				if (guid.Equals(atf.guid)) {
+				if (atf.guid.Equals(guid)) {
+					// 該当のタブページを選択状態にし、終了
 					tabControl1.SelectedTab = page;
 					return atf;
 				}
@@ -155,8 +157,7 @@ namespace BehaviorDevelop
 
 			// 新しく開くアーティファクト内のフォルダツリーを作成
 			TreeView folderTree = new TreeView();
-            folderTree.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
+            folderTree.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
 
             folderTree.ImageIndex = 0;
@@ -171,28 +172,20 @@ namespace BehaviorDevelop
                     | System.Windows.Forms.AnchorStyles.Left)| System.Windows.Forms.AnchorStyles.Right)));
             elemPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             elemPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            elemPanel.WrapContents = false;
+            elemPanel.AutoScroll = true;
             makeElementsPanelContents(elemPanel, atf.package);			
 			
-			SplitContainer spCnt = new SplitContainer();
-            spCnt.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                                    | System.Windows.Forms.AnchorStyles.Left)
-                                    | System.Windows.Forms.AnchorStyles.Right)));
-
-            spCnt.Orientation = System.Windows.Forms.Orientation.Horizontal;
-			spCnt.Panel1.Controls.Add(folderTree);
-			spCnt.Panel2.Controls.Add(elemPanel);
-			
 			TabPage atfPage = new TabPage();
-			atfPage.Controls.Add(spCnt);
+			atfPage.Controls.Add(elemPanel);
+
 //			atfPage.Text = ((atf.package.stereoType != null) ? "<<" + atf.package.stereoType + ">> " : "" ) + atf.name ;
 			atfPage.Text = atf.name ;
-			
 			atfPage.Tag = atf.guid ;
 			
 			// 作成したタブページをタブコントロールに追加し、そのタブを選択状態にする
 			tabControl1.TabPages.Add(atfPage);
 			tabControl1.SelectedTab = atfPage;
-//			atfPage.Focus();
 			
 			return atf ;
 		}
@@ -216,25 +209,28 @@ namespace BehaviorDevelop
 			
 		}
 
-		
-		private void addElementLabels( FlowLayoutPanel elemPanel, IList<ElementVO> elements, int depth ) {
+		/// <summary>
+		/// 成果物パッケージ内の要素
+		/// </summary>
+		/// <param name="elemPanel"></param>
+		/// <param name="elements"></param>
+		/// <param name="depth"></param>
+		private void addElementLabels(FlowLayoutPanel elemPanel, IList<ElementVO> elements, int depth ) {
 			foreach( ElementVO elem in elements ) {
-//				Label elemLabel = new Label();
-//				elemLabel.Text = "          ".Substring(1, depth+1) +"■" + elem.name ;
-//	            elemLabel.Size = new Size(340,20);
-//	            
-//				panel.Controls.Add(elemLabel);
+
 				if ( !"Note".Equals(elem.eaType ) ) {
 					Button btnElemOpen = new Button();
 					btnElemOpen.Click += new System.EventHandler(this.BtnElemOpenClick);
-					btnElemOpen.Text = "■" + elem.name;
+					if( elem.changed == ' ' ) {
+						btnElemOpen.Text = "■" + elem.name;
+					} else {
+						btnElemOpen.Text = "■" + elem.name + " [" + elem.changed + "]";
+					}
+
 					btnElemOpen.Tag = elem;
 					btnElemOpen.AutoSize = true ;
 					elemPanel.Controls.Add(btnElemOpen);
-				}
-				
-//				addAttributeLabels(elem.attributes, depth+2);
-//				addMethodLabels(elem.methods, depth+2);
+				}				
 			}
 
 		}
@@ -360,5 +356,27 @@ namespace BehaviorDevelop
 		}
 		
 		
+		void EditCopyTextToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			TreeNode node = treeView1.SelectedNode;
+			
+			if (node != null && node.Tag != null ) {
+				ArtifactVO atfvo = (ArtifactVO)node.Tag;
+
+				try {
+					Clipboard.SetText(atfvo.package.toDescriptorString());
+					MessageBox.Show( "成果物情報がクリップボードにコピーされました" );
+				} catch(System.Runtime.InteropServices.ExternalException ex) {
+					MessageBox.Show( "クリップボードの書き込みに失敗しました。\r\n" + ex.Message );
+				}
+			} else {
+				MessageBox.Show( "フォルダツリーから成果物パッケージを選択して下さい" );
+			}
+		}
+		
+		void ExitAppToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			this.Close();
+		}
 	}
 }

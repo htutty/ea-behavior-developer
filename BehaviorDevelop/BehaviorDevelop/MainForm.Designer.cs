@@ -46,10 +46,11 @@ namespace BehaviorDevelop
 			this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.クリップボードにコピーToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.editCopyTextToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.searchToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.artifactToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.classToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.ExitAppToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.tabControl1.SuspendLayout();
 			this.menuStrip1.SuspendLayout();
 			this.SuspendLayout();
@@ -113,7 +114,8 @@ namespace BehaviorDevelop
 			// fileToolStripMenuItem
 			// 
 			this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-									this.openToolStripMenuItem});
+									this.openToolStripMenuItem,
+									this.ExitAppToolStripMenuItem});
 			this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
 			this.fileToolStripMenuItem.Size = new System.Drawing.Size(85, 22);
 			this.fileToolStripMenuItem.Text = "ファイル(&F)";
@@ -121,23 +123,24 @@ namespace BehaviorDevelop
 			// openToolStripMenuItem
 			// 
 			this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-			this.openToolStripMenuItem.Size = new System.Drawing.Size(119, 22);
+			this.openToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.openToolStripMenuItem.Text = "開く(&O)";
 			this.openToolStripMenuItem.Click += new System.EventHandler(this.OpenToolStripMenuItemClick);
 			// 
 			// editToolStripMenuItem
 			// 
 			this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-									this.クリップボードにコピーToolStripMenuItem});
+									this.editCopyTextToolStripMenuItem});
 			this.editToolStripMenuItem.Name = "editToolStripMenuItem";
 			this.editToolStripMenuItem.Size = new System.Drawing.Size(61, 22);
 			this.editToolStripMenuItem.Text = "編集(&E)";
 			// 
-			// クリップボードにコピーToolStripMenuItem
+			// editCopyTextToolStripMenuItem
 			// 
-			this.クリップボードにコピーToolStripMenuItem.Name = "クリップボードにコピーToolStripMenuItem";
-			this.クリップボードにコピーToolStripMenuItem.Size = new System.Drawing.Size(196, 22);
-			this.クリップボードにコピーToolStripMenuItem.Text = "テキストとしてコピー";
+			this.editCopyTextToolStripMenuItem.Name = "editCopyTextToolStripMenuItem";
+			this.editCopyTextToolStripMenuItem.Size = new System.Drawing.Size(196, 22);
+			this.editCopyTextToolStripMenuItem.Text = "テキストとしてコピー";
+			this.editCopyTextToolStripMenuItem.Click += new System.EventHandler(this.EditCopyTextToolStripMenuItemClick);
 			// 
 			// searchToolStripMenuItem
 			// 
@@ -161,6 +164,13 @@ namespace BehaviorDevelop
 			this.classToolStripMenuItem.Text = "クラスを検索";
 			this.classToolStripMenuItem.Click += new System.EventHandler(this.ClassToolStripMenuItemClick);
 			// 
+			// ExitAppToolStripMenuItem
+			// 
+			this.ExitAppToolStripMenuItem.Name = "ExitAppToolStripMenuItem";
+			this.ExitAppToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.ExitAppToolStripMenuItem.Text = "終了(&X)";
+			this.ExitAppToolStripMenuItem.Click += new System.EventHandler(this.ExitAppToolStripMenuItemClick);
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -180,7 +190,8 @@ namespace BehaviorDevelop
 			this.ResumeLayout(false);
 			this.PerformLayout();
 		}
-		private System.Windows.Forms.ToolStripMenuItem クリップボードにコピーToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem ExitAppToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem editCopyTextToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem classToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem artifactToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem searchToolStripMenuItem;
