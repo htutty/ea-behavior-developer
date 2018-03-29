@@ -7,6 +7,7 @@
  * To change this template use Tools | Options | Coding | Edit Standard Headers.
  */
 using System;
+using System.Collections.Generic;
 
 namespace BehaviorDevelop.vo
 {
@@ -54,7 +55,23 @@ namespace BehaviorDevelop.vo
 		public int CompareTo( AttributeVO o ) {
 			return ((this.pos - o.pos) == 0 ? this.name.CompareTo(o.name):(this.pos - o.pos));
 		}
-    		
-    	
 	}
+
+
+	/// <summary>
+	/// Description of AttributeComparer.
+	/// </summary>
+	public class AttributeComparer : IComparer<AttributeVO>
+	{
+		public AttributeComparer()
+		{
+		}
+		
+	    // xがyより小さいときはマイナスの数、大きいときはプラスの数、同じときは0を返す
+	    public int Compare(AttributeVO x, AttributeVO y)
+	    {
+	    	return x.guid.CompareTo(y.guid);
+	    }
+	}
+
 }

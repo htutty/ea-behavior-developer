@@ -97,12 +97,27 @@ namespace BehaviorDevelop.vo
 	        	elements.Sort();
         	}
         }
+
+       public void sortElementsGUID() {
+        	if (elements.Count > 0 ) {
+        		ElementComparer comp = new ElementComparer();
+	        	elements.Sort(comp);
+        	}
+        }
         
         public void sortChildPackages() {
         	if (childPackageList.Count > 0 ) {
 	        	childPackageList.Sort();
         	}
         }
+        
+       public void sortChildPackagesGUID() {
+        	if (childPackageList.Count > 0 ) {
+        		PackageComparer comp = new PackageComparer();
+	        	childPackageList.Sort(comp);
+        	}
+        }
+        
         
         public string toDescriptorString() {
 			StringBuilder sb = new StringBuilder();
@@ -121,7 +136,23 @@ namespace BehaviorDevelop.vo
 			
 			return sb.ToString();
    		}
-   		
-        
 	}
+
+	
+	/// <summary>
+	/// Description of PackageComparer.
+	/// </summary>
+	public class PackageComparer  : IComparer<PackageVO>
+	{
+		public PackageComparer()
+		{
+		}
+
+	    // xがyより小さいときはマイナスの数、大きいときはプラスの数、同じときは0を返す
+	    public int Compare(PackageVO x, PackageVO y)
+	    {
+	    	return x.guid.CompareTo(y.guid);
+	    }
+	}
+
 }

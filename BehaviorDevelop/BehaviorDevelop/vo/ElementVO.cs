@@ -17,19 +17,15 @@ namespace BehaviorDevelop.vo
 	/// </summary>
 	public class ElementVO : IComparable<ElementVO>
 	{
-		// 	Public Name ' As String
 		/// <summary>名前</summary>
     	public string name { get; set; }
     
-		//	Public Alias ' As String
 		/// <summary>別名</summary>
     	public string alias { get; set; }
 
-		//	Public Attributes ' As Collection
 		/// <summary>属性コレクション</summary>
     	public List<AttributeVO> attributes { get; set; }
 
-		//	Public Author ' As String
 		/// <summary>作成者名</summary>
     	public string author { get; set; }
     	
@@ -39,61 +35,47 @@ namespace BehaviorDevelop.vo
 		// <summary>接続コレクション</summary>
     	public List<ConnectorVO> connectors { get; set; }
 
-    	//	Public Created ' As Date
 		/// <summary>作成日時</summary>
     	public DateTime created { get; set; }
     	
-		//	Public Diagrams ' As Collection
 		// <summary>ダイアグラムのコレクション</summary>
     	// public IList<ElementVO> diagrams { get; set; }
     	
-		//	Public ElementGUID ' As String
 		/// <summary>guid</summary>
     	public string guid { get; set; }
 		
-		//	Public ElementID ' As Long
 		/// <summary>要素のid</summary>
     	public int elementId { get; set; }
 
-    	//	Public Elements ' As Collection
     	/// <summary>子要素のコレクション</summary>
     	public IList<ElementVO> elements { get; set; }
 
-		//	Public Methods ' As Collection
     	/// <summary>操作コレクション</summary>
     	public List<MethodVO> methods { get; set; }
     	
-		//	Public Modified ' As Date
 		/// <summary>最終更新日時</summary>
     	public DateTime modified { get; set; }
 
-		//	Public Notes ' As String
 		/// <summary>ノート</summary>
     	public string notes { get; set; }
     	
-		//	Public ObjectType ' As String
 		/// <summary>要素の種類</summary>
     	public string objectType { get; set; }
     	
-		//	Public PackageID ' As Long
 		/// <summary>所属パッケージID</summary>
     	public int packageID { get; set; }
 
-		//	Public GenType ' As String
 		/// <summary>生成言語タイプ</summary>
     	public string genType { get; set; }
     	
-		//	Public GenFile ' As String
 		/// <summary>生成ソースファイル</summary>
     	public string genFile { get; set; }
     	
-		//	Public Tag ' As String
 		/// <summary>タグ項目(タグ付き値ではない)</summary>
     	public string tag { get; set; }
     	
-		//	Public TaggedValuesEx ' As Collection
-		/// <summary>タグ項目(タグ付き値ではない)</summary>
-    	public IList<ElementVO> taggedValues { get; set; }
+		/// <summary>タグ付き値</summary>
+    	public List<TaggedValueVO> taggedValues { get; set; }
 		
 		//	Public TreePos ' As Long
 		/// <summary>表示順</summary>
@@ -126,7 +108,14 @@ namespace BehaviorDevelop.vo
 		//	Public ParentID ' As Long
 		// <summary>親要素ID（親の場合は0）</summary>
     	// public int parentID { get; set; }
-        
+
+		/// <summary>差異のあった属性のコレクション</summary>
+    	public List<AttributeVO> margedAttributes { get; set; }
+
+    	/// <summary>差異のあった操作コレクション</summary>
+    	public List<MethodVO> margedMethods { get; set; }
+
+    	
     	/// <summary>
         /// 変更有りフラグ : ' '=変更無し, C=追加(Create) U=変更(Update) D=削除(Delete)
         /// </summary>
@@ -145,9 +134,36 @@ namespace BehaviorDevelop.vo
    			methods.Sort();
    		}
    		
+        public void sortMethodsGUID() {
+        	if (methods.Count > 0 ) {
+        		MethodComparer comp = new MethodComparer();
+	        	methods.Sort(comp);
+        	}
+        }
+        
    		public void sortAttributes() {
    			attributes.Sort();
    		}
+
+		public void sortAttributesGUID() {
+        	if (attributes.Count > 0 ) {
+        		AttributeComparer comp = new AttributeComparer();
+	        	attributes.Sort(comp);
+        	}
+        }
+        
+   		public void sortTaggedValues() {
+   			taggedValues.Sort();
+   		}
+
+   		public void sortTaggedValuesGUID() {
+   			if (taggedValues.Count > 0 ) {
+        		TaggedValueComparer comp = new TaggedValueComparer();
+	        	taggedValues.Sort(comp);
+        	}
+   		}
+
+
    		
    		public string toDescriptorString() {
 			StringBuilder sb = new StringBuilder();
@@ -180,4 +196,22 @@ namespace BehaviorDevelop.vo
    		}
    		
 	}
+
+	
+	/// <summary>
+	/// Description of ElementComparer.
+	/// </summary>
+	public class ElementComparer : IComparer<ElementVO>
+	{
+		public ElementComparer()
+		{
+		}
+		
+	    // xがyより小さいときはマイナスの数、大きいときはプラスの数、同じときは0を返す
+	    public int Compare(ElementVO x, ElementVO y)
+	    {
+	    	return x.guid.CompareTo(y.guid);
+	    }
+	}
+
 }
