@@ -26,8 +26,8 @@ namespace ElementIndexer
 				Console.WriteLine("usage: ElementIndexer.exe <targetDir> <db_file>");
 			}
 			
-			Console.Write("Press any key to continue . . . ");
-			Console.ReadKey(true);
+//			Console.Write("Press any key to continue . . . ");
+//			Console.ReadKey(true);
 		}
 	}
 }

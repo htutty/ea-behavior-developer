@@ -33,11 +33,15 @@ namespace ElementIndexer
 	    	this.db_file = dbfile;
 	    	this.projectDir = dir ; 
 	    	
+	    	
 			try {
 	    		Console.WriteLine("projectdir = " + this.projectDir);
 	    		Console.WriteLine("dbfile = " + this.db_file);
 				this.conn = new SQLiteConnection("Data Source="+this.db_file);
-			} catch(Exception e) {
+
+		    	ProjectSetting.load(this.projectDir + "\\project.bdprj" );
+
+	    	} catch(Exception e) {
 				throw e ;
 			}
 
@@ -76,7 +80,7 @@ namespace ElementIndexer
                     SQLiteParameter[] parameters = new SQLiteParameter[]{
                       new SQLiteParameter("@connGuid",convo.guid),
                       new SQLiteParameter("@connName",convo.name),
-                      new SQLiteParameter("@connType",convo.connectionType),
+                      new SQLiteParameter("@connType",convo.connectorType),
                       new SQLiteParameter("@srcObjGuid",convo.srcObjGuid),
                       new SQLiteParameter("@srcObjName",convo.srcObjName),
                       new SQLiteParameter("@destObjGuid",convo.destObjGuid),
@@ -174,7 +178,7 @@ namespace ElementIndexer
 			recreateElementTable();
 		    
 			ArtifactXmlReader atfReader = new ArtifactXmlReader(this.projectDir);
-			IList<ArtifactVO> artifacts = ArtifactsXmlReader.readArtifactList(this.projectDir);
+			IList<ArtifactVO> artifacts = ArtifactsXmlReader.readArtifactList(this.projectDir, ProjectSetting.getVO().artifactsFile);
 
 			string target_dir = null;
 			target_dir = ConfigurationManager.AppSettings["artifact_dir"];
@@ -233,7 +237,7 @@ namespace ElementIndexer
                   , new SQLiteParameter("@elemName",elem.name)
                   , new SQLiteParameter("@elemAlias",elem.alias)
                   , new SQLiteParameter("@elemType",elem.eaType)
-                  , new SQLiteParameter("@elemStereotype",elem.stereoTypeEx)
+                  , new SQLiteParameter("@elemStereotype",elem.stereoType)
                   , new SQLiteParameter("@artifactGuid",atf.guid)
                   , new SQLiteParameter("@artifactName",atf.name)
                  , new SQLiteParameter("@artifactPath",atf.pathName)
