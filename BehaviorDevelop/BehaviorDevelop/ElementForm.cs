@@ -7,10 +7,13 @@
  * To change this template use Tools | Options | Coding | Edit Standard Headers.
  */
 using System;
+using System.IO;
+using System.Text;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Collections.Generic;
 using BehaviorDevelop.vo;
+using BehaviorDevelop.util;
 
 namespace BehaviorDevelop
 {
@@ -159,8 +162,7 @@ namespace BehaviorDevelop
 		}
 
 		
-		void ButtonCopyContentClick(object sender, EventArgs e)
-		{
+		void ButtonCopyContentClick(object sender, EventArgs e) {
 			try {
 				Clipboard.SetText(myElement.toDescriptorString());
 				MessageBox.Show( "クラス情報がクリップボードにコピーされました" );
@@ -168,5 +170,23 @@ namespace BehaviorDevelop
 				Console.WriteLine(ex.Message);
 			}
 		}
+		
+		
+		void ButtonOutputJavaClick(object sender, EventArgs e) {
+			try {
+				Encoding utf8Enc = Encoding.GetEncoding("utf-8");
+				StreamWriter writer =
+				 new StreamWriter( ProjectSetting.GetAppProfileDir() + "\\Test.java", true, utf8Enc);
+				writer.WriteLine( myElement.toDescriptorString() );
+				writer.Close();
+
+				MessageBox.Show( "Javaソースをファイル出力しました" );
+			} catch(Exception ex) {
+				Console.WriteLine(ex.Message);
+			}
+		}
+		
+		
+		
 	}
 }

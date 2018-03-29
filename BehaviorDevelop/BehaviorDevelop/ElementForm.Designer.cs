@@ -40,6 +40,7 @@ namespace BehaviorDevelop
 			this.btnCommit = new System.Windows.Forms.Button();
 			this.btnCancel = new System.Windows.Forms.Button();
 			this.buttonCopyContent = new System.Windows.Forms.Button();
+			this.buttonOutputJava = new System.Windows.Forms.Button();
 			this.SuspendLayout();
 			// 
 			// panel
@@ -91,6 +92,16 @@ namespace BehaviorDevelop
 			this.buttonCopyContent.UseVisualStyleBackColor = true;
 			this.buttonCopyContent.Click += new System.EventHandler(this.ButtonCopyContentClick);
 			// 
+			// buttonOutputJava
+			// 
+			this.buttonOutputJava.Location = new System.Drawing.Point(132, 432);
+			this.buttonOutputJava.Name = "buttonOutputJava";
+			this.buttonOutputJava.Size = new System.Drawing.Size(95, 23);
+			this.buttonOutputJava.TabIndex = 4;
+			this.buttonOutputJava.Text = "簡易Java出力";
+			this.buttonOutputJava.UseVisualStyleBackColor = true;
+			this.buttonOutputJava.Click += new System.EventHandler(this.ButtonOutputJavaClick);
+			// 
 			// ElementForm
 			// 
 			this.AcceptButton = this.btnCommit;
@@ -98,6 +109,7 @@ namespace BehaviorDevelop
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this.btnCancel;
 			this.ClientSize = new System.Drawing.Size(844, 462);
+			this.Controls.Add(this.buttonOutputJava);
 			this.Controls.Add(this.buttonCopyContent);
 			this.Controls.Add(this.btnCancel);
 			this.Controls.Add(this.btnCommit);
@@ -107,6 +119,7 @@ namespace BehaviorDevelop
 			this.Resize += new System.EventHandler(this.ElementFormResize);
 			this.ResumeLayout(false);
 		}
+		private System.Windows.Forms.Button buttonOutputJava;
 		private System.Windows.Forms.Button buttonCopyContent;
 		private System.Windows.Forms.Button btnCancel;
 		private System.Windows.Forms.Button btnCommit;
