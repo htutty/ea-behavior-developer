@@ -31,6 +31,11 @@ namespace BehaviorDevelop.vo
         /// </summary>
         public string artifactsFile { get; set; }
 
+        /// <summary>
+        /// projectPath
+        /// </summary>
+        public string projectPath { get; set; }
+        
         public ProjectSettingVO()
 		{
 		}

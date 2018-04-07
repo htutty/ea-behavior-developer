@@ -20,26 +20,26 @@
 
 			    	<RegistryValue Root='HKCU' Key='Software\BehaviorDevelop'
 			                     Name='BehaviorDevelop.exe'
-			                     Value='[%ProgramFilesFolder]'
+			                     Value='[ProgramFilesFolder]'
 			                     KeyPath='yes' Type="expandable"/>
 			    	
 				    <RegistryValue Root="HKCU" Key="SOFTWARE\BehaviorDevelop\Capabilities" Name="ApplicationDescription" Value="browse model and behavior" Type="string" />
-				    <RegistryValue Root="HKCU" Key="SOFTWARE\BehaviorDevelop\Capabilities" Name="ApplicationIcon" Value="[APPLICATIONFOLDER]BehaviorDevelop.exe,0" Type="string" />
 				    <RegistryValue Root="HKCU" Key="SOFTWARE\BehaviorDevelop\Capabilities" Name="ApplicationName" Value="BehaviorDevelop" Type="string" />
-				    <RegistryValue Root="HKCU" Key="SOFTWARE\BehaviorDevelop\Capabilities\DefaultIcon" Value="[APPLICATIONFOLDER]BehaviorDevelop.exe,0" Type="string" />
+				    <RegistryValue Root="HKCU" Key="SOFTWARE\BehaviorDevelop\Capabilities\DefaultIcon" Value="[ProgramFilesFolder]BehaviorDevelop.exe,0" Type="string" />
 				    <RegistryValue Root="HKCU" Key="SOFTWARE\BehaviorDevelop\Capabilities\FileAssociations" Name=".bdprj" Value="BehaviorDevelop.ProjectDocument" Type="string" />
 				    <!-- RegistryValue Root="HKCU" Key="SOFTWARE\AcmeFoobar\Capabilities\MIMEAssociations" Name="application/xyz" Value="AcmeFoobar.Document" Type="string" / -->
-				    <RegistryValue Root="HKCU" Key="SOFTWARE\BehaviorDevelop\Capabilities\shell\open\command" Value="&quot;[APPLICATIONFOLDER]BehaviorDevelop.exe&quot; &quot;%1&quot;" Type="string" />
+				    <RegistryValue Root="HKCU" Key="SOFTWARE\BehaviorDevelop\Capabilities\shell\open\command" Value="&quot;[ProgramFilesFolder]BehaviorDevelop.exe&quot; &quot;%1&quot;" Type="string" />
 
 				    <RegistryValue Root="HKCU" Key="SOFTWARE\RegisteredApplications" Name="BehaviorDevelop" Value="SOFTWARE\BehaviorDevelop\Capabilities" Type="string" />
-
+						
+				    <RegistryValue Root="HKCU" Key="SOFTWARE\Classes\.bdprj" Value="bdprj_auto_file" Type="string" />
 				    <RegistryValue Root="HKCU" Key="SOFTWARE\Classes\.bdprj" Name="Content Type" Value="application/bdprj" Type="string" />
 				    <RegistryValue Root="HKCU" Key="SOFTWARE\Classes\.bdprj\BehaviorDevelop.ProjectDocument\ShellNew" Value="" Type="string" />
 				    <RegistryValue Root="HKCU" Key="SOFTWARE\Classes\.bdprj\OpenWithList\BehaviorDevelop.exe" Value="" Type="string" />
 				    <RegistryValue Root="HKCU" Key="SOFTWARE\Classes\.bdprj\OpenWithProgids" Name="BehaviorDevelop.ProjectDocument" Value="" Type="string" />
 				    <RegistryValue Root="HKCU" Key="SOFTWARE\Classes\Applications\BehaviorDevelop.exe\SupportedTypes" Name=".bdprj" Value="" Type="string" />
-				    <RegistryValue Root="HKCU" Key="SOFTWARE\Classes\Applications\BehaviorDevelop.exe\shell\open\command" Value="&quot;[APPLICATIONFOLDER]BehaviorDevelop.exe&quot; &quot;%1&quot;" Type="string" />
-
+				    <RegistryValue Root="HKCU" Key="SOFTWARE\Classes\Applications\BehaviorDevelop.exe\shell\open\command" Value="&quot;[ProgramFilesFolder]\BehaviorDevelop\BehaviorDevelop.exe&quot; &quot;%1&quot;" Type="string" />
+				    <RegistryValue Root="HKCU" Key="SOFTWARE\Classes\bdprj_auto_file\shell\open\command" Value="&quot;[ProgramFilesFolder]\BehaviorDevelop\BehaviorDevelop.exe&quot; &quot;%1&quot;" Type="string" />
 				</Component>
 
 					

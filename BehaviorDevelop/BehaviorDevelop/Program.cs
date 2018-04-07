@@ -33,14 +33,13 @@ namespace BehaviorDevelop
 			MainForm form = null;
 			
 			if (cmds != null && cmds.Length > 1) {
-				string lin = "";
-				//コマンドライン引数を列挙する
-				for ( int i=0; i < cmds.Length; i++ ) {
-					string cmd = cmds[i];
-					lin = lin + i + ":" + cmd + ", ";
-				}
-	//			Console.WriteLine("コマンドライン引数 = " + lin);
-				MessageBox.Show("コマンドライン引数 = " + lin);
+//				string lin = "";
+//				//コマンドライン引数を列挙する
+//				for ( int i=0; i < cmds.Length; i++ ) {
+//					string cmd = cmds[i];
+//					lin = lin + i + ":" + cmd + ", ";
+//				}
+//				MessageBox.Show("コマンドライン引数 = " + lin);
 				
 				form = new MainForm(cmds[1]);
 			} else {

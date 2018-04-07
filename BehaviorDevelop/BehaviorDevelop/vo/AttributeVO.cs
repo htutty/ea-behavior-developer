@@ -55,6 +55,11 @@ namespace BehaviorDevelop.vo
 		public int CompareTo( AttributeVO o ) {
 			return ((this.pos - o.pos) == 0 ? this.name.CompareTo(o.name):(this.pos - o.pos));
 		}
+
+		// コピーを作成するメソッド
+		public AttributeVO Clone() {
+			return (AttributeVO)MemberwiseClone();
+		}
 	}
 
 

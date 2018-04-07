@@ -187,7 +187,6 @@ namespace ElementIndexer
             
 			foreach( ArtifactVO atf in artifacts ) {
 				// 成果物パッケージ別のXMLファイル読み込み
-				// atfReader.readArtifactDesc(atf, target_dir);
 				List<ElementVO> elements = atfReader.readAllElements(atf, null);
 				
 				// 読み込んだ成果物情報を元に読み込み

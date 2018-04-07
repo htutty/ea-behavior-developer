@@ -32,6 +32,8 @@ namespace ProjectDiffMaker
 		private string toProjectFile = null;
 		private string toProjectDir = null;
 		
+		public string outputDir;
+		
 		private List<ArtifactVO> fromArtifacts;
 		private List<ArtifactVO> toArtifacts;
 		private List<ArtifactVO> outArtifacts;
@@ -433,11 +435,15 @@ namespace ProjectDiffMaker
 						oAtr = rAtr;
 						oAtr.changed = 'C';
 						outAttributeList.Add(oAtr);
+						outputOriginalAttributeFile(rAtr,"R");
+
 						rCnt++;
 					} else {
 						oAtr = lAtr;
 						oAtr.changed = 'D';
 						outAttributeList.Add(oAtr);
+						outputOriginalAttributeFile(lAtr,"L");
+
 						lCnt++;
 					}
 				}
@@ -487,11 +493,15 @@ namespace ProjectDiffMaker
 					// GUIDで一致するものが無かった場合: L > R なら Rの追加、 R < L なら Lの削除 とみなす
 					if(compareMethodGuid(lMth, rMth) > 0) {
 						rMth.changed = 'C';
+						outputOriginalMethodFile(rMth,"R");
+
 						outMethods.Add(rMth);
 						rCnt++;
 					} else {
 						lMth.changed = 'D';
 						outMethods.Add(lMth);
+						outputOriginalMethodFile(lMth,"L");
+
 						lCnt++;
 					}
 				}
@@ -522,7 +532,7 @@ namespace ProjectDiffMaker
 		private AttributeVO getDisagreedAttribute(AttributeVO leftAtr, AttributeVO rightAtr) {
 			AttributeVO outAtr;
 			
-			outAtr = leftAtr;
+			outAtr = leftAtr.Clone();
 			outAtr.changed = ' ';
 			
 			if( !compareNullable(leftAtr.name, rightAtr.name) ) {
@@ -558,6 +568,9 @@ namespace ProjectDiffMaker
 			if ( outAtr.changed == ' ' ) {
 				return null;
 			} else {
+				outputOriginalAttributeFile(leftAtr,"L");
+				outputOriginalAttributeFile(rightAtr,"R");
+				
 				return outAtr ;
 			}
 			
@@ -573,7 +586,7 @@ namespace ProjectDiffMaker
 		private MethodVO getDisagreedMethod(MethodVO leftMth, MethodVO rightMth) {
 			MethodVO outMth;
 			
-			outMth = leftMth;
+			outMth = leftMth.Clone();
 			outMth.changed = ' ';
 			
 			if( !compareNullable(leftMth.name, rightMth.name) ) {
@@ -623,10 +636,49 @@ namespace ProjectDiffMaker
 			if ( outMth.changed == ' ' ) {
 				return null;
 			} else {
+				outputOriginalMethodFile(leftMth,"L");
+				outputOriginalMethodFile(rightMth,"R");
+				
 				return outMth ;
 			}
 		}
 
+		/// <summary>
+		/// 比較して差異があった属性に対して左右それぞれのオリジナル情報を出力し、ピンポイントの比較ができるようにする
+		/// </summary>
+		/// <param name="attr">該当属性</param>
+		/// <param name="leftRight"> "L" もしくは "R" を指定する（出力ファイル名のサフィックスになる）</param>
+		private void outputOriginalAttributeFile(AttributeVO attr, string leftRight) {
+
+			//BOM無しのUTF8でテキストファイルを作成する
+			StreamWriter attrsw = new StreamWriter(outputDir + "\\detail\\#attribute_" + attr.guid.Substring(1,36) + "_" + leftRight + ".xml");
+			attrsw.WriteLine( @"<?xml version=""1.0"" encoding=""utf-8""?> " );
+			attrsw.WriteLine( "" );
+
+			outputAttribute(attr, 0, attrsw);
+
+			attrsw.Close();
+
+		}
+		
+		/// <summary>
+		/// 比較して差異があったメソッドに対して左右それぞれのオリジナル情報を出力し、ピンポイントの比較ができるようにする
+		/// </summary>
+		/// <param name="mth">該当メソッド</param>
+		/// <param name="leftRight"> "L" もしくは "R" を指定する（出力ファイル名のサフィックスになる）</param>
+		private void outputOriginalMethodFile(MethodVO mth, string leftRight) {
+
+			//BOM無しのUTF8でテキストファイルを作成する
+			StreamWriter mthsw = new StreamWriter(outputDir + "\\detail\\#method_" + mth.guid.Substring(1,36) + "_" + leftRight + ".xml");
+			mthsw.WriteLine( @"<?xml version=""1.0"" encoding=""utf-8""?> " );
+			mthsw.WriteLine( "" );
+
+			outputMethod(mth, 0, mthsw);
+
+			mthsw.Close();
+		}
+		
+		
 		private Boolean compareNullable(string l, string r) {
 			// 左が null の場合
 			if( l == null ) {
@@ -671,8 +723,8 @@ namespace ProjectDiffMaker
 		}
 
 		
-		public void outputMerged(string outputDir) {
-			Console.WriteLine("outputMerged: outputDir=" + outputDir);
+		public void outputMerged() {
+			Console.WriteLine("outputMerged: outputDir=" + this.outputDir);
 			
 			//BOM無しのUTF8でテキストファイルを作成する
 			StreamWriter listsw = new StreamWriter(outputDir + "\\ChangedArtifacts.xml");
@@ -727,6 +779,21 @@ namespace ProjectDiffMaker
 			}
 
 			sumsw.Close();
+
+
+			//BOM無しのUTF8でテキストファイルを作成する
+			StreamWriter detailsw = new StreamWriter(outputDir + "\\ChangedDetail.csv",
+			                                      false, System.Text.Encoding.GetEncoding("shift_jis"));
+			detailsw.WriteLine("\"変更内容(CUD)\",\"パッケージGUID\",\"パッケージ名\",\"パッケージパス\",\"変更内容(CUD)\",\"要素GUID\",\"要素名\",\"属性/操作\",\"変更内容(CUD)\",\"属性操作GUID\",\"属性操作名称\",\"左ファイル\",\"右ファイル\"");
+			foreach (ArtifactVO atf in this.outArtifacts) {
+				if ( atf.changed != ' ' ) {
+					outputChangedDetailArtifact(atf, detailsw);
+				}
+			}
+
+			detailsw.Close();
+
+
 			
 			
 			StreamWriter prjsw = new StreamWriter(outputDir + "\\project.bdprj");
@@ -760,12 +827,12 @@ namespace ProjectDiffMaker
 		}
 
 		private void outputChangedSummaryPackage(ArtifactVO atf, PackageVO pkg, StreamWriter sw) {
-			foreach( PackageVO p in pkg.childPackageList ) {
-				outputChangedSummaryPackage(atf, p, sw);
-			}
-			
 			foreach( ElementVO e in pkg.elements ) {
 				outputChangedSummaryElement(atf, e, sw);
+			}
+
+			foreach( PackageVO p in pkg.childPackageList ) {
+				outputChangedSummaryPackage(atf, p, sw);
 			}
 		}
 			
@@ -788,7 +855,87 @@ namespace ProjectDiffMaker
 		}
 			
 
+
+		private void outputChangedDetailArtifact(ArtifactVO atf, StreamWriter sw) {
+			outputChangedDetailPackage(atf, atf.package, sw);
+		}
+
+		private void outputChangedDetailPackage(ArtifactVO atf, PackageVO pkg, StreamWriter sw) {
+			foreach( ElementVO e in pkg.elements ) {
+				outputChangedDetailElement(atf, e, sw);
+			}
+
+			foreach( PackageVO p in pkg.childPackageList ) {
+				outputChangedDetailPackage(atf, p, sw);
+			}
+		}		
 		
+		private void outputChangedDetailElement(ArtifactVO atf, ElementVO elem, StreamWriter sw) {
+			foreach ( AttributeVO a in elem.attributes ) {
+				outputChangedDetailAttribute(atf, elem, a, sw);
+			}
+
+			foreach ( MethodVO m in elem.methods ) {
+				outputChangedDetailMethod(atf, elem, m, sw);
+			}	
+		}
+		
+		private void outputChangedDetailAttribute( ArtifactVO atf, ElementVO elem, AttributeVO attr, StreamWriter sw ) {
+			sw.Write("\"" + atf.changed + "\"");
+			sw.Write(",\"" + atf.guid + "\"");
+			sw.Write(",\"" + atf.name + "\"");
+			sw.Write(",\"" + atf.pathName + "\"");
+			sw.Write(",\"" + elem.changed + "\"");
+			sw.Write(",\"" + elem.guid + "\"");
+			sw.Write(",\"" + elem.name + "\"");
+			sw.Write(",\"属性\"");
+			sw.Write(",\"" + attr.changed + "\"");
+			sw.Write(",\"" + attr.guid + "\"");
+			sw.Write(",\"" + attr.name + "\"");
+			
+			if( attr.changed == 'D' || attr.changed == 'U' ) {
+				sw.Write(",\"#attribute_" + attr.guid.Substring(1,36) + "_L.xml\"");
+			} else {
+				sw.Write(",\"\"");
+			}
+
+			if( attr.changed == 'C' || attr.changed == 'U' ) {
+				sw.Write(",\"#attribute_" + attr.guid.Substring(1,36) + "_R.xml\"");
+			} else {
+				sw.Write(",\"\"");
+			}
+
+			sw.WriteLine("");
+		}
+		
+		private void outputChangedDetailMethod( ArtifactVO atf, ElementVO elem, MethodVO mth, StreamWriter sw ) {
+			sw.Write("\"" + atf.changed + "\"");
+			sw.Write(",\"" + atf.guid + "\"");
+			sw.Write(",\"" + atf.name + "\"");
+			sw.Write(",\"" + atf.pathName + "\"");
+			sw.Write(",\"" + elem.changed + "\"");
+			sw.Write(",\"" + elem.guid + "\"");
+			sw.Write(",\"" + elem.name + "\"");
+			sw.Write(",\"操作\"");
+			sw.Write(",\"" + mth.changed + "\"");
+			sw.Write(",\"" + mth.guid + "\"");
+			sw.Write(",\"" + mth.name + "\"");
+
+			if( mth.changed == 'D' || mth.changed == 'U' ) {
+				sw.Write(",\"#method_" + mth.guid.Substring(1,36) + "_L.xml\"");
+			} else {
+				sw.Write(",\"\"");
+			}
+
+			if( mth.changed == 'C' || mth.changed == 'U' ) {
+				sw.Write(",\"#method_" + mth.guid.Substring(1,36) + "_R.xml\"");
+			} else {
+				sw.Write(",\"\"");
+			}
+
+			sw.WriteLine("");
+		}
+
 		
 		private void outputChangedPackage(PackageVO pkg, int depth, StreamWriter sw) {
 
@@ -889,19 +1036,25 @@ namespace ProjectDiffMaker
 	
 			//　取得できた属性の情報をファイルに展開する
 			foreach(AttributeVO m_Att in currentElement.attributes) {
-				sw.Write( indent(depth) + "<attribute " );
-				if( m_Att.changed != ' ' ) {
-					sw.Write( " changed='" + m_Att.changed + "' " );
-				}
-				sw.Write( " guid='" + escapeXML(m_Att.guid) + "' " );
-				sw.Write( " pos='" + m_Att.pos + "' " );
-//				sw.Write( " type='" + escapeXML(m_Att.EA_Type) + "' " );
-				sw.Write( " name='" + escapeXML(m_Att.name) + "' " );
-				sw.Write( " alias='" + escapeXML(m_Att.alias) + "' " );
-				sw.Write( " position='" + m_Att.pos + "'" );
+				outputAttribute(m_Att, depth, sw);
+			}
 	
-				if (m_Att.stereoType != null) {
-					sw.Write( " stereotype='" + m_Att.stereoType + "' " );
+		}
+
+		private void outputAttribute(AttributeVO att, int depth, StreamWriter sw ) {
+				sw.Write( indent(depth) + "<attribute " );
+				if( att.changed != ' ' ) {
+					sw.Write( " changed='" + att.changed + "' " );
+				}
+				sw.Write( " guid='" + escapeXML(att.guid) + "' " );
+				sw.Write( " pos='" + att.pos + "' " );
+//				sw.Write( " type='" + escapeXML(m_Att.EA_Type) + "' " );
+				sw.Write( " name='" + escapeXML(att.name) + "' " );
+				sw.Write( " alias='" + escapeXML(att.alias) + "' " );
+				sw.Write( " position='" + att.pos + "'" );
+	
+				if (att.stereoType != null) {
+					sw.Write( " stereotype='" + att.stereoType + "' " );
 				}
 	
 				sw.WriteLine( " >" );
@@ -909,17 +1062,15 @@ namespace ProjectDiffMaker
 //				if (m_Att.Default != null) {
 //					sw.WriteLine( indent(depth) + "  <default>" + escapeXML(m_Att.Default) + "</default>" );
 //				}
-	
 //				sw.WriteLine( indent(depth) + "  <visibility>" + m_Att.Visibility + "</visibility>"  );
 	
-				if (m_Att.notes != null) {
-					sw.WriteLine( indent(depth) + "  <notes>" + escapeXML(m_Att.notes) + "</notes>" );
+				if (att.notes != null) {
+					sw.WriteLine( indent(depth) + "  <notes>" + escapeXML(att.notes) + "</notes>" );
 				}
 				sw.WriteLine( indent(depth) + "</attribute>" );
-			}
-	
 		}
-
+		
+		
 
 		// 1.2.3 クラスの操作を出力
 		private void outputClassMethods(ElementVO currentElement, int depth, StreamWriter sw) {
@@ -930,7 +1081,14 @@ namespace ProjectDiffMaker
 	
 			//　取得できた操作の情報をファイルに展開する
 			foreach( MethodVO mth in currentElement.methods ) {
+				outputMethod(mth, depth, sw);
+			}
+		}
+
+
+		private void outputMethod(MethodVO mth, int depth, StreamWriter sw) {
 				sw.Write( indent(depth) + "<method " );
+
 				if( mth.changed != ' ' ) {
 					sw.Write( " changed='" + mth.changed + "' " );
 				}
@@ -961,10 +1119,10 @@ namespace ProjectDiffMaker
 				// Call outputMethodTags( mth, resp );
 	
 				sw.WriteLine( indent(depth) + "</method>" );
-			}
-		}
 
-			
+		}
+		
+		
 		//  1.2.3.1.1 メソッドのパラメータ出力
 //		private void outputMethodParams(MethodVO mth, int depth, StreamWriter sw) {
 //			MethodParameterVO prm;

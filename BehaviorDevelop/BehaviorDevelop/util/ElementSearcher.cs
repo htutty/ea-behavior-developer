@@ -27,12 +27,21 @@ namespace BehaviorDevelop.util
 			this.conn = new SQLiteConnection("Data Source="+this.db_file);
 		}
 
-		public List<ElementSearchVO> findByKeyword(string keyword) {
+		
+		public List<ElementSearchVO> findByKeyword( string keyword ) {
+			return find( "elemType = 'Class' and elemName like '%" + keyword + "%'" );
+		}
+
+		public List<ElementSearchVO> findByGuid( string guid ) {
+			return find( "elemGuid like '" + guid + "%'" );
+		}
+
+		private List<ElementSearchVO> find(string whereCond) {
 			List<ElementSearchVO> retList = new List<ElementSearchVO>() ;
 			
 			string sql =
 				@"select elemGuid, elemName, elemAlias, elemType, ifnull(elemStereotype, ''), artifactGuid, artifactName, artifactPath
-				   from t_element where  elemType = 'Class' and elemName like '%" + keyword + "%'";
+				   from t_element where " + whereCond;
 			
 			conn.Open();
 			

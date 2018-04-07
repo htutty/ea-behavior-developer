@@ -26,7 +26,7 @@ namespace BehaviorDevelop
 		
 		private IList<ArtifactVO> artifacts;
 		
-		private string projectPath { get; set; }
+		public string projectPath { get; set; }
 		private ElementForm elemForm { get; set; }
 		private SearchElementListForm searchElemListForm { get; set; }
 
@@ -63,10 +63,17 @@ namespace BehaviorDevelop
 		
 		void MainFormLoad(object sender, EventArgs e)
 		{
+			init();
+		}
+
+		
+		private void init() {
 			this.treeView1.Nodes.Clear();
 			this.treeNodeMap.Clear();
-//			this.tabControl1.TabPages.Clear();
-
+			if( this.tabControl1.TabPages.Count > 1 ) {
+				this.tabControl1.TabPages.Clear();
+			}
+				
 			if ( this.projectPath != null) {
 				initProject();
 				// 使用するDBファイルの存在チェック
@@ -80,7 +87,7 @@ namespace BehaviorDevelop
 			}
 			
 		}
-
+		
 		private Boolean existDbFile(string dbpath) {
 			return File.Exists(dbpath);
 		}
@@ -103,6 +110,8 @@ namespace BehaviorDevelop
 				}
 				TreeNode atfNode = new TreeNode(atfnodename, 2, 1);
 				atfNode.Tag = atf;
+				atfNode.ContextMenuStrip = contextMenuStrip1;
+				
 				packageNode.Nodes.Add(atfNode);
 				treeNodeMap.Add(atf.guid, atfNode);
 			}
@@ -182,6 +191,8 @@ namespace BehaviorDevelop
 //			atfPage.Text = ((atf.package.stereoType != null) ? "<<" + atf.package.stereoType + ">> " : "" ) + atf.name ;
 			atfPage.Text = atf.name ;
 			atfPage.Tag = atf.guid ;
+			// タブクローズ用のコンテキストメニューをTabPageに登録
+			atfPage.ContextMenuStrip = tabContextMenuStrip;
 			
 			// 作成したタブページをタブコントロールに追加し、そのタブを選択状態にする
 			tabControl1.TabPages.Add(atfPage);
@@ -332,7 +343,8 @@ namespace BehaviorDevelop
 				    this.projectPath = Path.GetDirectoryName(prjfile);
 					this.Text = prjfile;
 					
-					this.MainFormLoad(this, null);
+//					this.MainFormLoad(this, null);
+					init();
 			    } else {
 					MessageBox.Show("プロジェクトファイル読み込みに失敗しました。　再度正しいファイルを選択して下さい。");
 					projectPath = null;
@@ -377,6 +389,24 @@ namespace BehaviorDevelop
 		void ExitAppToolStripMenuItemClick(object sender, EventArgs e)
 		{
 			this.Close();
+		}
+		
+		
+		void ViewGuidToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			TreeNode tn = treeView1.SelectedNode ;
+			ArtifactVO atf = (ArtifactVO)tn.Tag;
+			MessageBox.Show("GUID=" + atf.guid);
+		}
+		
+		
+		
+		void CloseTabToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			TabPage tabp = tabControl1.SelectedTab ;
+			tabControl1.TabPages.Remove(tabControl1.SelectedTab);
+			
+			MessageBox.Show("選択されているタブページがクローズされたよ");
 		}
 	}
 }

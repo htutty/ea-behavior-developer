@@ -94,6 +94,7 @@ namespace BehaviorDevelop
 			// 
 			// buttonOutputJava
 			// 
+			this.buttonOutputJava.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.buttonOutputJava.Location = new System.Drawing.Point(132, 432);
 			this.buttonOutputJava.Name = "buttonOutputJava";
 			this.buttonOutputJava.Size = new System.Drawing.Size(95, 23);

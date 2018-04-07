@@ -70,7 +70,14 @@ namespace BehaviorDevelop
 			
 			foreach( AttributeVO a in attrs ) {
 				Label attrLabel = new Label();
-				attrLabel.Text =  "+ " + a.name ;
+				
+				if (a.changed == ' ') {
+					attrLabel.Text = a.name;
+				} else {
+					attrLabel.Text = "[" + a.changed + "] " + a.name;
+				}
+				
+//				attrLabel.Text =  "+ " + a.name ;
 				attrLabel.TextAlign = ContentAlignment.MiddleLeft ;
 //	            attrLabel.AutoSize=true;
 	            attrLabel.Anchor = ((System.Windows.Forms.AnchorStyles)
@@ -81,16 +88,42 @@ namespace BehaviorDevelop
 			}
 		}
 		
+		
 		private void addMethodLabels( IList<MethodVO> mths ) {
 			
 			foreach( MethodVO m in mths ) {
-				Label mthLabel = new Label();
-				mthLabel.Text = m.name ;
-	            mthLabel.AutoSize=true;
+				// メソッドのタイトル行を入れるパネルを作成
+				FlowLayoutPanel methodTitlePanel = new FlowLayoutPanel();
+	            methodTitlePanel.Anchor = ((System.Windows.Forms.AnchorStyles)
+	                ((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+	                    | System.Windows.Forms.AnchorStyles.Left)| System.Windows.Forms.AnchorStyles.Right)));
+	            methodTitlePanel.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
+	            methodTitlePanel.WrapContents = false;
+	            methodTitlePanel.AutoSize = true;
+
+	            Button btnJump = new Button();
+				btnJump.Name = "jumpbutton";
+				btnJump.Text = ">> ";
+				btnJump.AutoSize = true;
+				btnJump.Click += new System.EventHandler(this.BtnCancelClick);
+				methodTitlePanel.Controls.Add(btnJump);
+				
+	            Label mthLabel = new Label();
+				if (m.changed == ' ') {
+					mthLabel.Text = m.name;
+				} else {
+					mthLabel.Text = "[" + m.changed + "] " + m.name;
+				}
+				mthLabel.AutoSize = true;
 //	            mthLabel.Anchor = ((System.Windows.Forms.AnchorStyles)
 //	                                (System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right));
 	            mthLabel.BackColor = Color.Magenta;
-	            panel.Controls.Add(mthLabel);
+				methodTitlePanel.Controls.Add(mthLabel);
+
+				
+				
+				
+	            panel.Controls.Add(methodTitlePanel);
 	            
 	            TextBox mthText = new TextBox();
 				setTextBoxSize(mthText, m.behavior);
@@ -103,11 +136,26 @@ namespace BehaviorDevelop
 //	            mthText.AutoSize = true;
 	            mthText.DoubleClick += new System.EventHandler(this.MethodTextBoxDoubleClick);
 	            mthText.Tag = m ;
-				panel.Controls.Add(mthText);
+				methodTitlePanel.Controls.Add(mthText);
+
+	            panel.Controls.Add(mthText);
 				
 				this.methods.Add(m);
 			}
 		}
+		
+		public void openOrigMethodFileOnWinmerge( string guid ) {
+			string commandStr = "winmergeU.exe ";
+			
+			string targetPath = ProjectSetting.getVO().projectPath ;
+			
+			commandStr += targetPath + "\\#method_" + guid.Substring(1,36) + "_L.xml  ";
+			commandStr += targetPath + "\\#method_" + guid.Substring(1,36) + "_R.xml";
+			
+			//ブラウザで開く
+		    System.Diagnostics.Process.Start(commandStr);
+		}
+		
 		
 		void setTextBoxSize(TextBox mthText, string behavior) {
             mthText.Text = behavior;
@@ -186,7 +234,6 @@ namespace BehaviorDevelop
 			}
 		}
 		
-		
-		
+
 	}
 }

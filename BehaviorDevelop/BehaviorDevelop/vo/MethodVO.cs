@@ -66,6 +66,11 @@ namespace BehaviorDevelop.vo
 		public int CompareTo( MethodVO o ) {
 			return ((this.pos - o.pos) == 0 ? this.name.CompareTo(o.name):(this.pos - o.pos));
 		}
+		
+		// コピーを作成するメソッド
+		public MethodVO Clone() {
+			return (MethodVO)MemberwiseClone();
+		}
    	}
 
 

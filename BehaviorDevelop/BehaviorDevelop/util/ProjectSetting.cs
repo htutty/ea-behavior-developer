@@ -64,6 +64,8 @@ namespace BehaviorDevelop.vo
 	            }
             } 
             
+            settingvo.projectPath = project_file;
+            
             // dbファイル名が取得できたら、プロファイルディレクトリを追加
             if (settingvo.dbName != null) {
             	settingvo.dbName = GetAppProfileDir() + settingvo.dbName ;

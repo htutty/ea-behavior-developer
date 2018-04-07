@@ -35,7 +35,19 @@ namespace BehaviorDevelop
 		void SearchTermTextBoxTextChanged(object sender, EventArgs e)
 		{
 			ElementSearcher srch = new ElementSearcher();
-			List<ElementSearchVO> results = srch.findByKeyword( SearchTermTextBox.Text );
+			string searchWord = SearchTermTextBox.Text;
+			List<ElementSearchVO> results;
+
+			if( searchWord.Length <= 0 ) {
+				listView1.Items.Clear();
+				return ;
+			}
+
+			if ( searchWord.Length > 1 && "{".Equals(searchWord.Substring(0,1)) ) {
+				results = srch.findByGuid( searchWord );
+			} else {
+				results = srch.findByKeyword( searchWord );
+			}
 			
 			listView1.Items.Clear();
 			

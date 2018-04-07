@@ -33,7 +33,6 @@
 			    <ComponentRef Id="ElementIndexer.exe"/>
 			    <ComponentRef Id="ElementIndexer.exe.config"/>
 				<ComponentRef Id="System.Data.SQLite.dll"/> 
-		
 
 		</Feature>
 		
