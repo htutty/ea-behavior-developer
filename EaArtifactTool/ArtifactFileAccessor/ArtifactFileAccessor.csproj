@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{B0EFD60E-7D58-4600-8E30-AEAEB4424690}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>ArtifactFileAccessor</RootNamespace>
+    <AssemblyName>ArtifactFileAccessor</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Interop.EA">
+      <HintPath>C:\Program Files (x86)\SparxSystems Japan\EA\Interop.EA.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="reader\ArtifactsXmlReader.cs" />
+    <Compile Include="reader\ArtifactXmlReader.cs" />
+    <Compile Include="reader\ConnectorXmlReader.cs" />
+    <Compile Include="reader\ElementsXmlReader.cs" />
+    <Compile Include="util\DbUtil.cs" />
+    <Compile Include="util\ProjectSetting.cs" />
+    <Compile Include="util\StringUtil.cs" />
+    <Compile Include="vo\ArtifactsVO.cs" />
+    <Compile Include="vo\ArtifactVO.cs" />
+    <Compile Include="vo\AttributeTagVO.cs" />
+    <Compile Include="vo\AttributeVO.cs" />
+    <Compile Include="vo\BehaviorChunk.cs" />
+    <Compile Include="vo\ConnectorVO.cs" />
+    <Compile Include="vo\CrossRefVO.cs" />
+    <Compile Include="vo\DiagramLinkVO.cs" />
+    <Compile Include="vo\DiagramObjectVO.cs" />
+    <Compile Include="vo\DiagramVO.cs" />
+    <Compile Include="vo\ElementReferenceVO.cs" />
+    <Compile Include="vo\ElementSearchVO.cs" />
+    <Compile Include="vo\ElementVO.cs" />
+    <Compile Include="vo\MethodTagVO.cs" />
+    <Compile Include="vo\MethodVO.cs" />
+    <Compile Include="vo\PackageVO.cs" />
+    <Compile Include="vo\ParameterVO.cs" />
+    <Compile Include="vo\ProjectSettingVO.cs" />
+    <Compile Include="vo\TaggedValueVO.cs" />
+    <Compile Include="writer\AllArtifactsXmlWriter.cs" />
+    <Compile Include="writer\ArtifactXmlWriter.cs" />
+    <Compile Include="writer\DiagramXmlWriter.cs" />
+    <Compile Include="writer\ElementXmlWriter.cs" />
+    <Compile Include="writer\ProjectFileWriter.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
