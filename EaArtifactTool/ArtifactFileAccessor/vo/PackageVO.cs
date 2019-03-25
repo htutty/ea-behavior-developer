@@ -89,32 +89,39 @@ namespace ArtifactFileAccessor.vo
 			return ((this.treePos - o.treePos) == 0 ? this.name.CompareTo(o.name):(this.treePos - o.treePos));
 		}
 
-        public void sortElements() {
-        	if (elements.Count > 0) {
-	        	elements.Sort();
-        	}
+        public void sortChildNodes()
+        {
+            foreach( ElementVO elm in elements)
+            {
+                elements.Sort();
+            }
+
+            foreach(PackageVO pkg in childPackageList)
+            {
+                pkg.sortChildNodes();
+            }
+            childPackageList.Sort();
+
         }
 
-       public void sortElementsGUID() {
-        	if (elements.Count > 0 ) {
-        		ElementComparer comp = new ElementComparer();
-	        	elements.Sort(comp);
-        	}
-        }
 
-        public void sortChildPackages() {
-        	if (childPackageList.Count > 0 ) {
-	        	childPackageList.Sort();
-        	}
-        }
+        public void sortChildNodesGuid()
+        {
+            foreach (ElementVO elm in elements)
+            {
+                elm.sortChildNodes();
+            }
+            ElementComparer ecmp = new ElementComparer();
+            elements.Sort(ecmp);
 
-       public void sortChildPackagesGUID() {
-        	if (childPackageList.Count > 0 ) {
-        		PackageComparer comp = new PackageComparer();
-	        	childPackageList.Sort(comp);
-        	}
-        }
+            foreach (PackageVO pkg in childPackageList)
+            {
+                pkg.sortChildNodes();
+            }
+            PackageComparer pcmp = new PackageComparer();
+            childPackageList.Sort(pcmp);
 
+        }
 
         public string toDescriptorString() {
 			StringBuilder sb = new StringBuilder();

@@ -119,7 +119,7 @@ namespace ArtifactFileAccessor.vo
 
 		// Public TaggedValuesEx 'As Collection
 		/// <summary>メソッドタグ付き値</summary>
-    	public List<MethodTagVO> taggedValues { get; set; }
+    	public List<TaggedValueVO> taggedValues { get; set; }
 
 		// Public Throws '          #NEW# As String
 		/// <summary>Throws句</summary>
@@ -182,9 +182,16 @@ namespace ArtifactFileAccessor.vo
             sw.WriteLine("styleEx= " + styleEx);
             sw.WriteLine("throws= " + throws);
 
-            //sw.WriteLine("parameters= " +  parameters  );
+            if (taggedValues != null && taggedValues.Count > 0)
+            {
+                sw.WriteLine("taggedValues=[");
+                foreach (var tv in taggedValues)
+                {
+                    sw.WriteLine("tv=" + tv.getComparableString() + ",");
+                }
+                sw.WriteLine("]");
+            }
 
-            //sw.WriteLine("taggedValues= " + taggedValues );
             return sw.ToString();
         }
 
@@ -335,15 +342,31 @@ namespace ArtifactFileAccessor.vo
         }
 
 
-        public void sortParametersGUID()
+        public void sortChildNodes()
         {
-            if (parameters.Count > 0)
+            // 子ノードを持つ項目は個別に子ノード毎のソート処理を呼び出す
+            foreach(ParameterVO p in parameters)
             {
-                ParameterGuidComparer comp = new ParameterGuidComparer();
-                parameters.Sort(comp);
+                p.sortChildNodes();
             }
+            
+            parameters.Sort();
+            taggedValues.Sort();
         }
 
+        public void sortChildNodesGuid()
+        {
+            // 子ノードを持つ項目は個別に子ノード内の子ノードソート処理を呼び出す
+            foreach (ParameterVO p in parameters)
+            {
+                p.sortChildNodesGuid();
+            }
+            ParameterGuidComparer comp = new ParameterGuidComparer();
+            parameters.Sort(comp);
+
+            TaggedValueGuidComparer cmp = new TaggedValueGuidComparer();
+            taggedValues.Sort(cmp);
+        }
 
         public string getParamDesc()
         {

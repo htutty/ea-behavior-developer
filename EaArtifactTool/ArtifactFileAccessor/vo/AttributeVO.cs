@@ -159,7 +159,7 @@ namespace ArtifactFileAccessor.vo
 		/// <summary>
 		/// 属性のタグ付き値
 		/// </summary>
-		public List<AttributeTagVO> taggedValues { get; set; }
+		public List<TaggedValueVO> taggedValues { get; set; }
 
 		//	Public EA_Type 'As String
 		/// <summary>
@@ -240,12 +240,15 @@ namespace ArtifactFileAccessor.vo
             sw.WriteLine("upperBound = " + upperBound );
             sw.WriteLine("visibility = " + visibility );
 
-            sw.Write("taggedValues=[" );
-            foreach (var tv in taggedValues)
+            if (taggedValues != null && taggedValues.Count > 0)
             {
-//                tv.getComparableString();
+                sw.WriteLine("taggedValues=[");
+                foreach (var tv in taggedValues)
+                {
+                    sw.WriteLine("tv=" + tv.getComparableString() + ",");
+                }
+                sw.WriteLine("]");
             }
-            sw.WriteLine("]");
 
             return sw.ToString();
         }
@@ -419,16 +422,26 @@ namespace ArtifactFileAccessor.vo
             return sw.ToString();
         }
 
+        public void sortChildNodes()
+        {
+            taggedValues.Sort();
+        }
+
+        public void sortChildNodeGuid()
+        {
+            TaggedValueGuidComparer cmp = new TaggedValueGuidComparer();
+            taggedValues.Sort(cmp);
+        }
 
     }
 
 
-	/// <summary>
-	/// Description of AttributeComparer.
-	/// </summary>
-	public class AttributeComparer : IComparer<AttributeVO>
+    /// <summary>
+    /// Description of AttributeComparer.
+    /// </summary>
+    public class AttributeGuidComparer : IComparer<AttributeVO>
 	{
-		public AttributeComparer()
+		public AttributeGuidComparer()
 		{
 		}
 

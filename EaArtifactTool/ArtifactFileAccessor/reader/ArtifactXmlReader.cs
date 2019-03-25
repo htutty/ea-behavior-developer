@@ -278,11 +278,13 @@ namespace ArtifactFileAccessor.reader
 
 			// ソート順指定フラグにより、ソート処理が分かれる
 			if (sortByPosFlg) {
-				pkgvo.sortChildPackages();
-				pkgvo.sortElements();
+                pkgvo.sortChildNodes();
+				//pkgvo.sortChildPackages();
+				//pkgvo.sortElements();
 			} else {
-				pkgvo.sortChildPackagesGUID();
-				pkgvo.sortElementsGUID();
+                pkgvo.sortChildNodesGuid();
+				//pkgvo.sortChildPackagesGUID();
+				//pkgvo.sortElementsGUID();
 			}
 
 		}

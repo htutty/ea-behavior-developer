@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace ArtifactFileAccessor.vo
 {
@@ -78,7 +79,54 @@ namespace ArtifactFileAccessor.vo
 			return (ParameterVO)MemberwiseClone();
 		}
 
-	}
+        /// <summary>
+        /// JavaのtoString()と同様、自身の項目値を全てつなげた文字列を生成して返却する
+        /// </summary>
+        /// <returns>自身の項目値を全てつなげた文字列</returns>
+        public string getComparableString()
+        {
+            StringWriter sw = new StringWriter();
+            sw.WriteLine("name = " + name);
+            sw.WriteLine("alias = " + alias);
+            sw.WriteLine("guid = " + guid);
+            sw.WriteLine("notes = " + notes);
+            sw.WriteLine("stereoType = " + stereoType);
+            sw.WriteLine("eaType = " + eaType);
+            sw.WriteLine("objectType = " + objectType);
+            sw.WriteLine("pos = " + pos);
+            sw.WriteLine("classifierID = " + classifierID);
+            sw.WriteLine("defaultValue = " + defaultValue);
+            sw.WriteLine("isConst = " + isConst);
+            // sw.WriteLine("styleEx = " + styleEx);
+            sw.WriteLine("kind = " + kind);
+
+            if( taggedValues != null && taggedValues.Count > 0)
+            {
+                sw.WriteLine("taggedValues=[");
+                foreach (var tv in taggedValues)
+                {
+                    sw.WriteLine("tv=" + tv.getComparableString() + ",");
+                }
+                sw.WriteLine("]");
+            }
+
+            return sw.ToString();
+        }
+
+
+        public void sortChildNodes()
+        {
+            taggedValues.Sort();
+        }
+
+
+        public void sortChildNodesGuid()
+        {
+            TaggedValueGuidComparer cmp = new TaggedValueGuidComparer();
+            taggedValues.Sort(cmp);
+        }
+
+    }
 
     /// <summary>
     /// Description of MethodComparer.

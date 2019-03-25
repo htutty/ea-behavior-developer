@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace ArtifactFileAccessor.vo
 {
@@ -47,15 +48,31 @@ namespace ArtifactFileAccessor.vo
 		public TaggedValueVO Clone() {
 			return (TaggedValueVO)MemberwiseClone();
 		}
-	}
 
 
-	/// <summary>
-	/// Description of TaggedValueComparer.
-	/// </summary>
-	public class TaggedValueComparer : IComparer<TaggedValueVO>
+        /// <summary>
+        /// JavaのtoString()と同様、自身の項目値を全てつなげた文字列を生成して返却する
+        /// </summary>
+        /// <returns>自身の項目値を全てつなげた文字列</returns>
+        public string getComparableString()
+        {
+            StringWriter sw = new StringWriter();
+            sw.WriteLine("name = " + name);
+            sw.WriteLine("guid = " + guid); 
+            sw.WriteLine("tagValue = " + tagValue);
+            sw.WriteLine("notes = " + notes);
+            return sw.ToString();
+        }
+
+    }
+
+
+    /// <summary>
+    /// Description of TaggedValueComparer.
+    /// </summary>
+    public class TaggedValueGuidComparer : IComparer<TaggedValueVO>
 	{
-		public TaggedValueComparer()
+		public TaggedValueGuidComparer()
 		{
 		}
 

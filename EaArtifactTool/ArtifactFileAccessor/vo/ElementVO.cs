@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.Collections.Generic;
+using System.IO;
 
 namespace ArtifactFileAccessor.vo
 {
@@ -24,7 +25,7 @@ namespace ArtifactFileAccessor.vo
 		/// <summary>ステレオタイプのコレクション</summary>
     	public string stereoType { get; set; }
 
-		// <summary>接続コレクション</summary>
+		/// <summary>接続コレクション</summary>
     	public List<ConnectorVO> connectors { get; set; }
 
 		/// <summary>作成日時</summary>
@@ -85,23 +86,15 @@ namespace ArtifactFileAccessor.vo
 		/// <summary>可視性</summary>
     	public string visibility { get; set; }
 
-		//	Public TransformToClass ' As String
-		/// <summary>変換先クラス名（FQCN）</summary>
-    	public string transformToClass { get; set; }
-
     	/// <summary> 要素の参照ファイル（このクラスに対応する実装コード）の情報 </summary>
     	public ElementReferenceVO elementReferenceVO { get; set; }
 
-
-		//	Public Properties ' As String
 		// <summary>要素のプロパティ</summary>
     	// public IList<PropertyVO> properties { get; set; }
 
-		//	Public Priority ' As Long
 		// <summary>優先度（要求要素などだけがもつ特殊プロパティ）</summary>
     	// public string Priority { get; set; }
 
-		//	Public ParentID ' As Long
 		// <summary>親要素ID（親の場合は0）</summary>
     	public int parentID { get; set; }
 
@@ -120,12 +113,36 @@ namespace ArtifactFileAccessor.vo
 			return ((this.treePos - o.treePos) == 0 ? this.name.CompareTo(o.name):(this.treePos - o.treePos));
 		}
 
+        public void sortChildNodes()
+        {
+            sortAttributes();
+            sortMethods();
+            sortTaggedValues();
+        }
+
    		public void sortMethods() {
-   			methods.Sort();
+
+            if (methods != null)
+            {
+                // 子ノードを持つ項目は個別に子ノード内の子ノードソート処理を呼び出す
+                foreach (MethodVO m in methods)
+                {
+                    m.sortChildNodes();
+                }
+
+                methods.Sort();
+            }
    		}
 
+
         public void sortMethodsGUID() {
-        	if (methods.Count > 0 ) {
+            // 子ノードを持つ項目は個別に子ノード内の子ノードソート処理を呼び出す
+            foreach (MethodVO m in methods)
+            {
+                m.sortChildNodes();
+            }
+
+            if (methods.Count > 0 ) {
         		MethodGuidComparer comp = new MethodGuidComparer();
 	        	methods.Sort(comp);
         	}
@@ -137,7 +154,7 @@ namespace ArtifactFileAccessor.vo
 
 		public void sortAttributesGUID() {
         	if (attributes.Count > 0 ) {
-        		AttributeComparer comp = new AttributeComparer();
+        		AttributeGuidComparer comp = new AttributeGuidComparer();
 	        	attributes.Sort(comp);
         	}
         }
@@ -148,7 +165,7 @@ namespace ArtifactFileAccessor.vo
 
    		public void sortTaggedValuesGUID() {
    			if (taggedValues.Count > 0 ) {
-        		TaggedValueComparer comp = new TaggedValueComparer();
+        		TaggedValueGuidComparer comp = new TaggedValueGuidComparer();
 	        	taggedValues.Sort(comp);
         	}
    		}
@@ -187,6 +204,31 @@ namespace ArtifactFileAccessor.vo
 
 			return sb.ToString();
    		}
+
+
+        public string getComparableString()
+        {
+            StringWriter sw = new StringWriter();
+            sw.WriteLine("name = " + name);
+            sw.WriteLine("alias = " + alias);
+            sw.WriteLine("guid = " + guid);
+            sw.WriteLine("elementId = " + elementId);
+            sw.WriteLine("notes = " + notes);
+            sw.WriteLine("stereoType = " + stereoType);
+            sw.WriteLine("objectType = " + objectType);
+            sw.WriteLine("author = " + author);
+            sw.WriteLine("created = " + created);
+            sw.WriteLine("modified = " + modified);
+            sw.WriteLine("objectType = " + objectType);
+            sw.WriteLine("packageID = " + packageID);
+            sw.WriteLine("tag = " + tag);
+            sw.WriteLine("treePos = " + treePos);
+            sw.WriteLine("eaType = " + eaType);
+            sw.WriteLine("version = " + version);
+            sw.WriteLine("visibility = " + visibility);
+            sw.WriteLine("parentID = " + parentID);
+            return sw.ToString();
+        }
 
 		// コピーを作成するメソッド
 		public ElementVO Clone() {
@@ -229,7 +271,7 @@ namespace ArtifactFileAccessor.vo
 			return cloned;
 		}
 
-	}
+    }
 
 
 	/// <summary>

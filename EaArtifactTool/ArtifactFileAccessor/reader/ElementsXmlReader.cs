@@ -276,7 +276,8 @@ namespace ArtifactFileAccessor.reader
         internal static AttributeVO readAttribute(XmlNode aNode)
 		{
 			AttributeVO attvo = new AttributeVO();
-			Int32 p=0;
+            List<TaggedValueVO> retTagValList = new List<TaggedValueVO>();
+            Int32 p=0;
 
 			foreach (XmlAttribute attr in aNode.Attributes) {
 				switch (attr.Name) {
@@ -393,6 +394,13 @@ namespace ArtifactFileAccessor.reader
 				attvo.notes = aNode.SelectSingleNode("notes").InnerText;
 			}
 
+            // タグ付き値の読み込み
+            if ("taggedValues".Equals(aNode.Name))
+            {
+                retTagValList = readTaggedValues(aNode);
+            }
+            attvo.taggedValues = retTagValList;
+
             XmlNode srcAttrNode = aNode.SelectSingleNode("srcAttribute");
             XmlNode destAttrNode = aNode.SelectSingleNode("destAttribute");
             if (attvo.changed == 'U' && srcAttrNode != null && destAttrNode != null)
@@ -410,6 +418,7 @@ namespace ArtifactFileAccessor.reader
             MethodVO mthvo = new MethodVO();
             Int32 p = 0;
 
+            // methodタグの属性をなめる
             foreach (XmlAttribute attr in mNode.Attributes)
             {
                 switch (attr.Name)
@@ -495,6 +504,8 @@ namespace ArtifactFileAccessor.reader
             mthvo.notes = "";
             mthvo.returnType = "";
             mthvo.visibility = "";
+
+            List<TaggedValueVO> retTagValList = new List<TaggedValueVO>();
             mthvo.parameters = new List<ParameterVO>();
 
             foreach(XmlNode mc in mNode.ChildNodes)
@@ -515,6 +526,9 @@ namespace ArtifactFileAccessor.reader
                         break;
                     case "parameters":
                         mthvo.parameters = readParameters(mc);
+                        break;
+                    case "taggedValues":
+                        mthvo.taggedValues = readTaggedValues(mc);
                         break;
                 }
 
