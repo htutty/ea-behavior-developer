@@ -25,20 +25,36 @@ namespace ArtifactFileAccessor.vo
         public int pos { get; set; }
 
         /// <summary>
-        /// このチャンクの次処理を示すID
-        /// </summary>
-        public int nextChunkId { get; set; }
-
-        /// <summary>
         /// このチャンクの親を示すID。
         /// </summary>
         public int parentChunkId { get; set; }
 
+        /// <summary>
+        /// このチャンクと同レベルで１つ前のチャンクを示すID
+        /// </summary>
+        public int previousChunkId { get; set; }
+
         /// <summary> １．２．３ のようにドットでつながれた連番 </summary>
         public string dottedNum { get; set; }
 
+        /// <summary>
+        /// インデントのレベル。最上位は０
+        /// </summary>
+        public int indLv { get; set; }
+
+        /// <summary>
+        /// 自分が後続チャンクを持っているか。
+        /// 後続チャンクとは、以下のようなふるまい行における2行目以降のこと。
+        /// 「１．２．１　・・・の場合、・・・・
+        ///   　　　　　　かつ、・・・の場合、・・・・
+        ///   　　　　　　もしくは、・・・の場合、・・・・」
+        /// 
+        /// </summary>
         public bool hasFollower { get; set; }
 
+        /// <summary>
+        /// 自分に先行するチャンクのID
+        /// </summary>
         public int followeeIdx { get; set; }
 
         /// <summary> インデント部分 </summary>
