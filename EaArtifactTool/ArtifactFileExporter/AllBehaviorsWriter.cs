@@ -89,66 +89,24 @@ namespace ArtifactFileExporter
             string[] delimiter = { "\r\n" };
             string[] lins = multiRowsText.Split(delimiter, StringSplitOptions.None);
 
-            List<BehaviorChunk> chunkList = parseBehavior(lins, sw);
+            List<BehaviorChunk> chunkList = parseBehavior(lins);
 
-            Boolean dottedFlg = false;
-
-            for(int i=0; i < chunkList.Count; i++)
+            foreach(BehaviorChunk cnk in chunkList)
             {
-                var chunk = chunkList[i];
-
-                if( chunk.dottedNum != null )
-                {
-                    dottedFlg = true;
-                }
-
-                if( dottedFlg )
-                {
-                    for(int j=i+1; j < chunkList.Count; j++)
-                    {
-                        BehaviorChunk nextChunk = chunkList[j];
-
-                        if(nextChunk.dottedNum == null)
-                        {
-                            chunk.hasFollower = true;
-                            nextChunk.followeeIdx = i;
-                        }
-                        else
-                        {
-                            // ループを抜ける
-                            break;
-                        }
-
-                    }
-                }
-
+                writeLine(cnk, sw);
             }
-
-
-            for (int i = 0; i < chunkList.Count; i++)
-            {
-                var chunk = chunkList[i];
-
-                if (chunk.hasFollower)
-                {
-                    for (int j = i + 1; j < chunkList.Count; j++)
-                    {
-                        BehaviorChunk nextChunk = chunkList[j];
-                        if (i == nextChunk.followeeIdx)
-                        {
-                            chunk.behavior = chunk.behavior + "#\\n#" + nextChunk.behavior;
-                        }
-                    }
-
-                }
-
-            }
-
-
-
             // sw.WriteLine(multiRowsText);
 
         }
+
+
+        // 文字の出現回数をカウント
+        private int countChar(string s, string c)
+        {
+            return s.Length - s.Replace(c.ToString(), "").Length;
+        }
+
+
 
         private int chunkCount = 1;
 
@@ -158,7 +116,7 @@ namespace ArtifactFileExporter
         /// <param name="tlin"></param>
         /// <param name="idx"></param>
         /// <returns></returns>
-        private List<BehaviorChunk> parseBehavior(string[] tlin, StreamWriter sw)
+        private List<BehaviorChunk> parseBehavior(string[] tlin)
         {
             Console.WriteLine("start parsedBehavior()");
 
@@ -175,8 +133,14 @@ namespace ArtifactFileExporter
                     continue;
                 }
 
-                // "１．２．３"の部分のあるふるまい行は、行番号部分を抽出する
+                // 全角・半角空白のtrim()結果が空文字列なら出力外
                 string trm = l.Trim(' ', '　');
+                if(trm == "")
+                {
+                    continue;
+                }
+
+                // "１．２．３"の部分のあるふるまい行は、行番号部分を抽出する
                 matche = Regex.Match(trm, "^[０-９][０-９．]*");
                 if (matche.Success)
                 {
@@ -184,22 +148,23 @@ namespace ArtifactFileExporter
 
                     BehaviorChunk chunk = new BehaviorChunk();
                     chunk.pos = idx + 1;
-                    chunk.behavior = bodyText;
+                    chunk.behavior = bodyText.Trim(' ', '　');
                     chunk.dottedNum = matche.Value;
-                    chunk.indent = null;
+                    chunk.indent = "";
                     chunk.methodId = parsingMethod.methodId;
 
                     chunkList.Add(chunk);
                 }
                 else
                 {
-                    // そうでないふるまい行は先頭の空白を行番号とする
+                    // そうでないふるまい行は先頭の空白をインデントとして保持し、
+                    // 項番はNULLにする
                     matche = Regex.Match(l, "^[　 ]*");
 
                     BehaviorChunk chunk = new BehaviorChunk();
                     chunk.pos = idx + 1;
                     chunk.behavior = trm;
-                    chunk.dottedNum = null;
+                    chunk.dottedNum = "";
                     chunk.indent = matche.Value;
                     chunk.methodId = parsingMethod.methodId;
 
@@ -208,33 +173,214 @@ namespace ArtifactFileExporter
 
             }
 
-            return chunkList;
+            // 1パスで作成されたふるまいチャンクリストを再度解析（2パス）
+            bool dottedFlg = false;
+            for (int i = 0; i < chunkList.Count; i++)
+            {
+                // １．１のようなドットでつながれた番号を持つ行かを判断
+                var chunk = chunkList[i];
+                if (chunk.dottedNum != null)
+                {
+                    dottedFlg = true;
+                }
+
+                if (dottedFlg)
+                {
+                    // 全角ドットの数を数え、インデントレベルを取得
+                    chunk.indLv = countChar(chunk.dottedNum, "．") + 1;
+
+                    for (int j = i + 1; j < chunkList.Count; j++)
+                    {
+                        BehaviorChunk nextChunk = chunkList[j];
+
+                        if (nextChunk.dottedNum == "")
+                        {
+                            chunk.hasFollower = true;
+                            nextChunk.followeeIdx = i;
+                        }
+                        else
+                        {
+                            // ループを抜ける
+                            break;
+                        }
+
+                    }
+                }
+                else
+                {
+                    // 空白の数を数え、インデントレベルを取得
+                    chunk.indLv = countChar(chunk.indent, "　") * 2 + countChar(chunk.indent, " ");
+
+                }
+
+            }
+
+
+            // ふるまいチャンクリストを再度解析し、返却用リストに詰める（３パス）
+            List<BehaviorChunk> retList = new List<BehaviorChunk>();
+            int saveIndLv = 0;
+            for (int i = 0; i < chunkList.Count; i++)
+            {
+                var chunk = chunkList[i];
+
+                // 後続チャンクが存在したら
+                if (chunk.hasFollower)
+                {
+                    // 後続チャンクが続く限り、ふるまいの内容を自チャンクに付加する（仮想改行文字付き）
+                    for (int j = i + 1; j < chunkList.Count; j++)
+                    {
+                        BehaviorChunk nextChunk = chunkList[j];
+                        if (i == nextChunk.followeeIdx)
+                        {
+                            // 続く処理でインデントレベルがぶつからないように後続チャンクには大きな数をセット
+                            nextChunk.indLv = 999;
+                            chunk.behavior = chunk.behavior + "#\\n#" + nextChunk.behavior;
+                        }
+                        else
+                        {
+                            // 後続チャンクの分、インデックスを進めてforを抜ける
+                            i = j - 1;
+                            break;
+                        }
+                    }
+                }
+
+                // chunkId を採番
+                chunkCount++;
+                chunk.chunkId = chunkCount;
+
+                // 2行目以降：　親チャンク、兄弟（インデントレベルが同じ）をセット
+                if (i > 0)
+                {
+                    // 1つ前のインデントレベルと比較し同じだったら
+                    if (chunk.indLv == saveIndLv)
+                    {
+                        // 自分のインデントレベルより小さい最後のチャンクを探し、それを親とみなす
+                        chunk.parentChunkId = searchParentChunkId(chunkList, chunk.indLv, i);
+
+                        // 前チャンクID＝１つ前の行のチャンクIDをセット
+                        chunk.previousChunkId = chunkList[i-1].chunkId;
+                    }
+                    // 1つ前のインデントレベルと比較し自分が大きい、もしくは小さい場合で、
+                    // かつインデントレベルが０より大きい場合（何かの子になるはず）
+                    else if (chunk.indLv > 0)
+                    {
+                        // 自分のインデントレベルより小さい最後のチャンクを探し、それを親とみなす
+                        chunk.parentChunkId = searchParentChunkId(chunkList, chunk.indLv, i);
+
+                        // 自分のインデントレベルと等しい最後のチャンクを探す。かつ小さくなる前にマッチしたものを返す
+                        chunk.previousChunkId = searchPreviousChunkId(chunkList, chunk.indLv, i);
+                    }
+                    // 1つ前のインデントレベルと比較し自分が大きい、もしくは小さい場合で、
+                    // かつインデントレベルが０の場合
+                    else
+                    {
+                        // 親の検索は不要で親無しになる
+                        chunk.parentChunkId = 0;
+                        // 自分のインデントレベルと等しい最後のチャンクを探す。かつ小さくなる前にマッチしたものを返す
+                        chunk.previousChunkId = searchPreviousChunkId(chunkList, chunk.indLv, i);
+                    }
+
+                }
+                // 1行目は親も兄弟もなし
+                else
+                {
+                    chunk.parentChunkId = 0;
+                    chunk.previousChunkId = 0;
+                }
+
+                retList.Add(chunk);
+                saveIndLv = chunk.indLv;
+            }
+
+
+            return retList;
         }
 
 
-        private void writeLine(string str, StreamWriter sw)
+        private int searchParentChunkId(List<BehaviorChunk> chunkList, int targetIndLv, int childIdx)
         {
-            string trm = str.Trim(' ', '　');
-
-            if (trm.Length > 0)
+            if (childIdx > 0 && targetIndLv > 0)
             {
-                sw.WriteLine("{0}\t{{ \"chunkId\": {1}, \"behavior\": \"{2}\" }}", chunkCount, chunkCount, escapeJson(trm));
-                chunkCount++;
+                // 子のインデックスの１つ上から上になめる
+                for(int i=childIdx-1; i >= 0; i--)
+                {
+                    // より小さなインデックスレベルのチャンクを見つけたら
+                    var chunk = chunkList[i];
+                    if( chunk.indLv < targetIndLv)
+                    {
+                        // 該当のチャンクIDを返却
+                        return chunk.chunkId;
+                    }
+                }
+
+                // 先頭まで戻っても、より小さいインデントレベルが見つからなかったら
+                // 親無しの扱い(0)にする
+                return 0;
             }
+            else
+            {
+                // 親無しの扱いにする
+                return 0;
+            }
+
         }
 
 
-        private void writeLine(string dottedNum, string str, StreamWriter sw)
+        /// <summary>
+        /// 自分のインデントレベルと同じ最初のチャンクを探す。かつ小さくなる前にマッチしたものを返す
+        /// 
+        /// 例：
+        /// [101]１
+        /// [102]□１．１　　　　　　　← previous は 0
+        /// [103]□□１．１．１
+        /// [104]□□□１．１．１．１
+        /// [105]□１．２　　　　　　　← previous は 102
+        /// </summary>
+        /// <param name="chunkList"></param>
+        /// <param name="targetIndLv"></param>
+        /// <param name="childIdx"></param>
+        /// <returns></returns>
+        private int searchPreviousChunkId(List<BehaviorChunk> chunkList, int targetIndLv, int childIdx)
         {
-            string trm = str.Trim(' ', '　');
-
-            if (trm.Length > 0)
+            if (childIdx > 0 && targetIndLv > 0)
             {
-                sw.WriteLine("{0}\t{{ \"chunkId\": {1}, \"methodId\": {2},  \"dottedNum\": \"{3}\",  \"behavior\": \"{4}\" }}",
-                    chunkCount, chunkCount, parsingMethod.methodId, dottedNum, escapeJson(trm));
-                chunkCount++;
+                // 子のインデックスの１つ上から上になめる
+                for (int i = childIdx - 1; i >= 0; i--)
+                {
+                    var chunk = chunkList[i];
+                    // 自分と同じインデックスレベルのチャンクを(先に)見つけたら
+                    if (chunk.indLv == targetIndLv)
+                    {
+                        // 該当のチャンクIDを返却
+                        return chunk.chunkId;
+                    }
+                    // より小さなインデックスレベルのチャンクを見つけたら
+                    else if (chunk.indLv < targetIndLv)
+                    {
+                        return 0;
+                    }
+                }
+
+                // 先頭まで戻っても、同じインデントレベルが見つからなかったら
+                // 親無しの扱い(0)にする
+                return 0;
+            }
+            else
+            {
+                // 親無しの扱いにする
+                return 0;
             }
 
+        }
+
+        private void writeLine(BehaviorChunk cnk, StreamWriter sw)
+        {
+            sw.WriteLine("{0}\t{{ \"chunkId\": {1}, \"methodId\": {2},  \"dottedNum\": \"{3}\",  \"behavior\": \"{4}\""
+                + ", \"pos\": {5}, \"parentId\": {6}, \"previousId\": {7} }}",
+                cnk.chunkId, cnk.chunkId, cnk.methodId, cnk.dottedNum, escapeJson(cnk.behavior),
+                cnk.pos, cnk.parentChunkId, cnk.previousChunkId);
+            // chunkCount++;
         }
 
         private string escapeJson(string orig)
