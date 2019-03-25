@@ -234,20 +234,26 @@ namespace ArtifactFileExporter
                         {
                             // 続く処理でインデントレベルがぶつからないように後続チャンクには大きな数をセット
                             nextChunk.indLv = 999;
-                            chunk.behavior = chunk.behavior + "#\\n#" + nextChunk.behavior;
+                            chunk.behavior = chunk.behavior + "#\n#" + nextChunk.behavior;
                         }
                         else
                         {
                             // 後続チャンクの分、インデックスを進めてforを抜ける
-                            i = j - 1;
                             break;
                         }
                     }
                 }
 
-                // chunkId を採番
-                chunkCount++;
-                chunk.chunkId = chunkCount;
+                if (chunk.followeeIdx == 0)
+                {
+                    chunk.chunkId = chunkCount++;
+                    retList.Add(chunk);
+                }
+            }
+
+            for (int i = 0; i < retList.Count; i++)
+            {
+                var chunk = retList[i];
 
                 // 2行目以降：　親チャンク、兄弟（インデントレベルが同じ）をセット
                 if (i > 0)
@@ -289,7 +295,6 @@ namespace ArtifactFileExporter
                     chunk.previousChunkId = 0;
                 }
 
-                retList.Add(chunk);
                 saveIndLv = chunk.indLv;
             }
 
@@ -329,7 +334,7 @@ namespace ArtifactFileExporter
 
         /// <summary>
         /// 自分のインデントレベルと同じ最初のチャンクを探す。かつ小さくなる前にマッチしたものを返す
-        /// 
+        ///
         /// 例：
         /// [101]１
         /// [102]□１．１　　　　　　　← previous は 0
