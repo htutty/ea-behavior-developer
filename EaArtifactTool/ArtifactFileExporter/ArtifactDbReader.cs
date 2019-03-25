@@ -171,14 +171,14 @@ namespace ArtifactFileExporter
             dbCom.CommandText = strSQL;
             dbCom.Connection = objConn;
 
-            var retAttrTags = new List<AttributeTagVO>();
+            var retAttrTags = new List<TaggedValueVO>();
             OleDbDataReader reader = dbCom.ExecuteReader();
 
             while (reader.Read())
             {
                 attributeId = DbUtil.readIntField(reader, 0);
 
-                AttributeTagVO atag = new AttributeTagVO();
+                TaggedValueVO atag = new TaggedValueVO();
 
                 atag.guid = DbUtil.readStringField(reader, 2);
                 atag.name = StringUtil.excludeSpecialChar("t_attributetag", "Property", atag.guid, DbUtil.readStringField(reader, 3));
@@ -188,7 +188,7 @@ namespace ArtifactFileExporter
                 if (savedAttributeId > 0 && savedAttributeId < attributeId)
                 {
                     attrIdx = searchAttributeAndSetTags(attributes, savedAttributeId, attrIdx + 1, retAttrTags);
-                    retAttrTags = new List<AttributeTagVO>();
+                    retAttrTags = new List<TaggedValueVO>();
                 }
 
                 retAttrTags.Add(atag);
@@ -212,7 +212,7 @@ namespace ArtifactFileExporter
         /// <param name="startIdx">開始インデックス</param>
         /// <param name="atags">属性のタグ付き値リスト</param>
         /// <returns></returns>
-        private int searchAttributeAndSetTags(List<AttributeVO> attributes, int targetAttrId, int startIdx, List<AttributeTagVO> atags)
+        private int searchAttributeAndSetTags(List<AttributeVO> attributes, int targetAttrId, int startIdx, List<TaggedValueVO> atags)
         {
             for (int i = startIdx; i < attributes.Count; i++)
             {
@@ -444,6 +444,23 @@ namespace ArtifactFileExporter
         #endregion
 
         #region 成果物リスト生成
+
+        /// <summary>
+        /// 全成果物VOを取得
+        /// </summary>
+        /// <param name="projectName"></param>
+        /// <returns></returns>
+        public ArtifactsVO getAllArtifacts(string projectName)
+        {
+            // 全成果物オブジェクトを初期化し、データをセット
+            ArtifactsVO retArtifacts = new ArtifactsVO();
+            retArtifacts.targetProject = projectName;
+            retArtifacts.targetModel = "";
+            retArtifacts.artifactList = getArtifactList();
+
+            return retArtifacts;
+        }
+
         /// <summary>
         /// 要素が内蔵された全パッケージリストから成果物リストを生成して返却する
         /// </summary>
@@ -454,8 +471,6 @@ namespace ArtifactFileExporter
         {
             try {
                 var retArtifactList = new List<ArtifactVO>();
-                // ArtifactsVO artifacts = new ArtifactsVO();
-                // artifacts.artifactList = new List<ArtifactVO>();
 
                 // DBから全ルートパッケージ読み込み
                 readAllRootPackages();
@@ -559,10 +574,10 @@ namespace ArtifactFileExporter
                     rootPack.pathName = rootPack.name;
 
                     // このパッケージ配下の要素を読み込み
-                    readElements(rootPack);
+                    // readElements(rootPack);
 
                     // パッケージ配下のパッケージを読み込み（再帰処理）
-                    readSubPackage(rootPack);
+                    readSubPackage(rootPack, false);
 
                     // 返却用のパッケージリストにこのパッケージを追加
                     rootPackages.Add(rootPack);
@@ -580,7 +595,7 @@ namespace ArtifactFileExporter
         /// 親の存在するサブパッケージ配下のパッケージ、要素の読み込み
         /// </summary>
         /// <param name="parent"></param>
-        private void readSubPackage(PackageVO parent)
+        private void readSubPackage(PackageVO parent, bool isNeccesseryReadElemDiag)
         {
             Console.WriteLine("readSubPackage(): " + parent.name + "packageID =" + parent.packageId);
 
@@ -625,14 +640,23 @@ namespace ArtifactFileExporter
                     pack.isControlled = DbUtil.readBoolField(reader, 7);
                     pack.pathName = parent.pathName + "/" + pack.name;
 
-                    // このパッケージ配下の要素読み込み
-                    readElements(pack);
+                    // このパッケージに isControlled が立っていたら、
+                    // 以降の要素とダイアグラムを読み込むフラグを立てる
+                    if(pack.isControlled)
+                    {
+                        isNeccesseryReadElemDiag = true;
+                    }
 
-                    // このパッケージ配下のダイアグラム読み込み
-                    readDiagrams(pack);
+                    if(isNeccesseryReadElemDiag)
+                    {
+                        // このパッケージ配下の要素読み込み
+                        readElements(pack);
 
+                        // このパッケージ配下のダイアグラム読み込み
+                        readDiagrams(pack);
+                    }
                     // このパッケージ配下の子パッケージ読み込み
-                    readSubPackage(pack);
+                    readSubPackage(pack, isNeccesseryReadElemDiag);
 
                     retPackages.Add(pack);
 
