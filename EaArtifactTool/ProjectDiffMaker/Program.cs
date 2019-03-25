@@ -41,7 +41,7 @@ namespace ProjectDiffMaker
 				differ.outputMerged();
 			} else {
 				Console.WriteLine("引数が足りません");
-				Console.WriteLine("usage: ProjectDiffMaker.exe <動作モード(-all/-skipnotes)> <比較元Dir> <比較先Dir> <diffOutputDir> ");
+				Console.WriteLine("usage: ProjectDiffMaker.exe <動作モード(-all/-skipnotes)> <比較元Project(.bdprj)> <比較先Project(.bdprj)> <diffOutputDir> ");
 			}
 			
 //			Console.Write("Press any key to continue . . . ");
