@@ -42,13 +42,8 @@ namespace ArtifactFileExporter
 
                 // DBからの成果物情報読み込みクラスを起動
                 ArtifactDbReader atfReader = new ArtifactDbReader(conn);
-                List<ArtifactVO> retArtifactList = atfReader.getArtifactList();
+                this.allArtifacts =  atfReader.getAllArtifacts(projectName);
 
-                // 全成果物オブジェクトを初期化し、データをセット
-                this.allArtifacts = new ArtifactsVO();
-                this.allArtifacts.targetProject = projectName;
-                this.allArtifacts.targetModel = "";
-                this.allArtifacts.artifactList = retArtifactList;
 
                 // 全接続情報リストXMLファイルを出力
                 AllConnectorsExporter expConn = new AllConnectorsExporter(conn, atfReader.AllPackageMap);
@@ -90,6 +85,7 @@ namespace ArtifactFileExporter
             // csvWriter.outputElementsCsv(this.allArtifacts);
             // csvWriter.outputMthAttrCsv(this.allArtifacts);
 
+            // ふるまいファイルの出力
             AllBehaviorsWriter bhvWriter = new AllBehaviorsWriter(outputDir);
             bhvWriter.outputBehaviorsText(this.allArtifacts);
         }
