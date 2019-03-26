@@ -20,6 +20,8 @@
     <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
     <WarningLevel>4</WarningLevel>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -46,10 +48,23 @@
     <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EA">
-      <HintPath>..\EA.dll</HintPath>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net40\EntityFramework.dll</HintPath>
     </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net40\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="Interop.EA">
+      <HintPath>..\..\..\..\Program Files (x86)\SparxSystems Japan\EA\Interop.EA.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Office.Interop.Word" />
+    <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -58,8 +73,14 @@
     <Reference Include="System.Data.DataSetExtensions">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Data.SQLite">
-      <HintPath>..\..\..\..\Program Files %28x86%29\System.Data.SQLite\2010\bin\System.Data.SQLite.dll</HintPath>
+    <Reference Include="System.Data.SQLite, Version=1.0.109.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SQLite.Core.1.0.109.2\lib\net40\System.Data.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.SQLite.EF6, Version=1.0.109.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SQLite.EF6.1.0.109.0\lib\net40\System.Data.SQLite.EF6.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.SQLite.Linq, Version=1.0.109.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SQLite.Linq.1.0.109.0\lib\net40\System.Data.SQLite.Linq.dll</HintPath>
     </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
@@ -67,8 +88,21 @@
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AttributePropertyForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AttributePropertyForm.Designer.cs">
+      <DependentUpon>AttributePropertyForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DiffElementForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DiffElementForm.Designer.cs">
+      <DependentUpon>DiffElementForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="ElementForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -87,16 +121,26 @@
     <Compile Include="MethodBehaviorEditForm.Designer.cs">
       <DependentUpon>MethodBehaviorEditForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="MethodPropertyForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MethodPropertyForm.Designer.cs">
+      <DependentUpon>MethodPropertyForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="SearchElementListForm.cs" />
+    <Compile Include="SearchElementListForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="SearchElementListForm.Designer.cs">
       <DependentUpon>SearchElementListForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="SplashForm.cs" />
+    <Compile Include="SplashForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="SplashForm.Designer.cs">
       <DependentUpon>SplashForm.cs</DependentUpon>
     </Compile>
@@ -111,30 +155,23 @@
     </Compile>
     <Compile Include="usercontrol\vo\HeaderNumber.cs" />
     <Compile Include="usercontrol\vo\HistoryBehavior.cs" />
-    <Compile Include="util\ArtifactXmlReader.cs" />
-    <Compile Include="util\ArtifactsXmlReader.cs" />
+    <Compile Include="util\ClassDocumentMaker.cs" />
     <Compile Include="util\ConnectorSearcher.cs" />
-    <Compile Include="util\ConnectorXmlReader.cs" />
     <Compile Include="util\ElementSearcher.cs" />
-    <Compile Include="util\ElementsXmlReader.cs" />
-    <Compile Include="util\ProjectSetting.cs" />
     <Compile Include="util\StringUtil.cs" />
-    <Compile Include="vo\ArtifactVO.cs" />
     <Compile Include="vo\AttributeMethod.cs" />
-    <Compile Include="vo\AttributeVO.cs" />
-    <Compile Include="vo\ConnectorVO.cs" />
     <Compile Include="vo\CompareItem.cs" />
     <Compile Include="vo\CompareProperty.cs" />
     <Compile Include="vo\CrossReference.cs" />
-    <Compile Include="vo\ElementSearchVO.cs" />
-    <Compile Include="vo\ElementVO.cs" />
     <Compile Include="vo\Item.cs" />
-    <Compile Include="vo\MethodVO.cs" />
-    <Compile Include="vo\PackageVO.cs" />
-    <Compile Include="vo\ProjectSettingVO.cs" />
-    <Compile Include="vo\TaggedValueVO.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="AttributePropertyForm.resx">
+      <DependentUpon>AttributePropertyForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DiffElementForm.resx">
+      <DependentUpon>DiffElementForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="ElementForm.resx">
       <DependentUpon>ElementForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -144,7 +181,13 @@
     <EmbeddedResource Include="MethodBehaviorEditForm.resx">
       <DependentUpon>MethodBehaviorEditForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.resx" />
+    <EmbeddedResource Include="MethodPropertyForm.resx">
+      <DependentUpon>MethodPropertyForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="SearchElementListForm.resx">
       <DependentUpon>SearchElementListForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -154,9 +197,35 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="packages.config" />
+    <None Include="Resources\ICON_SYMBOL_CLASS.png" />
+    <None Include="Resources\ICON_SYMBOL_METHOD.png" />
+    <None Include="Resources\ICON_SYMBOL_ATTRIBUTE.png" />
     <None Include="Resources\ICON_BEHAVIOR.ico" />
     <None Include="Resources\NumberingOFF.png" />
     <None Include="Resources\NumberingON.png" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BDFileReader\BDFileReader.csproj">
+      <Project>{6070881C-93B6-402C-8539-8876A3F2A1D7}</Project>
+      <Name>BDFileReader</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ProjectDiffMaker\ProjectDiffMaker.csproj">
+      <Project>{C7D0C9F4-6425-4706-B909-2CA50C785D29}</Project>
+      <Name>ProjectDiffMaker</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VoidNish.Diff\VoidNish.Diff.csproj">
+      <Project>{7F2DFFF8-1202-4C31-9D3F-094CB7528A65}</Project>
+      <Name>VoidNish.Diff</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\System.Data.SQLite.Core.1.0.109.2\build\net40\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.109.2\build\net40\System.Data.SQLite.Core.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>このプロジェクトは、このコンピューター上にない NuGet パッケージを参照しています。それらのパッケージをダウンロードするには、[NuGet パッケージの復元] を使用します。詳細については、http://go.microsoft.com/fwlink/?LinkID=322105 を参照してください。見つからないファイルは {0} です。</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\System.Data.SQLite.Core.1.0.109.2\build\net40\System.Data.SQLite.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Data.SQLite.Core.1.0.109.2\build\net40\System.Data.SQLite.Core.targets'))" />
+  </Target>
 </Project>

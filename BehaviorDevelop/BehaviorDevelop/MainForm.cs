@@ -10,10 +10,15 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Drawing;
+using System.Xml;
 using System.Windows.Forms;
 using System.IO;
+using BDFileReader.writer;
 using BehaviorDevelop.util;
-using BehaviorDevelop.vo;
+using BDFileReader.vo;
+using BDFileReader.util;
+using BDFileReader.reader;
+using EA;
 
 namespace BehaviorDevelop
 {
@@ -23,6 +28,8 @@ namespace BehaviorDevelop
 	public partial class MainForm : Form
 	{
 		TreeNode rootNode = new TreeNode("ルート");
+		
+		// EA.Repository eaRepo ;
 		
 		private IList<ArtifactVO> artifacts;
 		
@@ -39,6 +46,8 @@ namespace BehaviorDevelop
 			//
 			InitializeComponent();
 			
+			this.artifacts = new List<ArtifactVO>();
+			
 			projectPath = null;
 		}
 
@@ -50,6 +59,8 @@ namespace BehaviorDevelop
 			//
 			InitializeComponent();
 			
+			this.artifacts = new List<ArtifactVO>();
+
 			if( ProjectSetting.load(prjfile) ) {
 				projectPath = Path.GetDirectoryName(prjfile);
 				this.Text = prjfile;
@@ -60,6 +71,7 @@ namespace BehaviorDevelop
 			
 		}
 
+		#region "フォームの初期化およびパッケージツリーの作成処理"
 		
 		void MainFormLoad(object sender, EventArgs e)
 		{
@@ -68,6 +80,7 @@ namespace BehaviorDevelop
 
 		
 		private void init() {
+			this.artifacts.Clear();
 			this.treeView1.Nodes.Clear();
 			this.treeNodeMap.Clear();
 			if( this.tabControl1.TabPages.Count > 1 ) {
@@ -76,8 +89,9 @@ namespace BehaviorDevelop
 				
 			if ( this.projectPath != null) {
 				initProject();
+				
 				// 使用するDBファイルの存在チェック
-				if ( !existDbFile(ProjectSetting.getVO().dbName) ) {
+				if ( !System.IO.File.Exists(ProjectSetting.getVO().dbName) ) {
 					// 読み込みが終わるまでモーダルでスプラッシュ画面を開く
 					SplashForm splashForm = new SplashForm();
 					
@@ -85,18 +99,17 @@ namespace BehaviorDevelop
 					splashForm.CloseOnLoadComplete(this.projectPath, ProjectSetting.getVO().dbName);
 				}
 			}
-			
-		}
-		
-		private Boolean existDbFile(string dbpath) {
-			return File.Exists(dbpath);
+
+			AttachEA();			
 		}
 		
 		
 		private void initProject() {
 			string artifactsFileName = ProjectSetting.getVO().artifactsFile;
+            string artifactDir = this.projectPath + "\\" + ProjectSetting.getVO().artifactsPath;
+
 			// artifactList.Items.Clear();
-			this.artifacts = ArtifactsXmlReader.readArtifactList(projectPath, artifactsFileName);
+			this.artifacts = ArtifactsXmlReader.readArtifactList(artifactDir, artifactsFileName);
 				
 			string atfnodename;
 			for ( int i=0; i < artifacts.Count; i++ ) {
@@ -146,8 +159,42 @@ namespace BehaviorDevelop
 			myNode.Nodes.Add(newNode);
 			return newNode;
 		}
+
+		#endregion
+
 		
+		#region "外部から呼び出される公開メソッド"
+		/// <summary>
+		/// GUIDにより成果物リストを検索し、成果物パネルをアクティベートする。
+		/// 主にクラス検索画面から要素編集画面を開くついでに呼び出される。
+		/// </summary>
+		/// <param name="guid">成果物パッケージのGUID</param>
+		/// <returns>成果物VO</returns>
+		public ArtifactVO getArtifactByGuid(string guid) {
+			TreeNode tn = null;
+            treeNodeMap.TryGetValue(guid, out tn);
+
+            ArtifactVO atfvo = (ArtifactVO)tn.Tag;
+			return activateArtifactPanel(atfvo);
+		}
 		
+		/// <summary>
+		/// 引数の要素VOで要素編集画面をモードレスで開く。
+		/// 主にクラス検索画面から呼び出される。
+		/// </summary>
+		/// <param name="elemvo"></param>
+		public void openNewElementForm(ElementVO elemvo) {
+			ElementForm eForm = new ElementForm( ref elemvo );
+			eForm.Show(this);			
+		}
+		
+		/// <summary>
+		/// 成果物パネルのアクティベート。
+		/// 主にパッケージツリーで成果物PKGを選択した時に呼び出され、新たに成果物情報をファイルから読んで成果物パネルを表示する。
+		/// あるいは既に成果物パネルの開いているタブ内で表示されている場合はそのタブをアクティベートして終了する。
+		/// </summary>
+		/// <param name="atf"></param>
+		/// <returns></returns>
 		public ArtifactVO activateArtifactPanel(ArtifactVO atf) {
 			// 既にタブページで対象の成果物を開いていないかをチェックする
 			foreach( TabPage page in tabControl1.TabPages ) {
@@ -159,8 +206,10 @@ namespace BehaviorDevelop
 					return atf;
 				}
 			}
-			
-			ArtifactXmlReader atfReader = new ArtifactXmlReader(projectPath);
+
+            string artifactDir = this.projectPath + "\\" + ProjectSetting.getVO().artifactsPath;
+
+            ArtifactXmlReader atfReader = new ArtifactXmlReader(artifactDir, true);
 			// 成果物パッケージ別のXMLファイル読み込み
 			atfReader.readArtifactDesc(atf);
 
@@ -200,67 +249,6 @@ namespace BehaviorDevelop
 			
 			return atf ;
 		}
-
-		
-		private void makeElementsPanelContents(FlowLayoutPanel elemPanel, PackageVO pac) {
-			addPackageLabels(elemPanel, pac, 0);
-		}
-		
-		private void addPackageLabels(FlowLayoutPanel elemPanel, PackageVO pac, int depth ) {
-			Label pacLabel = new Label();
-			pacLabel.Text = "          ".Substring(1, depth) +"□" + pac.name ;
-			pacLabel.AutoSize = true ;
-			elemPanel.Controls.Add(pacLabel);
-
-			addElementLabels(elemPanel, pac.elements, depth+1);
-			
-			foreach( PackageVO c in pac.childPackageList ) {
-				addPackageLabels(elemPanel, c, depth+1);
-			}
-			
-		}
-
-		/// <summary>
-		/// 成果物パッケージ内の要素
-		/// </summary>
-		/// <param name="elemPanel"></param>
-		/// <param name="elements"></param>
-		/// <param name="depth"></param>
-		private void addElementLabels(FlowLayoutPanel elemPanel, IList<ElementVO> elements, int depth ) {
-			foreach( ElementVO elem in elements ) {
-
-				if ( !"Note".Equals(elem.eaType ) ) {
-					Button btnElemOpen = new Button();
-					btnElemOpen.Click += new System.EventHandler(this.BtnElemOpenClick);
-					if( elem.changed == ' ' ) {
-						btnElemOpen.Text = "■" + elem.name;
-					} else {
-						btnElemOpen.Text = "■" + elem.name + " [" + elem.changed + "]";
-					}
-
-					btnElemOpen.Tag = elem;
-					btnElemOpen.AutoSize = true ;
-					elemPanel.Controls.Add(btnElemOpen);
-				}				
-			}
-
-		}
-		
-		
-		void BtnElemOpenClick(object sender,  EventArgs e)
-		{
-			Button btn = (Button)sender;
-			ElementVO elem = (ElementVO)btn.Tag;
-//			MessageBox.Show( "guid =" + elem.guid );
-			openNewElementForm(elem);
-		}
-		
-		
-		public void openNewElementForm(ElementVO elemvo) {
-			ElementForm eForm = new ElementForm( elemvo );
-			eForm.Show(this);			
-		}
-		
 		
 		private TreeNode makePackageNode( TreeNode parentNode, PackageVO pac, Boolean isRoot ) {
 			TreeNode targetNode = new TreeNode(pac.name, 0, 1);
@@ -274,34 +262,118 @@ namespace BehaviorDevelop
 			
 			return targetNode;
 		}
-				
 		
-		void TreeView1NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
-		{
-
-			if ( e.Node.Tag != null ) {
-				
-				// 待機状態
-				Cursor.Current = Cursors.WaitCursor;
-
-//				MessageBox.Show("ノードクリック : " + e.Node + "/" + e.Node.Tag);
-//				int idx = (int)e.Node.Tag;
-				activateArtifactPanel( (ArtifactVO)e.Node.Tag );
-				
-				// 標準に戻す
-				Cursor.Current = Cursors.Default;
-			}		
+		#endregion
+		
+		#region "成果物パネル内の作成処理"
+		/// <summary>
+		/// 成果物パネルの内容を作成する。
+		/// </summary>
+		/// <param name="elemPanel">処理対象のパネル（成果物タブ内のパネルを想定）</param>
+		/// <param name="pac">処理対象の成果物パッケージ</param>
+		private void makeElementsPanelContents(FlowLayoutPanel elemPanel, PackageVO pac) {
+			addPackageLabels(elemPanel, pac, 0);
 		}
 		
-		void TabControl1SelectedIndexChanged(object sender, EventArgs e)
-		{
-            string guid = (string)tabControl1.TabPages[tabControl1.SelectedIndex].Tag ;
-            TreeNode tn = null;
-            treeNodeMap.TryGetValue(guid, out tn);
-            treeView1.SelectedNode = tn ;
-            treeView1.Focus();
+		
+		/// <summary>
+		/// パッケージ階層に基づいてパッケージ・要素のラベルをパネルに追加する。（再帰処理）
+		/// </summary>
+		/// <param name="elemPanel"></param>
+		/// <param name="pac"></param>
+		/// <param name="depth"></param>
+		private void addPackageLabels(FlowLayoutPanel elemPanel, PackageVO pac, int depth ) {
+			Label pacLabel = new Label();
+			pacLabel.Margin = new System.Windows.Forms.Padding(12*depth,3,3,3);
+			pacLabel.Text = "□" + pac.name ;
+			
+			pacLabel.AutoSize = true ;
+			elemPanel.Controls.Add(pacLabel);
+			
+			// パッケージ内の要素で変更済み(_changed)のファイルがいたら、その内容で置き換える
+			pac.elements = replaceElementIfExistChangedData(pac.elements);
+			addElementLabels(elemPanel, pac.elements, depth+1);
+			
+			foreach( PackageVO c in pac.childPackageList ) {
+				addPackageLabels(elemPanel, c, depth+1);
+			}
+			
+		}
+
+		/// <summary>
+		/// 引数の要素リストをなめ、その中に変更済(_changed)があればその内容で置き換えて返却する。
+		/// このツール内で振る舞いを修正し、保存してあるとパスのelements内に変更済み(#GUID#_changed.xml)ファイルが作成されている。
+		/// 成果物オブジェクトを作成した時は一旦変更済みファイルを無視して読み込まれるため、この処理で変更済みファイルを読み込み、
+		/// リスト内の要素を変更済みのに置き換えて返却する。
+		/// </summary>
+		/// <param name="srcList"></param>
+		/// <returns></returns>
+		private List<ElementVO> replaceElementIfExistChangedData(List <ElementVO> srcList) {
+			List<ElementVO> outList = new List<ElementVO>();
+			foreach(ElementVO e in srcList) {
+				if(ElementsXmlReader.existChangedElementFile(e.guid)) {
+					outList.Add(ElementsXmlReader.readChangedElementFile(e.guid));
+				} else {				
+					outList.Add(e);
+				}
+			}
+			return outList;
 		}
 		
+		
+		private bool checkDisplayableType(string eaType) {
+			return ("Class".Equals(eaType) || "Interface".Equals(eaType) || "Enum".Equals(eaType)
+			        || "GUIElement".Equals(eaType) || "Screen".Equals(eaType) );
+		}
+		
+		/// <summary>
+		/// 成果物内の要素を、要素編集画面を開くリンク付きでパネルに表示する。
+		/// </summary>
+		/// <param name="elemPanel">表示すべき成果物パネル</param>
+		/// <param name="elements">要素リスト</param>
+		/// <param name="depth">ネストの深さ</param>
+		private void addElementLabels(FlowLayoutPanel elemPanel, IList<ElementVO> elements, int depth ) {
+			
+			foreach( ElementVO elem in elements ) {
+
+				if ( checkDisplayableType(elem.eaType) ) {
+					LinkLabel labelElement = new LinkLabel();
+					
+					switch(elem.changed) {
+						case ' ':
+							labelElement.Text = elem.name;
+							labelElement.Click += new System.EventHandler(this.LblElemOpenClick);
+							break;
+						case 'C':
+						case 'D':
+							labelElement.Text = elem.name + " [" + elem.changed + "]";
+							labelElement.Click += new System.EventHandler(this.LblElemOpenClick);
+							break;
+
+						case 'U':
+							labelElement.Text = elem.name + " [" + elem.changed + "]";
+							labelElement.Click += new System.EventHandler(this.LblElemOpenClick);
+							break;
+					}
+
+					labelElement.Margin = new System.Windows.Forms.Padding(12*depth, 3, 3, 3);
+					labelElement.Tag = elem;
+					labelElement.AutoSize = true;
+					elemPanel.Controls.Add(labelElement);
+				}				
+			}
+
+		}
+		
+		#endregion
+
+		#region "メニューバーのメニュー項目のイベントハンドラ"
+
+		/// <summary>
+		/// メニュー - ファイル - 開く のメニュー項目のクリックイベント
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		void OpenToolStripMenuItemClick(object sender, EventArgs e)
 		{
 			//OpenFileDialogクラスのインスタンスを作成
@@ -342,8 +414,7 @@ namespace BehaviorDevelop
 			    if (ProjectSetting.load(prjfile)) {
 				    this.projectPath = Path.GetDirectoryName(prjfile);
 					this.Text = prjfile;
-					
-//					this.MainFormLoad(this, null);
+
 					init();
 			    } else {
 					MessageBox.Show("プロジェクトファイル読み込みに失敗しました。　再度正しいファイルを選択して下さい。");
@@ -353,21 +424,23 @@ namespace BehaviorDevelop
 			
 		}
 		
-		void ClassToolStripMenuItemClick(object sender, EventArgs e)
+		/// <summary>
+		/// メニュー - 検索 - クラスを検索のメニュー項目のクリックイベント
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		void SearchClassToolStripMenuItemClick(object sender, EventArgs e)
 		{
+			// 要素検索リスト画面を開く
 			searchElemListForm = new SearchElementListForm( );
 			searchElemListForm.Show(this);
 		}
 		
-		public ArtifactVO getArtifactByGuid(string guid) {
-			TreeNode tn = null;
-            treeNodeMap.TryGetValue(guid, out tn);
-
-            ArtifactVO atfvo = (ArtifactVO)tn.Tag;
-			return activateArtifactPanel(atfvo);
-		}
-		
-		
+		/// <summary>
+		/// メニュー - 編集 - テキストとしてコピー メニュー項目のクリックイベント
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		void EditCopyTextToolStripMenuItemClick(object sender, EventArgs e)
 		{
 			TreeNode node = treeView1.SelectedNode;
@@ -377,7 +450,8 @@ namespace BehaviorDevelop
 
 				try {
 					Clipboard.SetText(atfvo.package.toDescriptorString());
-					MessageBox.Show( "成果物情報がクリップボードにコピーされました" );
+					MessageBox.Show( "成果物情報テキストがクリップボードにコピーされました" );
+					
 				} catch(System.Runtime.InteropServices.ExternalException ex) {
 					MessageBox.Show( "クリップボードの書き込みに失敗しました。\r\n" + ex.Message );
 				}
@@ -385,7 +459,62 @@ namespace BehaviorDevelop
 				MessageBox.Show( "フォルダツリーから成果物パッケージを選択して下さい" );
 			}
 		}
+
 		
+		/// <summary>
+		///  メニュー - 編集 - （全）成果物を更新 メニュークリックイベント
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		void EditRefreshArtifactToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			EA.Repository repo = ProjectSetting.getEARepo();
+		
+			try {
+				// 確認メッセージを表示
+				MessageBox.Show( "全ての成果物パッケージの内容をEAから取得しローカルを更新します");
+				
+				// マウスカーソルを待機状態にする
+				Cursor.Current = Cursors.WaitCursor;
+			
+				// 全成果物をなめ、それぞれの成果物パッケージをEAから取得してローカルを更新
+				foreach( ArtifactVO atfvo in artifacts ) {
+					
+					try {
+						EA.Package atfPacObj = repo.GetPackageByGuid(atfvo.guid);
+						
+						EAArtifactXmlMaker maker = new EAArtifactXmlMaker(atfPacObj);
+						ArtifactVO newArtifact = maker.makeArtifactXml();
+	
+						// 現在読み込まれている成果物の内容を今読んだもので置き換え
+						atfvo.package = newArtifact.package;
+						
+						// elements配下の要素XMLファイルを今読んだもので置き換え
+						ArtifactXmlWriter writer = new ArtifactXmlWriter();
+						writer.rewriteElementXmlFiles(atfvo);
+						
+					} catch ( Exception ex ) {
+						MessageBox.Show(ex.Message);
+					}
+	
+				}				
+
+				// マウスカーソルを標準に戻す
+				Cursor.Current = Cursors.Default;
+				
+				MessageBox.Show( "EAの最新情報をローカルに取り込みました" );
+			} catch ( Exception ex ) {
+				MessageBox.Show(ex.Message);
+			}
+			
+		}
+		
+		
+		/// <summary>
+		/// メニュー - ファイル - 終了 メニュー項目のクリックイベント
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		void ExitAppToolStripMenuItemClick(object sender, EventArgs e)
 		{
 			this.Close();
@@ -396,17 +525,218 @@ namespace BehaviorDevelop
 		{
 			TreeNode tn = treeView1.SelectedNode ;
 			ArtifactVO atf = (ArtifactVO)tn.Tag;
-			MessageBox.Show("GUID=" + atf.guid);
+			MessageBox.Show("成果物パッケージGUID=" + atf.guid );
 		}
 		
 		
+		/// <summary>
+		/// メニュー - EAにアタッチ のメニュー項目クリックイベント
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		void AttachEAToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			AttachEA();
+		}
 		
+		
+		private void AttachEA() 
+		{
+			EA.App eaapp = null;
+			
+			if ( ProjectSetting.getVO() == null ) {
+				toolStripStatusLabel1.Text = "[ファイル]メニューの[開く]を選択しプロジェクトをオープンしてください" ;
+				return;
+			}
+			
+			try {
+				eaapp = (EA.App)Microsoft.VisualBasic.Interaction.GetObject(null, "EA.App");
+				
+				if( eaapp != null ) {
+					EA.Repository repo = eaapp.Repository;
+//					eaapp.Visible = true;
+					ProjectSetting.getVO().eaRepo = repo;
+					string connStr = repo.ConnectionString;
+					if (connStr.Length > 50) {
+						connStr = connStr.Substring(0,50);
+					}
+					toolStripStatusLabel1.Text = "EAへのアタッチ成功 EA接続先=" + connStr;
+				} else {
+					toolStripStatusLabel1.Text = "EAにアタッチできなかったため、EAへの反映機能は使えません";
+				}
+			} catch(Exception ex) {
+				toolStripStatusLabel1.Text = "EAが起動していなかったため、EAへの反映機能は使えません : " + ex.Message;
+				return;
+			} 
+			
+		}
+		
+		#endregion
+
+		#region "メニュー以外のイベントハンドラ"
+
+		/// <summary>
+		/// タブの切り替え（SelectedIndexChanged）時のイベントハンドラ
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		void TabControl1SelectedIndexChanged(object sender, EventArgs e)
+		{
+            string guid = (string)tabControl1.TabPages[tabControl1.SelectedIndex].Tag ;
+            TreeNode tn = null;
+            treeNodeMap.TryGetValue(guid, out tn);
+            treeView1.SelectedNode = tn ;
+            treeView1.Focus();
+		}
+		
+		/// <summary>
+		/// ツリービューのノード（特に成果物のノード）クリック時イベントハンドラ
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		void TreeView1NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+		{
+
+			if ( e.Node.Tag != null ) {
+				// 待機状態
+				Cursor.Current = Cursors.WaitCursor;
+				
+				// 成果物パネルを追加する（既にこの成果物がタブで開いているなら単にアクティベートする）
+				activateArtifactPanel( (ArtifactVO)e.Node.Tag );
+				
+				// 標準に戻す
+				Cursor.Current = Cursors.Default;
+			}		
+		}
+
+
+		/// <summary>
+		/// ツリービューのコンテキストメニュー-「この成果物をEAで選択」のクリック時イベント
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		void FocusEAPackageToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			TreeNode tn = treeView1.SelectedNode ;
+			ArtifactVO atf = (ArtifactVO)tn.Tag;
+			EA.Repository repo = ProjectSetting.getVO().eaRepo;
+			
+			if( repo != null ) {
+				EA.Package pak =  repo.GetPackageByGuid( atf.guid );
+				repo.ShowInProjectView(pak);
+				MessageBox.Show("EA上で成果物パッケージGUID=" + atf.guid + "を選択しました");
+			}
+
+		}
+
+		/// <summary>
+		/// ツリービューのコンテキストメニュー-「この成果物をEAから取得」のクリック時イベント
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		void UpdateArtifactByEAToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			TreeNode node = treeView1.SelectedNode;
+			EA.Repository repo = ProjectSetting.getEARepo();
+			
+			if (node != null && node.Tag != null ) {
+				ArtifactVO atfvo = (ArtifactVO)node.Tag;
+
+				try {
+					// 確認メッセージを表示
+					MessageBox.Show( "選択されたパッケージの内容をEAから取得しローカルを更新します");
+					
+					// マウスカーソルを待機状態にする
+					Cursor.Current = Cursors.WaitCursor;
+				
+					EA.Package atfPacObj = repo.GetPackageByGuid(atfvo.guid);
+					
+					EAArtifactXmlMaker maker = new EAArtifactXmlMaker(atfPacObj);
+					ArtifactVO newArtifact = maker.makeArtifactXml();
+
+					// 現在読み込まれている成果物の内容を今読んだもので置き換え
+					atfvo.package = newArtifact.package;
+					
+					// elements配下の要素XMLファイルを今読んだもので置き換え
+					ArtifactXmlWriter writer = new ArtifactXmlWriter();
+					writer.rewriteElementXmlFiles(atfvo);
+					
+					// 標準に戻す
+					Cursor.Current = Cursors.Default;
+					
+					MessageBox.Show( "EAの最新情報をローカルに取り込みました" );
+				} catch ( Exception ex ) {
+					MessageBox.Show(ex.Message);
+				}
+
+			} else {
+				MessageBox.Show( "フォルダツリーから成果物パッケージを選択して下さい" );
+			}
+		}
+		
+		/// <summary>
+		/// コンテキストメニュー:"Close Tab"選択時イベントハンドラ
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		void CloseTabToolStripMenuItemClick(object sender, EventArgs e)
 		{
 			TabPage tabp = tabControl1.SelectedTab ;
 			tabControl1.TabPages.Remove(tabControl1.SelectedTab);
-			
-			MessageBox.Show("選択されているタブページがクローズされたよ");
 		}
+		
+		/// <summary>
+		/// コンテキストメニュー(タブ)を開く時のイベントハンドラ（メニュー項目の活性制御）
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		void TabContextMenuStripOpening(object sender, System.ComponentModel.CancelEventArgs e)
+		{
+			if(tabControl1.TabPages.Count > 1) {
+				closeTabToolStripMenuItem.Enabled = true;
+			} else {
+				closeTabToolStripMenuItem.Enabled = false;
+			}
+		}
+		
+		#endregion
+		
+		#region "成果物ペイン内の動的ボタンのイベントハンドラ"
+		/// <summary>
+		/// 要素リンクラベルのクリック時イベントハンドラ（要素編集画面を開く）
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		void LblElemOpenClick(object sender,  EventArgs e)
+		{
+			LinkLabel lbl = (LinkLabel)sender;
+			ElementVO elem = (ElementVO)lbl.Tag;
+
+            if( elem.changed == 'U' )
+            {
+                DiffElementForm eForm = new DiffElementForm(elem);
+                eForm.Show(this);
+            } else {
+                openNewElementForm(elem);
+            }
+        }
+		
+		/// <summary>
+		/// 要素リンクラベルのクリック時イベントハンドラ（要素差分確認画面を開く）
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+//		void BtnDiffElemOpenClick(object sender,  EventArgs e)
+//		{
+//			Button btn = (Button)sender;
+//			ElementVO elemvo = (ElementVO)btn.Tag;
+////			MessageBox.Show( "guid =" + elem.guid );
+			
+//			DiffElementForm eForm = new DiffElementForm( elemvo );
+//			eForm.Show(this);			
+//		}
+		
+		#endregion
+
 	}
 }

@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using BDFileReader.vo;
 using BehaviorDevelop.vo;
 using BehaviorDevelop.usercontrol.vo;
 using BehaviorDevelop.util;

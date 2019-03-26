@@ -9,7 +9,8 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
-using BehaviorDevelop.vo;
+using BDFileReader.vo;
+using BDFileReader.util;
 
 namespace BehaviorDevelop.util
 {

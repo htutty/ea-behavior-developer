@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using BDFileReader.vo;
 
 namespace BehaviorDevelop.vo
 {

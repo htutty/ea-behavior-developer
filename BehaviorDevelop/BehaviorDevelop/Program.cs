@@ -9,8 +9,7 @@
 using System;
 using System.IO;
 using System.Windows.Forms;
-using BehaviorDevelop.util;
-using BehaviorDevelop.vo;
+using BDFileReader.util;
 
 namespace BehaviorDevelop
 {
