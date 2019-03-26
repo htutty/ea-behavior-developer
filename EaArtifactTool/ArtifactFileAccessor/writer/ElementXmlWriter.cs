@@ -263,11 +263,11 @@ namespace ArtifactFileAccessor.writer
 			sw.WriteLine( indent(depth) + "  <visibility>" + mth.visibility + "</visibility>");
 			sw.WriteLine( indent(depth) + "  <returnType>" + escapeXML(mth.returnType) + "</returnType>");
 
-			// メソッドのタグ付き値の出力
-			outputMethodTags(mth, depth+1, sw);
-				
-			// 1.2.3.1.1 メソッドパラメータの出力
-			outputMethodParams(mth, depth+1, sw);
+            // 1.2.3.1.1 メソッドのタグ付き値出力
+            outputMethodTags(mth, depth, sw);
+
+            // 1.2.3.1.2 メソッドパラメータの出力
+            outputMethodParams(mth, depth, sw);
 	
 			if (mth.notes != null) {
 				sw.WriteLine(indent(depth) + "  <notes>" + escapeXML( mth.notes ) + "</notes>");
@@ -277,8 +277,6 @@ namespace ArtifactFileAccessor.writer
 				sw.WriteLine(indent(depth) + "  <behavior>" + escapeXML( mth.behavior ) + "</behavior>");
 			}
 	
-			// 1.2.3.1.2 メソッドのタグ付き値出力
-			outputMethodTags( mth, depth, sw);
 	
 			sw.WriteLine(indent(depth) + "</method>");
 		}
@@ -314,9 +312,9 @@ namespace ArtifactFileAccessor.writer
 				}
 
                 // パラメータのタグ付き値出力
-                if (prm.taggedValues != null)
+                if (prm.paramTags != null)
                 {
-                    outputParameterTags(prm, depth, sw);
+                    outputParameterTags(prm, depth + 2, sw);
                 }
 
 				sw.WriteLine(indent(depth+1) + "</parameter>" );
@@ -330,7 +328,7 @@ namespace ArtifactFileAccessor.writer
         // メソッドのタグ付き値を出力
         private static void outputMethodTags( MethodVO mth, int depth, StreamWriter sw ) {
 	
-			if ( mth.taggedValues == null ||  mth.taggedValues.Count <= 0 ) {
+			if (mth.taggedValues == null || mth.taggedValues.Count <= 0) {
 				return ;
 			}
 	
@@ -355,30 +353,23 @@ namespace ArtifactFileAccessor.writer
         private static void outputParameterTags(ParameterVO prm, int depth, StreamWriter sw)
         {
 
-            if (prm.taggedValues == null || prm.taggedValues.Count <= 0)
+            if (prm.paramTags == null || prm.paramTags.Count <= 0)
             {
                 return;
             }
 
-            sw.WriteLine(indent(depth) + "<taggedValues>");
+            sw.WriteLine(indent(depth) + "<paramTags>");
 
             // 　取得できたタグ付き値の情報をファイルに展開する
-            foreach (TaggedValueVO tagv in prm.taggedValues)
+            foreach (ParamTagVO ptagv in prm.paramTags)
             {
-                if ("<memo>".Equals(tagv.tagValue))
+                if (ptagv.notes != null)
                 {
-                    if (tagv.notes != null)
-                    {
-                        sw.WriteLine(indent(depth) + "  <tv guid=\"" + escapeXML(tagv.guid) + "\" name=\"" + escapeXML(tagv.name) + "\" value=\"" + escapeXML(tagv.tagValue) + "\">" + escapeXML(tagv.notes) + "</tv>");
-                    }
-                }
-                else
-                {
-                    sw.WriteLine(indent(depth) + "  <tv guid=\"" + escapeXML(tagv.guid) + "\" name=\"" + escapeXML(tagv.name) + "\" value=\"" + escapeXML(tagv.tagValue) + "\"/>");
+                    sw.WriteLine(indent(depth) + "  <ptg guid=\"" + escapeXML(ptagv.guid) + "\" name=\"" + escapeXML(ptagv.name) + "\" >" + escapeXML(ptagv.notes) + "</ptg>");
                 }
             }
 
-            sw.WriteLine(indent(depth) + "</taggedValues>");
+            sw.WriteLine(indent(depth) + "</paramTags>");
         }
 
 

@@ -10,31 +10,24 @@ namespace ArtifactFileAccessor.vo
 	public class MethodVO : IComparable<MethodVO>
 	{
 
-		// 	Public Name ' As String
 		/// <summary>名前</summary>
     	public string name { get; set; }
 
-		//	Public Alias ' As String
 		/// <summary>別名</summary>
     	public string alias { get; set; }
 
-    	//	Public MethodGUID ' As String
 		/// <summary>操作のguid</summary>
     	public string guid { get; set; }
 
-		//	Public MethodID ' As Long
 		/// <summary>操作のid</summary>
     	public int methodId { get; set; }
 
-        //	Public ElementID ' As Long
         /// <summary>操作のid</summary>
         public int elementId { get; set; }
 
-        //	Public Notes ' As String
         /// <summary>ノート</summary>
         public string notes { get; set; }
 
-    	//	Public Behavior ' As String
 		/// <summary>振る舞い</summary>
     	public string behavior { get; set; }
 
@@ -50,78 +43,60 @@ namespace ArtifactFileAccessor.vo
 		/// <summary>ステレオタイプ</summary>
     	public string stereoType { get; set; }
 
-		// Public Abstract 'As Boolean
 		/// <summary>ステレオタイプ</summary>
     	public Boolean isAbstract { get; set; }
 
-		// Public ClassifierID '    #NEW# As Integer
 		/// <summary>分類子のID(戻り値型)</summary>
     	public string classifierID { get; set; }
 
-		// Public Code 'As String
 		/// <summary>コード</summary>
     	public string code { get; set; }
 
-		// Public Concurrency 'As String
 		/// <summary>並列性</summary>
     	public string concurrency { get; set; }
 
-		// Public IsConst '         #NEW# As Boolean
 		/// <summary>定数</summary>
     	public Boolean isConst { get; set; }
 
-		// Public IsLeaf '          #NEW# As Boolean
 		/// <summary>リーフ</summary>
     	public Boolean isLeaf { get; set; }
 
-		// Public IsPure          #NEW# As Boolean
 		/// <summary>純粋仮想関数（C++）</summary>
     	public Boolean isPure { get; set; }
-		// Public IsQuery '         #NEW# As Boolean
+
 		/// <summary>クエリー</summary>
     	public Boolean isQuery { get; set; }
 
-		// Public IsRoot '          #NEW# As Boolean
 		/// <summary>操作がrootであることを示すブール値</summary>
     	public Boolean isRoot { get; set; }
 
-		// Public IsStatic 'As Boolean
 		/// <summary>Staticか否か</summary>
     	public Boolean isStatic { get; set; }
 
-		// Public ObjectType 'As String
 		/// 操作を表すEA上の型ID
     	public string objectType { get; set; }
 
-		// Public ParentID 'As Long
 		/// <summary>親の要素ID</summary>
     	public string parentID { get; set; }
 
-		// Public PostConditions '  #NEW# As Collection
-		/// <summary>事後条件</summary>
+		// <summary>事後条件</summary>
 //    	public string postConditions { get; set; }
 
-		// Public PreConditions '   #NEW# As Collection
-		/// <summary>事前条件</summary>
+		// <summary>事前条件</summary>
 //    	public string preConditions { get; set; }
 
-		// Public ReturnIsArray '   #NEW# As Boolean
 		/// <summary>戻り値が配列かを示すブール値</summary>
     	public Boolean returnIsArray { get; set; }
 
-		// Public StateFlags '      #NEW# As String
 		/// <summary>状態要素の操作に適用される追加情報</summary>
     	public string stateFlags { get; set; }
 
-		// Public StyleEx 'As String
 		/// <summary>スタイル(aliasが入っている？)</summary>
     	public string styleEx { get; set; }
 
-		// Public TaggedValuesEx 'As Collection
 		/// <summary>メソッドタグ付き値</summary>
     	public List<TaggedValueVO> taggedValues { get; set; }
 
-		// Public Throws '          #NEW# As String
 		/// <summary>Throws句</summary>
     	public string throws { get; set; }
 
@@ -140,6 +115,7 @@ namespace ArtifactFileAccessor.vo
 		public MethodVO()
 		{
 			changed = ' ';
+            taggedValues = new List<TaggedValueVO>();
 		}
 
 		public int CompareTo( MethodVO o ) {
@@ -341,26 +317,37 @@ namespace ArtifactFileAccessor.vo
             return sw.ToString();
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
         public void sortChildNodes()
         {
-            // 子ノードを持つ項目は個別に子ノード毎のソート処理を呼び出す
-            foreach(ParameterVO p in parameters)
+            // 子ノードを持つ項目は個別に子ノード内の子ノードソート処理を呼び出す
+            for (int i = 0; i < parameters.Count; i++)
             {
-                p.sortChildNodes();
+                parameters[i].sortChildNodes();
             }
             
-            parameters.Sort();
-            taggedValues.Sort();
+            if ( parameters != null && parameters.Count > 1)
+            {
+                parameters.Sort();
+            }
+
+            if (taggedValues != null && taggedValues.Count > 1)
+            {
+                taggedValues.Sort();
+            }
+
         }
 
         public void sortChildNodesGuid()
         {
             // 子ノードを持つ項目は個別に子ノード内の子ノードソート処理を呼び出す
-            foreach (ParameterVO p in parameters)
+            for (int i = 0; i < parameters.Count; i++)
             {
-                p.sortChildNodesGuid();
+                parameters[i].sortChildNodesGuid();
             }
+
             ParameterGuidComparer comp = new ParameterGuidComparer();
             parameters.Sort(comp);
 

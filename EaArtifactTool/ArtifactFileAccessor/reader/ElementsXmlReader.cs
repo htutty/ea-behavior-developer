@@ -228,14 +228,16 @@ namespace ArtifactFileAccessor.reader
 			elemvo.connectors = new List<ConnectorVO>();
 
 			// 要素配下のソート
-			if (sortByPosFlg) {
-				elemvo.sortAttributes();
-				elemvo.sortMethods();
-				elemvo.sortTaggedValues();
+			if (sortByPosFlg)
+            {
+                elemvo.sortChildNodes();
+                //elemvo.sortAttributes();
+				//elemvo.sortMethods();
+				//elemvo.sortTaggedValues();
 			} else {
-				elemvo.sortAttributesGUID();
-				elemvo.sortMethodsGUID();
-				elemvo.sortTaggedValuesGUID();
+				elemvo.sortChildNodesGuid();
+				//elemvo.sortMethodsGUID();
+				//elemvo.sortTaggedValuesGUID();
 			}
 
 		}
@@ -565,7 +567,6 @@ namespace ArtifactFileAccessor.reader
         }
 
 
-
         private static ParameterVO readMethodParam( XmlNode pNode ) {
 			ParameterVO prmvo = new ParameterVO();
 			Int32 p=0;
@@ -623,11 +624,22 @@ namespace ArtifactFileAccessor.reader
 				}
 			}
 
-			if (pNode.SelectSingleNode("notes") != null) {
-				prmvo.notes = pNode.SelectSingleNode("notes").InnerText;
-			}
 
-			return prmvo;
+            foreach (XmlNode prc in pNode.ChildNodes)
+            {
+                switch (prc.Name)
+                {
+                    case "notes":
+                        prmvo.notes = prc.InnerText;
+                        break;
+                    case "paramTags":
+                        prmvo.paramTags = readParamTags(prc);
+                        break;
+                }
+
+            }
+
+            return prmvo;
 		}
 
 
@@ -671,6 +683,7 @@ namespace ArtifactFileAccessor.reader
                 }
             }
 
+            // 旧形式のXMLの対応
             // タグ付き値のタグ(tv)の子ノードに <notes> タグがあったら
             XmlNode notesNode = tagvalNode.SelectSingleNode("notes");
             if (notesNode != null)
@@ -692,69 +705,57 @@ namespace ArtifactFileAccessor.reader
 
 
 
-        /// <summary>
-        /// (deprecated)
-        /// </summary>
-        /// <param name="elemvo"></param>
-        /// <param name="parentNode"></param>
-        private void readElementContents__( ElementVO elemvo, XmlNode parentNode ) {
-        	List<AttributeVO> retAttrList = new List<AttributeVO>();
-        	List<MethodVO> retMethList = new List<MethodVO>();
-        	IList<ConnectorVO> retConnList = new List<ConnectorVO>();
+        private static List<ParamTagVO> readParamTags(XmlNode ptgNode)
+        {
+            List<ParamTagVO> retTagVal = new List<ParamTagVO>();
 
-    		foreach (XmlNode elemNode in parentNode.ChildNodes)
+            foreach (XmlNode ptagvNode in ptgNode.ChildNodes)
             {
-    			if ( "attribute".Equals(elemNode.Name) ) {
-    				AttributeVO attvo = new AttributeVO();
-					foreach(XmlAttribute attr in elemNode.Attributes) {
-    					switch( attr.Name ) {
-    						case "name" : attvo.name = attr.Value; break;
-    						case "alias" : attvo.alias = attr.Value; break;
-//    						case "stereotype" : attvo.stereoType = attr.Value; break;
-    						case "guid" : attvo.guid = attr.Value; break;
-//    						case "pos" : attvo.pos = attr.Value; break;
-    					}
-    				}
+                if( ptagvNode.Name == "ptg" )
+                {
+                    retTagVal.Add(readParamTag(ptagvNode));
+                }
+            }
 
-    				retAttrList.Add(attvo);
-    			}
-
-    			if ( "method".Equals(elemNode.Name) ) {
-
-    				MethodVO mthvo = new MethodVO();
-					foreach(XmlAttribute attr in elemNode.Attributes) {
-    					switch( attr.Name ) {
-    						case "name" : mthvo.name = attr.Value; break;
-    						case "alias" : mthvo.alias = attr.Value; break;
-//    						case "stereotype" : mthvo.stereoType = attr.Value; break;
-    						case "guid" : mthvo.guid = attr.Value; break;
-//    						case "pos" : mthvo.pos = attr.Value; break;
-    					}
-    				}
-
-    				if ( elemNode.SelectSingleNode("behavior") != null ) {
-    					mthvo.behavior = elemNode.SelectSingleNode("behavior").InnerText;
-    				}
-    				if ( elemNode.SelectSingleNode("notes") != null ) {
-						mthvo.notes = elemNode.SelectSingleNode("notes").InnerText;
-    				}
-//					mthvo.returnType = elemNode.elemNode.SelectSingleNode("returnType").InnerText;
-//					mthvo.visibility = elemNode.elemNode.SelectSingleNode("visibility").InnerText;
-
-    				retMethList.Add(mthvo);
-            	}
-
-    		}
-
-			elemvo.attributes = retAttrList;
-    		elemvo.sortAttributes();
-    		elemvo.methods = retMethList;
-    		elemvo.sortMethods();
-
-//    		elemvo.connectors = connSearcher.findByObjectGuid(elemvo.guid);
+            return retTagVal;
         }
 
-	}
+
+        private static ParamTagVO readParamTag(XmlNode ptgNode)
+        {
+            ParamTagVO ptgvo = new ParamTagVO();
+            foreach (XmlAttribute attr in ptgNode.Attributes)
+            {
+                switch (attr.Name)
+                {
+                    case "name":
+                        ptgvo.name = attr.Value;
+                        break;
+
+                    case "guid":
+                        ptgvo.guid = attr.Value;
+                        break;
+
+                    case "changed":
+                        ptgvo.changed = attr.Value[0];
+                        break;
+                }
+
+                ptgvo.notes = ptgNode.InnerText;
+            }
+
+            XmlNode srcPtgNode = ptgNode.SelectSingleNode("srcParamTag");
+            XmlNode destPtgNode = ptgNode.SelectSingleNode("destParamTag");
+            if (ptgvo.changed == 'U' && srcPtgNode != null && destPtgNode != null)
+            {
+                ptgvo.srcParamTag = readParamTag(srcPtgNode.SelectSingleNode("tv"));
+                ptgvo.destParamTag = readParamTag(destPtgNode.SelectSingleNode("tv"));
+            }
+
+            return ptgvo;
+        }
+
+    }
 
 
 

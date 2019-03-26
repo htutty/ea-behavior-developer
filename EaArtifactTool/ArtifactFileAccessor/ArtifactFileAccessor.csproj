@@ -74,6 +74,7 @@
     <Compile Include="vo\PackageVO.cs" />
     <Compile Include="vo\ParameterVO.cs" />
     <Compile Include="vo\ProjectSettingVO.cs" />
+    <Compile Include="vo\ParamTagVO.cs" />
     <Compile Include="vo\TaggedValueVO.cs" />
     <Compile Include="writer\AllArtifactsXmlWriter.cs" />
     <Compile Include="writer\ArtifactXmlWriter.cs" />

@@ -91,32 +91,36 @@ namespace ArtifactFileAccessor.vo
 
         public void sortChildNodes()
         {
-            foreach( ElementVO elm in elements)
-            {
-                elements.Sort();
-            }
 
-            foreach(PackageVO pkg in childPackageList)
+            for (int i = 0; i < elements.Count; i++)
             {
+                ElementVO elm = elements[i];
+                elm.sortChildNodes();
+            }
+            elements.Sort();
+
+            for (int i = 0; i < childPackageList.Count; i++)
+            {
+                PackageVO pkg = childPackageList[i];
                 pkg.sortChildNodes();
             }
             childPackageList.Sort();
-
         }
 
 
         public void sortChildNodesGuid()
         {
-            foreach (ElementVO elm in elements)
+            for (int i = 0; i < elements.Count; i++)
             {
-                elm.sortChildNodes();
+                ElementVO elm = elements[i];
+                elm.sortChildNodesGuid();
             }
             ElementComparer ecmp = new ElementComparer();
             elements.Sort(ecmp);
 
             foreach (PackageVO pkg in childPackageList)
             {
-                pkg.sortChildNodes();
+                pkg.sortChildNodesGuid();
             }
             PackageComparer pcmp = new PackageComparer();
             childPackageList.Sort(pcmp);

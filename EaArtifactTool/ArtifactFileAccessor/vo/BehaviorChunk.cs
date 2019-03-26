@@ -63,10 +63,15 @@ namespace ArtifactFileAccessor.vo
         /// <summary>振る舞いの１行分</summary>
         public string behavior { get; set; }
 
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
         public BehaviorChunk()
         {
             hasFollower = false;
-            followeeIdx = 0;
+            followeeIdx = -1;
+            indent = "";
+            behavior = "";
         }
 
 

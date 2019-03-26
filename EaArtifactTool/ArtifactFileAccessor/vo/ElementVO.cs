@@ -120,14 +120,21 @@ namespace ArtifactFileAccessor.vo
             sortTaggedValues();
         }
 
-   		public void sortMethods() {
+        public void sortChildNodesGuid()
+        {
+            sortAttributesGuid();
+            sortMethodsGuid();
+            sortTaggedValuesGuid();
+        }
+
+        private void sortMethods() {
 
             if (methods != null)
             {
                 // 子ノードを持つ項目は個別に子ノード内の子ノードソート処理を呼び出す
-                foreach (MethodVO m in methods)
+                for( int i = 0; i < methods.Count; i++ )
                 {
-                    m.sortChildNodes();
+                    methods[i].sortChildNodes();
                 }
 
                 methods.Sort();
@@ -135,11 +142,11 @@ namespace ArtifactFileAccessor.vo
    		}
 
 
-        public void sortMethodsGUID() {
+        private void sortMethodsGuid() {
             // 子ノードを持つ項目は個別に子ノード内の子ノードソート処理を呼び出す
-            foreach (MethodVO m in methods)
+            for (int i = 0; i < methods.Count; i++)
             {
-                m.sortChildNodes();
+                methods[i].sortChildNodesGuid();
             }
 
             if (methods.Count > 0 ) {
@@ -148,26 +155,22 @@ namespace ArtifactFileAccessor.vo
         	}
         }
 
-   		public void sortAttributes() {
+        private void sortAttributes() {
    			attributes.Sort();
    		}
 
-		public void sortAttributesGUID() {
-        	if (attributes.Count > 0 ) {
-        		AttributeGuidComparer comp = new AttributeGuidComparer();
-	        	attributes.Sort(comp);
-        	}
+        private void sortAttributesGuid() {
+        	AttributeGuidComparer comp = new AttributeGuidComparer();
+	        attributes.Sort(comp);
         }
 
-   		public void sortTaggedValues() {
+        private void sortTaggedValues() {
    			taggedValues.Sort();
    		}
 
-   		public void sortTaggedValuesGUID() {
-   			if (taggedValues.Count > 0 ) {
-        		TaggedValueGuidComparer comp = new TaggedValueGuidComparer();
-	        	taggedValues.Sort(comp);
-        	}
+        private void sortTaggedValuesGuid() {
+        	TaggedValueGuidComparer comp = new TaggedValueGuidComparer();
+	        taggedValues.Sort(comp);
    		}
 
 

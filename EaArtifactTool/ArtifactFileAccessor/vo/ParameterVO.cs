@@ -7,7 +7,7 @@ namespace ArtifactFileAccessor.vo
 	/// <summary>
 	/// Description of ParameterVO.
 	/// </summary>
-	public class ParameterVO
+	public class ParameterVO : IComparable<ParameterVO>
 	{
 		// 	Public Name ' As String
 		/// <summary>名前</summary>
@@ -53,7 +53,7 @@ namespace ArtifactFileAccessor.vo
     	public string kind { get; set; }
 
 		/// <summary>パラメータの種類</summary>
-    	public List<TaggedValueVO> taggedValues { get; set; }
+    	public List<ParamTagVO> paramTags { get; set; }
 
     	/// <summary>
         /// 変更有りフラグ : ' '=変更無し, C=追加(Create) U=変更(Update) D=削除(Delete)
@@ -63,7 +63,8 @@ namespace ArtifactFileAccessor.vo
 		public ParameterVO()
 		{
 			changed = ' ';
-		}
+            paramTags = new List<ParamTagVO>();
+        }
 
 		/// <summary>
 		/// ソートで呼び出される比較処理
@@ -100,10 +101,10 @@ namespace ArtifactFileAccessor.vo
             // sw.WriteLine("styleEx = " + styleEx);
             sw.WriteLine("kind = " + kind);
 
-            if( taggedValues != null && taggedValues.Count > 0)
+            if( paramTags != null && paramTags.Count > 0)
             {
                 sw.WriteLine("taggedValues=[");
-                foreach (var tv in taggedValues)
+                foreach (var tv in paramTags)
                 {
                     sw.WriteLine("tv=" + tv.getComparableString() + ",");
                 }
@@ -116,14 +117,21 @@ namespace ArtifactFileAccessor.vo
 
         public void sortChildNodes()
         {
-            taggedValues.Sort();
+            if (paramTags != null && paramTags.Count > 1 )
+            {
+                paramTags.Sort();
+            }
         }
 
 
         public void sortChildNodesGuid()
         {
-            TaggedValueGuidComparer cmp = new TaggedValueGuidComparer();
-            taggedValues.Sort(cmp);
+            if (paramTags != null && paramTags.Count > 1)
+            {
+                ParamTagGuidComparer cmp = new ParamTagGuidComparer();
+                paramTags.Sort(cmp);
+            }
+
         }
 
     }

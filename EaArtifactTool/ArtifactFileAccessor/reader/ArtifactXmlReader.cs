@@ -196,7 +196,9 @@ namespace ArtifactFileAccessor.reader
 					try {
 						readPackages(pkgvo, pkgNode);
 					} catch(Exception ex) {
-						Console.WriteLine(ex.StackTrace);
+						Console.WriteLine(ex.Message);
+                        Console.WriteLine(ex.StackTrace);
+                        throw ex;
 					}
 				}
 			}

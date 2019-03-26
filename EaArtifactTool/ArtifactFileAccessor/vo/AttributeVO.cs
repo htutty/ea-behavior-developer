@@ -9,27 +9,21 @@ namespace ArtifactFileAccessor.vo
 	/// </summary>
 	public class AttributeVO : IComparable<AttributeVO>
 	{
-		// 	Public Name ' As String
 		/// <summary>名前</summary>
     	public string name { get; set; }
 
-		//	Public Alias ' As String
 		/// <summary>別名</summary>
     	public string alias { get; set; }
 
-    	//	Public AttributeGUID ' As String
 		/// <summary>属性のguid</summary>
     	public string guid { get; set; }
 
-		//	Public AttributeID ' As Long
 		/// <summary>属性のid</summary>
     	public int attributeId { get; set; }
 
-        //	Public ElementID ' As Long
         /// <summary>親要素のid</summary>
         public int elementId { get; set; }
 
-        //	Public Notes ' As String
         /// <summary>ノート</summary>
         public string notes { get; set; }
 
@@ -39,25 +33,21 @@ namespace ArtifactFileAccessor.vo
 		/// <summary>ステレオタイプ</summary>
     	public string stereoType { get; set; }
 
-		//  Public AllowDuplicates ' #NEW# As Boolean
 		/// <summary>
 		/// コレクション内で重複を許すかどうかを表す。
 		/// </summary>
     	public Boolean allowDuplicates { get; set; }
 
-    	//	Public ClassifierID ' #NEW# As Integer
 		/// <summary>
 		/// 分類子のID
 		/// </summary>
     	public string classifierID { get; set; }
 
-    	//	Public Container '    #NEW#  As String
 		/// <summary>
 		/// コンテナの型
 		/// </summary>
     	public string container { get; set; }
 
-		//	Public Containment '  #NEW#  As String
 		/// <summary>
 		/// 属性の保持方法を指定する。
 		/// </summary>
@@ -66,91 +56,76 @@ namespace ArtifactFileAccessor.vo
     	//	Public Constraints '  #NEW# As Collection
 		//    	public List<Constraint> Constraints { get; set; }
 
-		//	Public Default 'As String
 		/// <summary>
 		/// 属性のデフォルト値
 		/// </summary>
     	public string defaultValue { get; set; }
 
-		//	Public IsCollection 'As Boolean
 		/// <summary>
 		/// この属性がコレクションであるかを表すブール値
 		/// </summary>
     	public Boolean isCollection { get; set; }
 
-		//	Public IsConst 'As Boolean
 		/// <summary>
 		/// この属性が定数であるかを表すブール値
 		/// </summary>
     	public Boolean isConst { get; set; }
 
-		//	Public IsDerived '    #NEW# As Boolean
 		/// <summary>
 		/// この属性が派生値(他の属性から導出できる値)であるかどうかを表すブール値
 		/// </summary>
     	public Boolean isDerived { get; set; }
 
-		//	Public IsID '         #NEW# As Boolean
 		/// <summary>
 		/// この属性がIDであるかを表すブール値
 		/// </summary>
     	public Boolean isID { get; set; }
 
-		//	Public IsOrdered 'As Boolean
 		/// <summary>
 		/// この属性がコレクションの場合、コレクションに順序を持つかを表すブール値
 		/// </summary>
     	public Boolean isOrdered { get; set; }
 
-		//	Public IsStatic 'As Boolean
 		/// <summary>
 		/// この属性がStaticかを表すブール値
 		/// </summary>
     	public Boolean isStatic { get; set; }
 
-		//	Public Length ' As int
 		/// <summary>
 		/// 数値、文字列の長さ（RDBとの接続機能におけるTABLE型でのみ使用する）
 		/// </summary>
     	public Int32 length { get; set; }
 
-		//	Public LowerBound '   #NEW#  As String
 		/// <summary>
 		/// 添え字の下限
 		/// </summary>
     	public Int32 lowerBound { get; set; }
 
-		//	Public ObjectType 'As String
 		/// <summary>
 		/// 属性を表すEA上の型ID
 		/// </summary>
     	public string objectType { get; set; }
 
-    	//	Public ParentID 'As Long
 		/// <summary>
 		/// 親となる要素のID
 		/// </summary>
     	public string parentID { get; set; }
 
-		//	Public Precision  '   #NEW#  As String
 		/// <summary>
 		/// 精度（小数点以下桁数）（RDBとの接続機能におけるTABLE型でのみ使用する）
 		/// </summary>
     	public Int32 precision { get; set; }
 
-		//	Public RedefinedProperty ' #NEW#  As String
 		/// <summary>
 		/// 「再定義されたプロパティ」の内容
 		/// </summary>
     	public string redefinedProperty { get; set; }
 
-		//	Public Scale  '       #NEW#  As String
 		/// <summary>
 		/// 小数点より上の桁数（RDBとの接続機能におけるTABLE型でのみ使用する）
 		/// </summary>
     	public Int32 scale { get; set; }
 
-		//	Public StyleEx '      #NEW# As String
 		/// <summary>
 		/// DB上のStyle値（あまり使う機会は無いはずだが、、）
 		/// </summary>
@@ -161,19 +136,16 @@ namespace ArtifactFileAccessor.vo
 		/// </summary>
 		public List<TaggedValueVO> taggedValues { get; set; }
 
-		//	Public EA_Type 'As String
 		/// <summary>
 		/// 型名称
 		/// </summary>
     	public string eaType { get; set; }
 
-		//	Public UpperBound '   #NEW#  As String
 		/// <summary>
 		/// 添え字の上限
 		/// </summary>
     	public int upperBound { get; set; }
 
-		//	Public Visibility 'As String
 		/// <summary>
 		/// 可視性
 		/// </summary>
