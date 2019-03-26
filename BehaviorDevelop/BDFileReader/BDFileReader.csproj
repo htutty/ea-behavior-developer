@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <ProjectGuid>{6070881C-93B6-402C-8539-8876A3F2A1D7}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <OutputType>Library</OutputType>
+    <RootNamespace>BDFileReader</RootNamespace>
+    <AssemblyName>BDFileReader</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <NoWin32Manifest>False</NoWin32Manifest>
+    <SignAssembly>False</SignAssembly>
+    <DelaySign>False</DelaySign>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+    <NoStdLib>False</NoStdLib>
+    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+    <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
+    <WarningLevel>4</WarningLevel>
+    <RunCodeAnalysis>False</RunCodeAnalysis>
+    <SourceAnalysisOverrideSettingsFile>C:\Users\ctc0065\AppData\Roaming\ICSharpCode/SharpDevelop4\Settings.SourceAnalysis</SourceAnalysisOverrideSettingsFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <BaseAddress>4194304</BaseAddress>
+    <RegisterForComInterop>False</RegisterForComInterop>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <FileAlignment>4096</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <DebugSymbols>True</DebugSymbols>
+    <DebugType>Full</DebugType>
+    <Optimize>False</Optimize>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
+    <Optimize>True</Optimize>
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+    <DefineConstants>TRACE</DefineConstants>
+    <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
+    <StartAction>Project</StartAction>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Interop.EA">
+      <HintPath>..\..\..\..\Program Files (x86)\SparxSystems Japan\EA\Interop.EA.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="reader\ArtifactsXmlReader.cs" />
+    <Compile Include="reader\ArtifactXmlReader.cs" />
+    <Compile Include="reader\ConnectorXmlReader.cs" />
+    <Compile Include="reader\ElementsXmlReader.cs" />
+    <Compile Include="util\ObjectEAConverter.cs" />
+    <Compile Include="util\ProjectSetting.cs" />
+    <Compile Include="util\StringUtil.cs" />
+    <Compile Include="vo\ArtifactsVO.cs" />
+    <Compile Include="vo\ArtifactVO.cs" />
+    <Compile Include="vo\AttributeTagVO.cs" />
+    <Compile Include="vo\AttributeVO.cs" />
+    <Compile Include="vo\ConnectorVO.cs" />
+    <Compile Include="vo\DiagramLinkVO.cs" />
+    <Compile Include="vo\DiagramObjectVO.cs" />
+    <Compile Include="vo\DiagramVO.cs" />
+    <Compile Include="vo\ElementSearchVO.cs" />
+    <Compile Include="vo\ElementVO.cs" />
+    <Compile Include="vo\MethodTagVO.cs" />
+    <Compile Include="vo\MethodVO.cs" />
+    <Compile Include="vo\PackageVO.cs" />
+    <Compile Include="vo\ParameterVO.cs" />
+    <Compile Include="vo\ProjectSettingVO.cs" />
+    <Compile Include="vo\ElementReferenceVO.cs" />
+    <Compile Include="vo\TaggedValueVO.cs" />
+    <Compile Include="writer\AllArtifactsXmlWriter.cs" />
+    <Compile Include="writer\ArtifactXmlWriter.cs" />
+    <Compile Include="writer\DiagramXmlWriter.cs" />
+    <Compile Include="writer\EAArtifactXmlMaker.cs" />
+    <Compile Include="writer\ElementXmlWriter.cs" />
+    <Compile Include="writer\ProjectFileWriter.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

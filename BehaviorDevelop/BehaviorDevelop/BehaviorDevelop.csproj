@@ -210,10 +210,6 @@
       <Project>{6070881C-93B6-402C-8539-8876A3F2A1D7}</Project>
       <Name>BDFileReader</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ProjectDiffMaker\ProjectDiffMaker.csproj">
-      <Project>{C7D0C9F4-6425-4706-B909-2CA50C785D29}</Project>
-      <Name>ProjectDiffMaker</Name>
-    </ProjectReference>
     <ProjectReference Include="..\VoidNish.Diff\VoidNish.Diff.csproj">
       <Project>{7F2DFFF8-1202-4C31-9D3F-094CB7528A65}</Project>
       <Name>VoidNish.Diff</Name>

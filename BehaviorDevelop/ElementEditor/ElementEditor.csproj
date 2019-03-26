@@ -1,0 +1,210 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <ProjectGuid>{13A29357-9FF8-44A8-B028-E7F4D12ED1C4}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>ElementEditor</RootNamespace>
+    <AssemblyName>ElementEditor</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <DebugSymbols>True</DebugSymbols>
+    <DebugType>Full</DebugType>
+    <Optimize>False</Optimize>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
+    <Optimize>True</Optimize>
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+    <DebugType>Full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>None</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="ICSharpCode.AvalonEdit, Version=5.0.3.0, Culture=neutral, PublicKeyToken=9cc39be672370310, processorArchitecture=MSIL">
+      <HintPath>..\packages\AvalonEdit.5.0.4\lib\Net40\ICSharpCode.AvalonEdit.dll</HintPath>
+    </Reference>
+    <Reference Include="Interop.EA">
+      <HintPath>..\..\..\..\Program Files (x86)\SparxSystems Japan\EA\Interop.EA.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Presentation" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="WindowsFormsIntegration" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AttributePropertyForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AttributePropertyForm.Designer.cs">
+      <DependentUpon>AttributePropertyForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="BehaviorEditor.xaml.cs">
+      <DependentUpon>BehaviorEditor.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DiffElementForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DiffElementForm.Designer.cs">
+      <DependentUpon>DiffElementForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ElementForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ElementForm.Designer.cs">
+      <DependentUpon>ElementForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MethodBehaviorEditForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MethodBehaviorEditForm.Designer.cs">
+      <DependentUpon>MethodBehaviorEditForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MethodPropertyForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MethodPropertyForm.Designer.cs">
+      <DependentUpon>MethodPropertyForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="UserControl1.xaml.cs">
+      <DependentUpon>UserControl1.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="usercontrol\SyntaxRichTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="usercontrol\TipsListBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="usercontrol\ToggleButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="usercontrol\vo\HeaderNumber.cs" />
+    <Compile Include="usercontrol\vo\HistoryBehavior.cs" />
+    <Compile Include="util\ElementSearcher.cs" />
+    <Compile Include="util\StringUtil.cs" />
+    <Compile Include="vo\AttributeMethod.cs" />
+    <Compile Include="vo\CompletionData.cs" />
+    <Compile Include="vo\CompareItem.cs" />
+    <Compile Include="vo\CompareProperty.cs" />
+    <Compile Include="vo\CrossReference.cs" />
+    <Compile Include="vo\Item.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="AttributePropertyForm.resx">
+      <DependentUpon>AttributePropertyForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DiffElementForm.resx">
+      <DependentUpon>DiffElementForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ElementForm.resx">
+      <DependentUpon>ElementForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MethodBehaviorEditForm.resx">
+      <DependentUpon>MethodBehaviorEditForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MethodPropertyForm.resx">
+      <DependentUpon>MethodPropertyForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BDFileReader\BDFileReader.csproj">
+      <Project>{6070881C-93B6-402C-8539-8876A3F2A1D7}</Project>
+      <Name>BDFileReader</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VoidNish.Diff\VoidNish.Diff.csproj">
+      <Project>{7F2DFFF8-1202-4C31-9D3F-094CB7528A65}</Project>
+      <Name>VoidNish.Diff</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="Resources\ICON_BEHAVIOR.ico" />
+    <Resource Include="Resources\ICON_SYMBOL_ATTRIBUTE.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\ICON_SYMBOL_CLASS.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\ICON_SYMBOL_METHOD.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <None Include="Resources\NumberingOFF.png" />
+    <None Include="Resources\NumberingON.png" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Page Include="BehaviorEditor.xaml" />
+    <Page Include="UserControl1.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
