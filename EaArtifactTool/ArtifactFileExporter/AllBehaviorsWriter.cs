@@ -234,17 +234,17 @@ namespace ArtifactFileExporter
                         {
                             // 続く処理でインデントレベルがぶつからないように後続チャンクには大きな数をセット
                             nextChunk.indLv = 999;
-                            chunk.behavior = chunk.behavior + "#\n#" + nextChunk.behavior;
+                            chunk.behavior = chunk.behavior + "#\\n#" + nextChunk.behavior;
                         }
                         else
                         {
-                            // 後続チャンクの分、インデックスを進めてforを抜ける
+                            // forを抜ける
                             break;
                         }
                     }
                 }
 
-                if (chunk.followeeIdx == 0)
+                if (chunk.followeeIdx < 0)
                 {
                     chunk.chunkId = chunkCount++;
                     retList.Add(chunk);
@@ -394,6 +394,8 @@ namespace ArtifactFileExporter
             sb.Replace("\\", "\\\\");
             sb.Replace("\"", "\\\"");
             sb.Replace("/", "\\/");
+            sb.Replace("\r", "\\r");
+            sb.Replace("\n", "\\n");
 
             return sb.ToString();
         }

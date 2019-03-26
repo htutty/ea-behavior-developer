@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data.OleDb;
-using System.Linq;
-using System.Text;
 using ArtifactFileAccessor.vo;
 using ArtifactFileAccessor.util;
-using System.IO;
 
 namespace ArtifactFileExporter
 {
@@ -16,6 +12,8 @@ namespace ArtifactFileExporter
         private Dictionary<int, List<MethodVO>> g_AllMethodsInElementMap = new Dictionary<int, List<MethodVO>>();
         // 全属性のレコードを読み込み、要素IDごとにハッシュに格納したもの
         private Dictionary<int, List<AttributeVO>>  g_AllAttributesInElementMap = new Dictionary<int, List<AttributeVO>>();
+        // 全パラメータタグ付き値を読み込み、パラメータのGUIDごとにハッシュに格納したもの
+        private Dictionary<string, List<ParamTagVO>> g_AllParamTagsInParamMap = new Dictionary<string, List<ParamTagVO>>();
 
         // 全パッケージVO のキャッシュ用Map
         public Dictionary<int, PackageVO> AllPackageMap = new Dictionary<int, PackageVO>();
@@ -47,10 +45,93 @@ namespace ArtifactFileExporter
         {
             this.objConn = conn;
 
+            getAllParameterTaggedValueMap();
             getAllAttributeMap();
             getAllMethodMap();
 
         }
+
+
+        /// <summary>
+        /// パラメータのタグ付き値をDBから読み込み、Mapに格納する
+        /// </summary>
+        private void getAllParameterTaggedValueMap()
+        {
+
+            Console.WriteLine("getAllParameterTaggedValue()");
+
+            string strSQL, strFields;
+
+            // 読み込む項目リスト
+            strFields =
+                " PropertyID, ElementID, TagValue, Notes ";
+
+            // SQL文 を作成
+            strSQL = "select " + strFields +
+                " from t_taggedvalue " +
+                " where BaseClass = 'OPERATION_PARAMETER' " +
+                " order by ElementID, PropertyID ";
+
+            OleDbCommand dbCom = new OleDbCommand();
+
+            // SQLを実行する
+            dbCom.CommandText = strSQL;
+            dbCom.Connection = objConn;
+
+            // ElementId（パラメータのGUID）順でリストにセットされる
+            List<ParamTagVO>  paramTagList = new List<ParamTagVO>();
+
+            // DB読み込み
+            OleDbDataReader reader = dbCom.ExecuteReader();
+            while (reader.Read())
+            {
+                ParamTagVO prmTag = new ParamTagVO();
+
+                prmTag.guid = DbUtil.readStringField(reader, 0);
+                prmTag.paramGuid = DbUtil.readStringField(reader, 1);
+                prmTag.name = StringUtil.excludeSpecialChar("t_taggedvalue", "TagValue", prmTag.guid, DbUtil.readStringField(reader, 2));
+                prmTag.notes = DbUtil.readStringField(reader, 3);
+
+                paramTagList.Add(prmTag);
+            }
+
+            reader.Close();
+            Console.WriteLine("--- AllParameterTaggedValue 作成処理");
+
+            string saveParamGuid = "";
+            List<ParamTagVO> paramTagListInParam = new List<ParamTagVO>();
+            foreach (ParamTagVO ptgvo in paramTagList)
+            {
+                // 初回は前回情報が空のため、最初のレコードが前回情報となる
+                if (saveParamGuid == "")
+                {
+                    paramTagListInParam = new List<ParamTagVO>();
+                    saveParamGuid = ptgvo.paramGuid;
+                }
+
+                // 要素IDが前行と同一の場合
+                if (saveParamGuid == ptgvo.paramGuid)
+                {
+                    // 現在のメソッドリストにこのメソッドを追加
+                    paramTagListInParam.Add(ptgvo);
+                }
+                // 同一でない場合
+                else
+                {
+                    // 現在のメソッドリストを返却Mapに追加
+                    g_AllParamTagsInParamMap.Add(saveParamGuid, paramTagListInParam);
+
+                    paramTagListInParam = new List<ParamTagVO>();
+                    paramTagListInParam.Add(ptgvo);
+
+                    saveParamGuid = ptgvo.paramGuid;
+                }
+            }
+
+            // 最後に溜まっている分の要素内操作リストを返却Mapに追加
+            g_AllParamTagsInParamMap.Add(saveParamGuid, paramTagListInParam);
+        }
+
 
         /// <summary>
         /// 全属性のMap（ディクショナリ）を作成
@@ -78,9 +159,12 @@ namespace ArtifactFileExporter
             dbCom.CommandText = strSQL;
 	        dbCom.Connection = objConn;
 
+            // ObjectId順に並んだ要素一覧と合わせるため、
+            //  ObjectId + 属性のGUID順でリストにセットされる
             var attrList = new List<AttributeVO>();
-            OleDbDataReader reader = dbCom.ExecuteReader();
 
+            // DB読み込み
+            OleDbDataReader reader = dbCom.ExecuteReader();
             while (reader.Read())
             {
                 AttributeVO retAtt = new AttributeVO();
@@ -137,8 +221,9 @@ namespace ArtifactFileExporter
 	        // 最後に溜まっている分の要素内操作リストを返却Mapに追加
 	        g_AllAttributesInElementMap.Add(saveElementID, attributeListInElem);
 
+            // タグ付き値をセットするため、 AttributeId 順にソートし直す
+            attrList.Sort(new AttributeIdComparer());
 
-            attrList.Sort();
             // 属性のタグ付き値を AttributeVO.taggedValues にセットする
             setAttributeTag(attrList);
 
@@ -321,12 +406,15 @@ namespace ArtifactFileExporter
             // 最後に溜まっている分の要素内操作リストを返却Mapに追加
             g_AllMethodsInElementMap.Add(saveElementID, methodListInElem);
 
-            // 取得したメソッドにパラメータを突っ込む
+            // 取得したメソッドにパラメータとタグ付き値を設定するため、
             // operationId 順にソート
             mthList.Sort(new MethodIdComparer());
 
-            // このメソッドのparametersを取得(なければmth.parametersに空のリストが設定される)
+            // t_parametersを読み、取得(なければmth.parametersに空のリストが設定される)
             setMethodParams(mthList);
+
+            // t_operationtags を読み、メソッドに追加(なければmth.taggedValuesに空のリストが設定される)
+            setMethodTags(mthList);
         }
 
 
@@ -363,7 +451,7 @@ namespace ArtifactFileExporter
             dbCom.Connection = objConn;
 
             // DBから取得したパラメータデータをいったんリストに貯める
-            List<ParameterVO> retParameters = new List<ParameterVO>();
+            List<ParameterVO> paramList = new List<ParameterVO>();
             OleDbDataReader reader = dbCom.ExecuteReader();
 
             while (reader.Read())
@@ -392,20 +480,34 @@ namespace ArtifactFileExporter
                 prm.styleEx = buf;
 			    prm.objectType = "25";
 
-                if (savedOperationId > 0 && savedOperationId < operationId)
+                // 作成したパラメータVOに、パラメータタグ付き値のマップ
+                // Map内にキー(パラメータのGUID)が含まれていたら
+                if (g_AllParamTagsInParamMap.ContainsKey(prm.guid))
                 {
-                    methodIdx = searchMethodAndSetParameter(methods, savedOperationId, methodIdx, retParameters);
-                    retParameters = new List<ParameterVO>();
+                    // paramTags項目にマップからの取得値をセット
+                    prm.paramTags = g_AllParamTagsInParamMap[prm.guid];
+                }
+                else
+                {
+                    // 持っていなければ空のリストをセット
+                    prm.paramTags = new List<ParamTagVO>();
                 }
 
-                retParameters.Add(prm);
+
+                if (savedOperationId > 0 && savedOperationId < operationId)
+                {
+                    methodIdx = searchMethodAndSetParameter(methods, savedOperationId, methodIdx, paramList);
+                    paramList = new List<ParameterVO>();
+                }
+
+                paramList.Add(prm);
                 savedOperationId = operationId;
             }
 
             // 最後に retParamtersに溜まっている分をメソッドにセット
             if (savedOperationId > 0)
             {
-                methodIdx = searchMethodAndSetParameter(methods, savedOperationId, methodIdx + 1, retParameters);
+                methodIdx = searchMethodAndSetParameter(methods, savedOperationId, methodIdx + 1, paramList);
             }
 
             reader.Close();
@@ -434,6 +536,90 @@ namespace ArtifactFileExporter
                     prms.Sort(comp);
 
                     mth.parameters = prms;
+                    return i;
+                }
+            }
+
+            return startIdx;
+        }
+
+        /// <summary>
+        /// 操作のタグ付き値をDBから読み込み
+        /// </summary>
+        /// <param name="methods"></param>
+        private void setMethodTags(List<MethodVO> methods)
+        {
+            Console.WriteLine("setMethodTag(): methods.Count=" + methods.Count);
+
+            int mthIdx = 0;
+            int methodId, saveMethodId = 0;
+            string strSQL, strFields;
+
+            // 読み込む項目リスト
+            strFields =
+              "ElementID, PropertyID, ea_guid, Property, VALUE, NOTES ";
+
+            // SQL文 を作成
+            strSQL = "select " + strFields +
+                " from t_operationtag " +
+                " order by ElementID, ea_guid ";
+
+            OleDbCommand dbCom = new OleDbCommand();
+
+            // SQLを実行する
+            dbCom.CommandText = strSQL;
+            dbCom.Connection = objConn;
+
+            var retMthTags = new List<TaggedValueVO>();
+            OleDbDataReader reader = dbCom.ExecuteReader();
+
+            while (reader.Read())
+            {
+                methodId = DbUtil.readIntField(reader, 0);
+
+                TaggedValueVO mtag = new TaggedValueVO();
+
+                mtag.guid = DbUtil.readStringField(reader, 2);
+                mtag.name = StringUtil.excludeSpecialChar("t_operationtag", "Property", mtag.guid, DbUtil.readStringField(reader, 3));
+                mtag.tagValue = DbUtil.readStringField(reader, 4);
+                mtag.notes = DbUtil.readStringField(reader, 5);
+
+                if (saveMethodId > 0 && saveMethodId < methodId)
+                {
+                    mthIdx = searchMethodAndSetTags(methods, saveMethodId, mthIdx + 1, retMthTags);
+                    retMthTags = new List<TaggedValueVO>();
+                }
+
+                retMthTags.Add(mtag);
+                saveMethodId = methodId;
+            }
+
+            // 最後に retMthTags に溜まっている分をメソッドにセット
+            if (saveMethodId > 0)
+            {
+                mthIdx = searchMethodAndSetTags(methods, saveMethodId, mthIdx + 1, retMthTags);
+            }
+
+            reader.Close();
+        }
+
+        /// <summary>
+        /// 引数の操作リストから操作IDでヒットする操作を探し、
+        /// そのtaggedValuesに取得したタグ付き値リストをセットする
+        /// </summary>
+        /// <param name="methods">属性リスト</param>
+        /// <param name="targetMethodId">属性ID（t_attributetagから取得）</param>
+        /// <param name="startIdx">開始インデックス</param>
+        /// <param name="mtags">属性のタグ付き値リスト</param>
+        /// <returns></returns>
+        private int searchMethodAndSetTags(List<MethodVO> methods, int targetMethodId, int startIdx, List<TaggedValueVO> mtags)
+        {
+            for (int i = startIdx; i < methods.Count; i++)
+            {
+                MethodVO mth = methods[i];
+                if (mth.methodId == targetMethodId)
+                {
+                    mth.taggedValues = mtags;
                     return i;
                 }
             }
