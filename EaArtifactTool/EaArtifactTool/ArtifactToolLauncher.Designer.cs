@@ -46,7 +46,7 @@
             this.label7 = new System.Windows.Forms.Label();
             this.TxtCmpDestProject = new System.Windows.Forms.TextBox();
             this.BtnCompareStart = new System.Windows.Forms.Button();
-            this.TxtResultDir = new System.Windows.Forms.TextBox();
+            this.TxtCmpResultFolder = new System.Windows.Forms.TextBox();
             this.label8 = new System.Windows.Forms.Label();
             this.CheckSkipNotes = new System.Windows.Forms.CheckBox();
             this.BtnSelectSrcProject = new System.Windows.Forms.Button();
@@ -196,12 +196,12 @@
             this.BtnCompareStart.UseVisualStyleBackColor = true;
             this.BtnCompareStart.Click += new System.EventHandler(this.BtnCompareStart_Click);
             // 
-            // TxtResultDir
+            // TxtCmpResultFolder
             // 
-            this.TxtResultDir.Location = new System.Drawing.Point(134, 317);
-            this.TxtResultDir.Name = "TxtResultDir";
-            this.TxtResultDir.Size = new System.Drawing.Size(327, 19);
-            this.TxtResultDir.TabIndex = 16;
+            this.TxtCmpResultFolder.Location = new System.Drawing.Point(134, 317);
+            this.TxtCmpResultFolder.Name = "TxtCmpResultFolder";
+            this.TxtCmpResultFolder.Size = new System.Drawing.Size(327, 19);
+            this.TxtCmpResultFolder.TabIndex = 16;
             // 
             // label8
             // 
@@ -262,7 +262,7 @@
             this.Controls.Add(this.BtnSelectSrcProject);
             this.Controls.Add(this.CheckSkipNotes);
             this.Controls.Add(this.label8);
-            this.Controls.Add(this.TxtResultDir);
+            this.Controls.Add(this.TxtCmpResultFolder);
             this.Controls.Add(this.BtnCompareStart);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.TxtCmpDestProject);
@@ -306,7 +306,7 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.TextBox TxtCmpDestProject;
         private System.Windows.Forms.Button BtnCompareStart;
-        private System.Windows.Forms.TextBox TxtResultDir;
+        private System.Windows.Forms.TextBox TxtCmpResultFolder;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.CheckBox CheckSkipNotes;
         private System.Windows.Forms.Button BtnSelectSrcProject;

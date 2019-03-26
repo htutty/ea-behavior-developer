@@ -68,6 +68,11 @@ namespace EaArtifactTool
 
         }
 
+        /// <summary>
+        /// 成果物出力実行ボタン押下処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void BtnExecOutput_Click(object sender, EventArgs e)
         {
 
@@ -96,7 +101,11 @@ namespace EaArtifactTool
 
         }
 
-
+        /// <summary>
+        /// 比較元プロジェクトファイル選択ボタン押下処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void BtnSelectSrcProject_Click(object sender, EventArgs e)
         {
             //はじめに「ファイル名」で表示される文字列を指定する
@@ -120,6 +129,11 @@ namespace EaArtifactTool
             }
         }
 
+        /// <summary>
+        /// 比較先プロジェクトファイル選択ボタン押下処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void BtnSelectDestProject_Click(object sender, EventArgs e)
         {
             //はじめに「ファイル名」で表示される文字列を指定する
@@ -143,18 +157,22 @@ namespace EaArtifactTool
             }
         }
 
-
-
+        /// <summary>
+        /// 比較結果出力先フォルダ選択ボタン押下処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void BtnSelectResultDir_Click(object sender, EventArgs e)
         {
-
             //上部に表示する説明テキストを指定する
             this.folderBrowserDialog1.Description = "フォルダを指定してください。";
             //ルートフォルダを指定する
             // this.folderBrowserDialog1.RootFolder = Environment.SpecialFolder.Desktop;
-            //最初に選択するフォルダを指定する
-            //RootFolder以下にあるフォルダである必要がある
-            this.folderBrowserDialog1.SelectedPath = @"C:\";
+
+            string appPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string basePath = Path.GetFullPath(appPath + @"\..\");
+            //最初に選択するフォルダ → このツールの配置フォルダの１つ上のフォルダとする
+            this.folderBrowserDialog1.SelectedPath = basePath;
             //ユーザーが新しいフォルダを作成できるようにする
             //デフォルトでTrue
             this.folderBrowserDialog1.ShowNewFolderButton = true;
@@ -162,15 +180,54 @@ namespace EaArtifactTool
             //ダイアログを表示する
             if (this.folderBrowserDialog1.ShowDialog(this) == DialogResult.OK)
             {
-                //選択されたフォルダを表示する
-                TxtOutputFolder.Text = this.folderBrowserDialog1.SelectedPath;
+                //選択されたフォルダのフルパスを比較結果出力先フォルダのテキストにセット
+                TxtCmpResultFolder.Text = this.folderBrowserDialog1.SelectedPath;
             }
 
         }
 
+
+        /// <summary>
+        /// 比較処理実行ボタン押下処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void BtnCompareStart_Click(object sender, EventArgs e)
         {
 
+            if (TxtCmpSrcProject.Text == "")
+            {
+                MessageBox.Show("比較元プロジェクト名を入力してください");
+                return;
+            }
+
+            if (TxtCmpDestProject.Text == "")
+            {
+                MessageBox.Show("比較先プロジェクト名を入力してください");
+                return;
+            }
+
+            if (TxtCmpResultFolder.Text == "")
+            {
+                MessageBox.Show("比較結果出力フォルダを入力してください");
+                return;
+            }
+
+            string skipOptionStr;
+            if (CheckSkipNotes.Checked == true)
+            {
+                skipOptionStr = "-skipnotes";
+            }
+            else
+            {
+                skipOptionStr = "-all";
+            }
+
+            string arguments = skipOptionStr + " " + TxtCmpSrcProject.Text + " " + TxtCmpDestProject.Text 
+                                 + " " + TxtCmpResultFolder.Text;
+            string appPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+            System.Diagnostics.Process.Start(appPath + "\\ProjectDiffMaker.exe", arguments);
         }
     }
 }
