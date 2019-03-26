@@ -80,8 +80,7 @@ namespace ProjectDiffMaker
 		/// </summary>
 		/// <param name="projectDir"></param>
 		/// <returns>全成果物のリスト</returns>
-		private List<ArtifactVO> readAllArtifacts( string projectDir ) {
-            string artifactsDir = projectDir + "\\" + "artifacts";
+		private List<ArtifactVO> readAllArtifacts( string artifactsDir) {
             ArtifactXmlReader reader = new ArtifactXmlReader(artifactsDir);
 
             List<ArtifactVO> retList = ArtifactsXmlReader.readArtifactList(artifactsDir, ProjectSetting.getVO().artifactsFile);
@@ -414,9 +413,12 @@ namespace ProjectDiffMaker
         /// </summary>
 		public void outputMerged() {
 			Console.WriteLine("outputMerged: outputDir=" + this.outputDir);
-			
-			//BOM無しのUTF8でテキストファイルを作成する
-			StreamWriter listsw = new StreamWriter(outputDir + "\\ChangedArtifacts.xml");
+
+            // 差分のdetailファイルが出力されるフォルダを事前に作成する
+            makeDetailDirIfNotExist(this.outputDir + "\\detail");
+
+            //BOM無しのUTF8でテキストファイルを作成する
+            StreamWriter listsw = new StreamWriter(outputDir + "\\ChangedArtifacts.xml");
 			listsw.WriteLine( @"<?xml version=""1.0"" encoding=""utf-8""?> " );
 			listsw.WriteLine( "" );
 			
@@ -485,9 +487,6 @@ namespace ProjectDiffMaker
 
 			detailsw.Close();
 
-
-			
-			
 			StreamWriter prjsw = new StreamWriter(outputDir + "\\project.bdprj");
 			prjsw.WriteLine( @"<?xml version=""1.0"" encoding=""utf-8""?> " );
 			prjsw.WriteLine( "" );
@@ -502,7 +501,19 @@ namespace ProjectDiffMaker
 
 		}
 
-		private void outputChangedArtifactList(ArtifactVO atf, StreamWriter sw) {
+
+        private static void makeDetailDirIfNotExist(string detailDir)
+        {
+            // 成果物出力先の artifacts フォルダが存在しない場合
+            if (!Directory.Exists(detailDir))
+            {
+                Directory.CreateDirectory(detailDir);
+                Console.WriteLine("出力ディレクトリを作成しました。 : " + detailDir);
+            }
+        }
+
+
+        private void outputChangedArtifactList(ArtifactVO atf, StreamWriter sw) {
 			sw.Write( "  <artifact " );
 			sw.Write( " changed='" + atf.changed + "' " );
 			sw.Write( " guid='" + atf.guid + "' " );
