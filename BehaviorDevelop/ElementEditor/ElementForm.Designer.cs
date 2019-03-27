@@ -179,20 +179,20 @@ namespace ElementEditor
             this.focusEAClassToolStripMenuItem,
             this.copyGuidClassToolStripMenuItem});
             this.classContextMenuStrip.Name = "classContextMenuStrip";
-            this.classContextMenuStrip.Size = new System.Drawing.Size(200, 48);
+            this.classContextMenuStrip.Size = new System.Drawing.Size(176, 48);
             this.classContextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(this.ClassContextMenuStripOpening);
             // 
             // focusEAClassToolStripMenuItem
             // 
             this.focusEAClassToolStripMenuItem.Name = "focusEAClassToolStripMenuItem";
-            this.focusEAClassToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
+            this.focusEAClassToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
             this.focusEAClassToolStripMenuItem.Text = "EAでこのクラスを選択";
             this.focusEAClassToolStripMenuItem.Click += new System.EventHandler(this.FocusEAClassToolStripMenuItemClick);
             // 
             // copyGuidClassToolStripMenuItem
             // 
             this.copyGuidClassToolStripMenuItem.Name = "copyGuidClassToolStripMenuItem";
-            this.copyGuidClassToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
+            this.copyGuidClassToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
             this.copyGuidClassToolStripMenuItem.Text = "GUIDをコピー";
             this.copyGuidClassToolStripMenuItem.Click += new System.EventHandler(this.CopyGuidClassToolStripMenuItemClick);
             // 
@@ -202,20 +202,20 @@ namespace ElementEditor
             this.focusEAMethodToolStripMenuItem,
             this.copyGuidMethodToolStripMenuItem});
             this.methodContextMenuStrip.Name = "methodContextMenuStrip";
-            this.methodContextMenuStrip.Size = new System.Drawing.Size(212, 48);
+            this.methodContextMenuStrip.Size = new System.Drawing.Size(183, 48);
             this.methodContextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(this.MethodContextMenuStripOpening);
             // 
             // focusEAMethodToolStripMenuItem
             // 
             this.focusEAMethodToolStripMenuItem.Name = "focusEAMethodToolStripMenuItem";
-            this.focusEAMethodToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
+            this.focusEAMethodToolStripMenuItem.Size = new System.Drawing.Size(182, 22);
             this.focusEAMethodToolStripMenuItem.Text = "EAでこのメソッドを選択";
             this.focusEAMethodToolStripMenuItem.Click += new System.EventHandler(this.FocusEAMethodToolStripMenuItemClick);
             // 
             // copyGuidMethodToolStripMenuItem
             // 
             this.copyGuidMethodToolStripMenuItem.Name = "copyGuidMethodToolStripMenuItem";
-            this.copyGuidMethodToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
+            this.copyGuidMethodToolStripMenuItem.Size = new System.Drawing.Size(182, 22);
             this.copyGuidMethodToolStripMenuItem.Text = "GUIDをコピー";
             this.copyGuidMethodToolStripMenuItem.Click += new System.EventHandler(this.CopyGuidMethodToolStripMenuItemClick);
             // 

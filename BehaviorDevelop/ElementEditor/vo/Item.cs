@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using BDFileReader.vo;
+using ArtifactFileAccessor.vo;
 
 namespace ElementEditor.vo
 {

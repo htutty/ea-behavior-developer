@@ -1,16 +1,8 @@
-﻿/*
- * Created by SharpDevelop.
- * User: ctc0065
- * Date: 2018/06/28
- * Time: 20:24
- * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
- */
-using System;
+﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
 
-using BDFileReader.vo;
+using ArtifactFileAccessor.vo;
 
 namespace ElementEditor
 {

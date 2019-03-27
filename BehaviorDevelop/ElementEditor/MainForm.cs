@@ -12,8 +12,8 @@ using System.Drawing;
 using System.Windows.Forms;
 
 using EA;
-using BDFileReader.util;
-using BDFileReader.vo;
+using ArtifactFileAccessor.util;
+using ArtifactFileAccessor.vo;
 
 namespace ElementEditor
 {

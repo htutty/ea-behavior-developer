@@ -10,15 +10,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Xml;
-using BDFileReader.vo;
 using ElementEditor.util;
-using ElementEditor.vo;
+using ArtifactFileAccessor.vo;
 using ICSharpCode.AvalonEdit.CodeCompletion;
 using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.Highlighting.Xshd;
@@ -64,6 +58,7 @@ namespace ElementEditor
             {
                 MessageBox.Show("XSHD読み込み処理でエラーが発生しました: " + ex.Message);
             }
+
             //イベントハンドラを登録
             behaviorEdit.TextArea.TextEntered += TextArea_TextEntered;
             behaviorEdit.TextArea.TextEntering += TextArea_TextEntering;
@@ -102,16 +97,20 @@ namespace ElementEditor
         {
             Console.WriteLine("TextArea_TextEntered: " + e.ToString());
 
-            // Ctrl+スペース で入力補完Windowを表示する (クラスの一覧)
-            if (e.Text == " " && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
+            ElementSearcher elementSearcher = new ElementSearcher();
+
+            // "$"入力で入力補完Windowを表示する (クラスの一覧)
+            if (e.Text == "$")
             { 
                 //入力補完Windowを生成
                 completionWindow = new CompletionWindow(behaviorEdit.TextArea);
 
-                ElementSearcher elementSearcher = new ElementSearcher();
-
                 // 補完リストに表示するアイテムをコレクションに追加する
-                elementSearcher.searchCompletionDataByElement( element, completionWindow.CompletionList.CompletionData);
+                IList<ICompletionData> cmplList = elementSearcher.searchCompletionDataFromMyOwn(this.element);
+                foreach(ICompletionData cmp in cmplList)
+                {
+                    completionWindow.CompletionList.CompletionData.Add(cmp);
+                }
 
                 // Windowを表示
                 completionWindow.Show();
@@ -124,28 +123,77 @@ namespace ElementEditor
             // ピリオドを入力
             if (e.Text == ".")
             {
-                //入力補完Windowを生成 (メソッド、属性の一覧)
-                completionWindow = new CompletionWindow(behaviorEdit.TextArea);
-                //補完リストに表示するアイテムをコレクションに追加する
-                //---> ここは、編集内容に応じて適切な入力候補を追加するように書き換える！
-                IList<ICompletionData> data = completionWindow.CompletionList.CompletionData;
-                data.Add(new CompletionData("item1", "item desc 1", null, 1.0, "foo"));
-                data.Add(new CompletionData("item2", "item desc 2", null, 2.0, "bar"));
-                data.Add(new CompletionData("item3", "item desc 3", null, 3.0, "hogehoge"));
-                //<---
-                //Windowを表示
-                completionWindow.Show();
-                completionWindow.Closed += delegate
-                {
-                    completionWindow = null;
-                };
+                string className = getClassNameFromText(behaviorEdit.Text, behaviorEdit.TextArea.Caret.Offset-1);
+
+                Console.WriteLine("探しに行くクラス名 = " + className);
+
+                // 補完リストに表示するアイテムをコレクションに追加する
+                //IList<ICompletionData> cmplList = elementSearcher.searchCompletionDataByElement(this.element);
+
+                //foreach (ICompletionData cmp in cmplList)
+                //{
+                //    completionWindow.CompletionList.CompletionData.Add(cmp);
+                //}
+
+                //// Windowを表示
+                //completionWindow.Show();
+                //completionWindow.Closed += delegate
+                //{
+                //    completionWindow = null;
+                //};
             }
         }
 
-        private void CommitButton_Click(object sender, RoutedEventArgs e)
+        private string getClassNameFromText(string alltext, int offsetOnCaret)
         {
 
+            // キャレットの前の文字列を全てchar配列に刻む
+            char[] sb = alltext.Substring(0, offsetOnCaret).ToCharArray();
+            StringBuilder namepick = new StringBuilder();
+
+            // キャレット前の文字から順に1文字づつ前になめる
+            for(int i=sb.Length-1; i>=0; i--)
+            {
+                // デリミタとして定めた文字(空白(半角、全角), '$', 改行)が来たらループを抜ける
+                if( sb[i] == ' ' || sb[i] == '$' || sb[i] == '　' || sb[i] == '\n' || sb[i] == '、' || sb[i] == '。')
+                {
+                    break;
+                }
+                // それ以外ならクラス名となるバッファに格納
+                else
+                {
+                    namepick.Insert(0, sb[i]);
+                }
+            }
+
+            return namepick.ToString();
         }
+
+
+
+        private void CommitButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.SaveMethodChange();
+            this.Close();
+        }
+
+        /// <summary>
+        /// 保存処理
+        /// </summary>
+        private void SaveMethodChange()
+        {
+
+            // 振る舞い
+            this.method.behavior = behaviorEdit.Text;
+
+            this.method.changed = 'U';
+            this.element.changed = 'U';
+
+            // ElementForm parentForm = (ElementForm)(this.Owner);
+            // parentForm.repaintFormMethod(this.method);
+
+        }
+
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {

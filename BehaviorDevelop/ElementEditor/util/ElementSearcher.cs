@@ -1,29 +1,35 @@
-﻿using BDFileReader.vo;
-using ElementEditor.vo;
-using ICSharpCode.AvalonEdit.CodeCompletion;
-using System;
+﻿using ICSharpCode.AvalonEdit.CodeCompletion;
+using IndexAccessor;
+using ArtifactFileAccessor.vo;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using ElementEditor.vo;
 
 namespace ElementEditor.util
 {
     class ElementSearcher
     {
-        public void searchCompletionDataByElement(ElementVO elementVO, IList<ICompletionData> completionDatas)
+
+        // リソースで管理されている属性アイコン、操作アイコンをWPFで使用するImageSourceに変換
+        private ImageSource bitmapAttr;
+        private ImageSource bitmapMth;
+
+        public ElementSearcher()
         {
-            IList<ICompletionData> data = completionDatas;
+            bitmapAttr = convertBitmapToImageSource(Properties.Resources.ICON_SYMBOL_ATTRIBUTE);
+            bitmapMth = convertBitmapToImageSource(Properties.Resources.ICON_SYMBOL_METHOD);
+
+        }
+
+
+        public IList<ICompletionData> searchCompletionDataByElement(ElementVO elementVO)
+        {
+            IList<ICompletionData> retDatas = new List<ICompletionData>();
             double priority = 1.0;
-
-            // リソースで管理されている属性アイコン、操作アイコンをWPFで使用するImageSourceに変換
-            //var bitmapAttr = convertBitmapToImageSource(Properties.Resources.ICON_SYMBOL_ATTRIBUTE);
-            //var bitmapMth = convertBitmapToImageSource(Properties.Resources.ICON_SYMBOL_METHOD);
-
-            BitmapImage bitmapAttr = new BitmapImage(new Uri("Resources/ICON_SYMBOL_ATTRIBUTE.png", UriKind.Relative));
-            BitmapImage bitmapMth = new BitmapImage(new Uri("Resources/ICON_SYMBOL_METHOD.png", UriKind.Relative));
 
             // 自要素が保持する属性を取得して追加
             foreach (AttributeVO attr in elementVO.attributes)
@@ -32,7 +38,7 @@ namespace ElementEditor.util
                 string description = attr.notes;
 
                 string text = attr.name;
-                data.Add(new CompletionData(content, description, bitmapAttr, priority++, text));
+                retDatas.Add(new CompletionData(content, description, this.bitmapAttr, priority++, text));
             }
 
             // 自要素が保持する操作を取得して追加
@@ -42,10 +48,69 @@ namespace ElementEditor.util
                 string description = mth.notes;
 
                 string text = mth.name + "(" + getParameterString(mth.parameters) + ")";
-                data.Add(new CompletionData(content, description, bitmapMth, priority++, text));
+                retDatas.Add(new CompletionData(content, description, this.bitmapMth, priority++, text));
             }
 
-            return;
+            return retDatas;
+        }
+
+        public IList<ICompletionData> searchCompletionDataFromMyOwn(ElementVO elementVO)
+        {
+
+            IList<ICompletionData> retDatas = new List<ICompletionData>();
+            double priority = 1.0;
+
+            // 自要素が保持する属性を取得して追加
+            foreach (AttributeVO attr in elementVO.attributes)
+            {
+                string content = "this." + attr.name;
+                string description = attr.notes;
+
+                string text = "this." + attr.name;
+                retDatas.Add(new CompletionData(content, description, bitmapAttr, priority++, text));
+            }
+
+            // 自要素が保持する操作を取得して追加
+            foreach (MethodVO mth in elementVO.methods)
+            {
+                string content = "this." + mth.name;
+                string description = mth.notes;
+
+                string text = "this." + mth.name + "(" + getParameterString(mth.parameters) + ")";
+                retDatas.Add(new CompletionData(content, description, bitmapMth, priority++, text));
+            }
+
+            // 自要素の接続先要素を全て抽出
+            ConnectorSearcher connSearcher = new ConnectorSearcher();
+            List<ConnectorVO> retConns = connSearcher.findByObjectGuid(elementVO.guid);
+            foreach ( ConnectorVO cn in retConns)
+            {
+                string targetName = "";
+
+                switch(cn.connectorType)
+                {
+                    // 依存線、関連線で自分が src側の場合は destのオブジェクト名を取得
+                    case "Dependency":
+                    case "Association":
+                        if (cn.srcObjGuid == elementVO.guid) targetName = cn.destObjName;
+                        break;
+
+                    // 集約線で自分が dest側の場合は srcのオブジェクト名を取得
+                    case "Aggregation":
+                        if (cn.destObjGuid == elementVO.guid) targetName = cn.srcObjName;
+                        break;
+
+                }
+
+                // 得られた名前が空でなかったら、候補として追加
+                if( targetName != "")
+                {
+                    retDatas.Add(new CompletionData(targetName, targetName, null, priority++, targetName));
+                }
+
+            }
+
+            return retDatas;
         }
 
 

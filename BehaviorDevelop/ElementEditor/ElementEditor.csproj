@@ -10,6 +10,21 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <AppDesignerFolder>Properties</AppDesignerFolder>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -174,9 +189,13 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BDFileReader\BDFileReader.csproj">
-      <Project>{6070881C-93B6-402C-8539-8876A3F2A1D7}</Project>
-      <Name>BDFileReader</Name>
+    <ProjectReference Include="..\..\EaArtifactTool\ArtifactFileAccessor\ArtifactFileAccessor.csproj">
+      <Project>{b0efd60e-7d58-4600-8e30-aeaeb4424690}</Project>
+      <Name>ArtifactFileAccessor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\IndexAccessor\IndexAccessor.csproj">
+      <Project>{647f1691-ec36-47f1-9f21-f86d4b562974}</Project>
+      <Name>IndexAccessor</Name>
     </ProjectReference>
     <ProjectReference Include="..\VoidNish.Diff\VoidNish.Diff.csproj">
       <Project>{7F2DFFF8-1202-4C31-9D3F-094CB7528A65}</Project>
@@ -198,7 +217,13 @@
     <None Include="Resources\NumberingOFF.png" />
     <None Include="Resources\NumberingON.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
   <ItemGroup>
     <Page Include="BehaviorEditor.xaml" />
     <Page Include="UserControl1.xaml">

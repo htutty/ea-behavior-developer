@@ -1,12 +1,4 @@
-﻿/*
- * Created by SharpDevelop.
- * User: ctc0065
- * Date: 2018/04/09
- * Time: 16:36
- * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
- */
-using System;
+﻿using System;
 using System.IO;
 using File=System.IO.File;
 
@@ -16,11 +8,10 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 
-using BDFileReader.vo;
-using BDFileReader.reader;
-using BDFileReader.writer;
-using BDFileReader.util;
-using ProjectDiffMaker;
+using ArtifactFileAccessor.vo;
+using ArtifactFileAccessor.reader;
+using ArtifactFileAccessor.writer;
+using ArtifactFileAccessor.util;
 
 using VoidNish.Diff;
 
@@ -274,7 +265,7 @@ namespace ElementEditor
 		private void setElementItems( ElementVO lElem, ElementVO rElem ) {
 			
 			// 引数の２つの要素を比較して差分の内容を表示
-			mergedElement = ElementDiffer.getDiffElement(lElem, rElem);
+			mergedElement = ElementDiffer.getMergedElement(lElem, rElem);
 			if ( mergedElement == null ) {
 				return ;
 			}

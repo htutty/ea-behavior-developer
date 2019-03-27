@@ -14,10 +14,10 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 
-using BDFileReader.util;
-using BDFileReader.vo;
-using BDFileReader.writer;
-using BDFileReader.reader;
+using ArtifactFileAccessor.util;
+using ArtifactFileAccessor.vo;
+using ArtifactFileAccessor.writer;
+using ArtifactFileAccessor.reader;
 
 
 namespace ElementEditor
@@ -725,8 +725,12 @@ namespace ElementEditor
 
         private void ElementForm_FormClosed(object sender, FormClosedEventArgs e)
         {
-            MainForm main = (MainForm)this.Owner;
-            main.deleteOpenedElement(myElement);
+            if( this.Owner != null )
+            {
+                MainForm main = (MainForm)this.Owner;
+                main.deleteOpenedElement(myElement);
+            }
+
         }
     }
 }

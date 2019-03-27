@@ -7,9 +7,11 @@
  * To change this template use Tools | Options | Coding | Edit Standard Headers.
  */
 using System;
+using System.IO;
 using System.Windows.Forms;
-using BDFileReader.util;
-using BDFileReader.vo;
+using ArtifactFileAccessor.reader;
+using ArtifactFileAccessor.util;
+using ArtifactFileAccessor.vo;
 using EA;
 
 
@@ -26,10 +28,59 @@ namespace ElementEditor
 		[STAThread]
 		private static void Main(string[] args)
 		{
-            EA.App eaapp = null;
+            if (args.Length >= 3 && args[0] == "-local") 
+            {
+                string projectFile = args[1];
+                string elemGuid = args[2];
+                runOnLocalFileMode(projectFile, elemGuid);
+            }
+            else if( args.Length < 1 )
+            {
+                runOnDependEaMode();
+            }
+            else
+            {
+                MessageBox.Show("起動パラメータを付ける場合は以下を指定してください :\r\n" 
+                              + "   ElementEditor.exe -local <projectPath> <elementGuid> " );
+            }
+		}
 
-			try {
-				eaapp = (EA.App)Microsoft.VisualBasic.Interaction.GetObject(null, "EA.App");
+
+        private static void runOnLocalFileMode( string projectFile, string elemGuid)
+        {
+            // プロジェクトファイルの存在チェック
+            if( System.IO.File.Exists(projectFile) )
+            {
+                // プロジェクト設定ファイルのロード
+                ProjectSetting.load(projectFile);
+            }
+            else
+            {
+                MessageBox.Show("指定されたプロジェクトファイルが見つかりません");
+                return;
+            }
+
+            try
+            {
+                // 要素ファイルからGUIDで検索した結果を読み込む
+                ElementVO elemvo = ElementsXmlReader.readElementFile(elemGuid);
+
+                ElementForm elementForm = new ElementForm(ref elemvo);
+                Application.Run(elementForm);
+            }
+            catch ( Exception ex )
+            {
+                MessageBox.Show(ex.Message, "エラー発生");
+            }
+        }
+
+
+        private static void runOnDependEaMode()
+        {
+            EA.App eaapp = null;
+            try
+            {
+                eaapp = (EA.App)Microsoft.VisualBasic.Interaction.GetObject(null, "EA.App");
                 EA.Repository repo = eaapp.Repository;
 
                 // EA.Repository repo = new EA.Repository();
@@ -40,25 +91,29 @@ namespace ElementEditor
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
 
-                if ( eaapp != null ) {					
-					ProjectSetting.load(@"C:\DesignHistory\ea-artifact-manage\project.bdprj");
-					// projectsettingにEAリポジトリオブジェクトをセット
-					ProjectSetting.getVO().eaRepo = repo;
+                if (eaapp != null)
+                {
+                    ProjectSetting.load(@"C:\DesignHistory\ea-artifact-manage\project.bdprj");
+                    // projectsettingにEAリポジトリオブジェクトをセット
+                    ProjectSetting.getVO().eaRepo = repo;
 
-					string connStr = repo.ConnectionString;
-					Console.WriteLine("EAへのアタッチ成功 EA接続先=" + connStr);
+                    string connStr = repo.ConnectionString;
+                    Console.WriteLine("EAへのアタッチ成功 EA接続先=" + connStr);
 
                     Application.Run(new MainForm());
                 }
-                else {
+                else
+                {
                     MessageBox.Show("EAにアタッチできなかったため、異常終了します");
-				}
-			} catch(Exception ex) {
+                }
+            }
+            catch (Exception ex)
+            {
                 MessageBox.Show("EAへの接続時に例外が発生しました。 msg=" + ex.Message);
                 // Console.WriteLine("EAへの接続時に例外が発生しました。 msg=" + ex.Message);
-            } 
+            }
+        }
 
-		}
-		
-	}
+    }
+
 }

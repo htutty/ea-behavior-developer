@@ -6,7 +6,7 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using BDFileReader.vo;
+using ArtifactFileAccessor.vo;
 using ElementEditor.vo;
 using ElementEditor.usercontrol.vo;
 using ElementEditor.util;
