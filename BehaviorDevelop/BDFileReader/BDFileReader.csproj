@@ -67,6 +67,7 @@
     <Compile Include="reader\ArtifactXmlReader.cs" />
     <Compile Include="reader\ConnectorXmlReader.cs" />
     <Compile Include="reader\ElementsXmlReader.cs" />
+    <Compile Include="util\ElementDiffer.cs" />
     <Compile Include="util\ObjectEAConverter.cs" />
     <Compile Include="util\ProjectSetting.cs" />
     <Compile Include="util\StringUtil.cs" />
