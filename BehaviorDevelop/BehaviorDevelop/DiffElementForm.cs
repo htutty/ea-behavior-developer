@@ -17,10 +17,8 @@ using System.Drawing;
 using System.Windows.Forms;
 
 using BDFileReader.vo;
-using BDFileReader.reader;
 using BDFileReader.writer;
 using BDFileReader.util;
-using ProjectDiffMaker;
 using BehaviorDevelop.util;
 
 using VoidNish.Diff;
@@ -113,7 +111,7 @@ namespace BehaviorDevelop
         {
 
             // 引数の２つの要素を比較して差分の内容を表示
-            mergedElement = ElementDiffer.getDiffElement(lElem, rElem);
+            mergedElement = ElementDiffer.getMergedElement(lElem, rElem);
             if (mergedElement == null)
             {
                 return;

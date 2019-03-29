@@ -24,7 +24,7 @@ namespace BehaviorDevelop.util
 
 		public ElementSearcher()
 		{
-			this.db_file = ProjectSetting.getVO().dbName;
+			this.db_file = ProjectSetting.getVO().projectPath + "\\" + ProjectSetting.getVO().dbName;
 			this.conn = new SQLiteConnection("Data Source="+this.db_file);
 		}
 

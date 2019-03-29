@@ -91,7 +91,7 @@ namespace BehaviorDevelop
 				initProject();
 				
 				// 使用するDBファイルの存在チェック
-				if ( !System.IO.File.Exists(ProjectSetting.getVO().dbName) ) {
+				if ( !System.IO.File.Exists(ProjectSetting.getVO().projectPath + "\\" + ProjectSetting.getVO().dbName) ) {
 					// 読み込みが終わるまでモーダルでスプラッシュ画面を開く
 					SplashForm splashForm = new SplashForm();
 					
