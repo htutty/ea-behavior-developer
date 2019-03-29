@@ -102,6 +102,11 @@
     <Compile Include="AttributePropertyForm.Designer.cs">
       <DependentUpon>AttributePropertyForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="AttrMethSearch.xaml.cs">
+      <DependentUpon>AttrMethSearch.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="model\AttrMethSearchModel.cs" />
+    <Compile Include="viewmodel\AttrMethSearchViewModel.cs" />
     <Compile Include="BehaviorEditor.xaml.cs">
       <DependentUpon>BehaviorEditor.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -225,11 +230,15 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="AttrMethSearch.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="BehaviorEditor.xaml" />
     <Page Include="UserControl1.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

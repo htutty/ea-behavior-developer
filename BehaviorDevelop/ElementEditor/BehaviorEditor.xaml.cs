@@ -1,12 +1,4 @@
-﻿/*
- * Created by SharpDevelop.
- * User: z2050275
- * Date: 08/29/2018
- * Time: 16:31
- * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
- */
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Windows;
@@ -16,6 +8,7 @@ using ArtifactFileAccessor.vo;
 using ICSharpCode.AvalonEdit.CodeCompletion;
 using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.Highlighting.Xshd;
+using System.Windows.Input;
 
 namespace ElementEditor
 {
@@ -38,6 +31,8 @@ namespace ElementEditor
 
         private CompletionWindow completionWindow;
 
+        private AttrMethSearch attrMethSearch;
+
         private BehaviorEditor()
 		{
 			InitializeComponent();
@@ -51,7 +46,7 @@ namespace ElementEditor
             {
                 using (var reader = new XmlTextReader("jbdl.xshd"))
                 {
-                    behaviorEdit.SyntaxHighlighting = HighlightingLoader.Load(reader, HighlightingManager.Instance);
+                    jpBehaviorEdit.SyntaxHighlighting = HighlightingLoader.Load(reader, HighlightingManager.Instance);
                 }
             }
             catch (Exception ex)
@@ -60,15 +55,15 @@ namespace ElementEditor
             }
 
             //イベントハンドラを登録
-            behaviorEdit.TextArea.TextEntered += TextArea_TextEntered;
-            behaviorEdit.TextArea.TextEntering += TextArea_TextEntering;
+            jpBehaviorEdit.TextArea.TextEntered += TextArea_TextEntered;
+            jpBehaviorEdit.TextArea.TextEntering += TextArea_TextEntering;
 
             // パラメータで取得した要素、メソッドを自オブジェクト内に保持
             element = elementVO;
             method = methodVO;
             oldBehaviorValue = methodVO.behavior;
 
-            this.behaviorEdit.Text = methodVO.behavior;
+            this.jpBehaviorEdit.Text = methodVO.behavior;
 
 
         }
@@ -99,11 +94,12 @@ namespace ElementEditor
 
             ElementSearcher elementSearcher = new ElementSearcher();
 
-            // "$"入力で入力補完Windowを表示する (クラスの一覧)
-            if (e.Text == "$")
+           
+            // Ctrl+スペース で入力補完Windowを表示する (クラスの一覧)
+            if (e.Text == " " && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
             { 
                 //入力補完Windowを生成
-                completionWindow = new CompletionWindow(behaviorEdit.TextArea);
+                completionWindow = new CompletionWindow(jpBehaviorEdit.TextArea);
 
                 // 補完リストに表示するアイテムをコレクションに追加する
                 IList<ICompletionData> cmplList = elementSearcher.searchCompletionDataFromMyOwn(this.element);
@@ -120,10 +116,20 @@ namespace ElementEditor
                 };
             }
 
+            // "$"入力で別Windowを表示する (クラス内の属性・メソッドの一覧)
+            if (e.Text == "$")
+            {
+                attrMethSearch = new AttrMethSearch();
+
+                // Windowを表示
+                attrMethSearch.Show();
+
+            }
+
             // ピリオドを入力
             if (e.Text == ".")
             {
-                string className = getClassNameFromText(behaviorEdit.Text, behaviorEdit.TextArea.Caret.Offset-1);
+                string className = getClassNameFromText(jpBehaviorEdit.Text, jpBehaviorEdit.TextArea.Caret.Offset-1);
 
                 Console.WriteLine("探しに行くクラス名 = " + className);
 
@@ -184,7 +190,7 @@ namespace ElementEditor
         {
 
             // 振る舞い
-            this.method.behavior = behaviorEdit.Text;
+            this.method.behavior = this.jpBehaviorEdit.Text;
 
             this.method.changed = 'U';
             this.element.changed = 'U';
@@ -198,6 +204,7 @@ namespace ElementEditor
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
 
+            this.Close();
         }
     }
 }
