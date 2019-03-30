@@ -4,6 +4,6 @@
     <StartArguments>D:\DesignHistory\staging\EAPBAK_simba_ea_master_20180719.eap simba-master D:\DesignHistory\simba-ea-master</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <StartArguments>C:\DesignHistory\staging\EAPBAK_cuvic_aswea_20190401_20190326.eap ASW-DOM-BE C:\ea-artifacts\for-merge\0401マージ\aswea_20190401_begin</StartArguments>
+    <StartArguments>-index C:\DesignHistory\staging\EAPBAK_cuvic_aswea_20190401_20190326.eap ASW-DOM-BE C:\ea-artifacts\for-merge\0401マージ\aswea_20190401_begin</StartArguments>
   </PropertyGroup>
 </Project>

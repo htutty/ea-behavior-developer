@@ -81,9 +81,9 @@ namespace ArtifactFileExporter
             ProjectFileWriter.outputProjectFile(outputDir, allArtifacts.targetProject);
 
             // 要素一覧CSVファイル、属性・操作一覧CSVファイルの出力
-            // AllElementsCsvWriter csvWriter = new AllElementsCsvWriter(outputDir);
-            // csvWriter.outputElementsCsv(this.allArtifacts);
-            // csvWriter.outputMthAttrCsv(this.allArtifacts);
+            AllElementsCsvWriter csvWriter = new AllElementsCsvWriter(outputDir);
+            csvWriter.outputElementsCsv(this.allArtifacts);
+            csvWriter.outputMthAttrCsv(this.allArtifacts);
 
             // ふるまいファイルの出力
             AllBehaviorsWriter bhvWriter = new AllBehaviorsWriter(outputDir);
@@ -119,6 +119,7 @@ namespace ArtifactFileExporter
                 IndexDbWriter dbWriter = new IndexDbWriter(this.outputDir, ProjectSetting.getVO().dbName);
                 dbWriter.writeAllConnector(this.allconnectors);
                 dbWriter.writeAllElements(this.allArtifacts);
+                dbWriter.writeAllBehaviors(this.allArtifacts);
             }
             catch (Exception ex)
             {
@@ -126,14 +127,18 @@ namespace ArtifactFileExporter
             }
         }
 
+        /// <summary>
+        /// 要素毎のXMLを elements 配下に出力する
+        /// </summary>
         public void doMakeElementFiles()
         {
-            // 要素毎のXMLを出力
+            // 
             foreach (ArtifactVO atf in this.allArtifacts.getArtifactsExcludeImplModel())
             {
                 foreach (ElementVO elem in atf.getOwnElements())
                 {
                     ElementXmlWriter.outputElementXmlFile(elem);
+
                     // ElementAsciidocWriter.doWrite(outputDir, elem);
                 }
             }
