@@ -54,6 +54,8 @@
     <Compile Include="reader\ConnectorXmlReader.cs" />
     <Compile Include="reader\ElementsXmlReader.cs" />
     <Compile Include="util\DbUtil.cs" />
+    <Compile Include="util\ElementDiffer.cs" />
+    <Compile Include="util\ObjectEAConverter.cs" />
     <Compile Include="util\ProjectSetting.cs" />
     <Compile Include="util\StringUtil.cs" />
     <Compile Include="vo\ArtifactsVO.cs" />
