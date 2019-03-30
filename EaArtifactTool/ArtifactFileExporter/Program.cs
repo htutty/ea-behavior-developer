@@ -5,7 +5,10 @@ using System.Linq;
 namespace ArtifactFileExporter
 {
     /// <summary>
-    /// EAリポジトリのデータベースをインプットとして
+    /// EAリポジトリの.eapファイルをデータベースとして読み込み、
+    /// 成果物パッケージ毎のXMLファイルを基本とした各種テキストのエクスポートファイルを出力する。
+    /// 合わせて、テキスト形式だと各種の検索が遅くなるため、
+    /// 成果物ファイル利用の利便性を高めるためのインデックス情報をSQLite形式で出力する。
     /// </summary>
     class Program
     {
@@ -13,34 +16,57 @@ namespace ArtifactFileExporter
 
         static void Main(string[] args)
         {
-            if (args.Count() >= 3)
+            string eapfile;
+            string projectName;
+            string outputDir;
+            bool makeIndexFlg = false;
+
+            if (args.Count() >= 4)
             {
-                string eapfile = args[0];
-                string projectName = args[1];
-                string outputDir = args[2];
-
-                try
+                if(args[0] == "-index")
                 {
-                    // 引数のプロジェクトパス配下の成果物フォルダを作成
-                    string artifactDir = outputDir + "\\artifacts";
-                    makeArtifactDirIfNotExist(artifactDir);
-
-                    ArtifactExporter exporter = new ArtifactExporter(outputDir, artifactDir);
-                    exporter.readDataBase(eapfile, projectName);
-                    exporter.doExport();
-                    // exporter.doMakeIndex();
-                    // exporter.doMakeElementFiles();
-
-                }
-                catch ( Exception ex )
-                {
-                    Console.WriteLine(ex.Message);
+                    makeIndexFlg = true;
                 }
 
+                eapfile = args[1];
+                projectName = args[2];
+                outputDir = args[3];
+            }
+            else if (args.Count() == 3)
+            {
+                makeIndexFlg = false;
+                eapfile = args[0];
+                projectName = args[1];
+                outputDir = args[2];
             }
             else
             {
-                Console.WriteLine("引数が違います: ExportArtifactFile.exe <EAPファイル名> <プロジェクト名> <出力先Dir>");
+                Console.WriteLine("Usage: ArtifactFileExporter.exe (-index) <EAPファイル名> <プロジェクト名> <出力先Dir>");
+                return;
+            }
+
+
+            try
+            {
+                // 引数のプロジェクトパス配下の成果物フォルダを作成
+                string artifactDir = outputDir + "\\artifacts";
+                makeArtifactDirIfNotExist(artifactDir);
+
+                ArtifactExporter exporter = new ArtifactExporter(outputDir, artifactDir);
+                exporter.readDataBase(eapfile, projectName);
+                exporter.doExport();
+
+                // インデックス情報を作成するかを判断
+                if (makeIndexFlg)
+                {
+                    exporter.doMakeIndex();
+                    exporter.doMakeElementFiles();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
             }
 
         }
