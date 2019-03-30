@@ -194,7 +194,7 @@ namespace AsciidocGenerator
             sw.WriteLine("");
         }
 
-        private static void writeTaggedValueAttr(List<AttributeTagVO> attributeTags, StreamWriter sw)
+        private static void writeTaggedValueAttr(List<TaggedValueVO> attributeTags, StreamWriter sw)
         {
             sw.WriteLine("##### タグ付き値");
             sw.WriteLine("");
@@ -203,7 +203,7 @@ namespace AsciidocGenerator
             sw.WriteLine("|===");
             sw.WriteLine("| キー | 値");
 
-            foreach (AttributeTagVO tv in attributeTags)
+            foreach (TaggedValueVO tv in attributeTags)
             {
                 sw.Write("|" + tv.name);
 
@@ -298,7 +298,7 @@ namespace AsciidocGenerator
         }
 
 
-        private static void writeTaggedValueMth(List<MethodTagVO> methodTags, StreamWriter sw)
+        private static void writeTaggedValueMth(List<TaggedValueVO> methodTags, StreamWriter sw)
         {
             sw.WriteLine("##### タグ付き値");
             sw.WriteLine("");
@@ -308,7 +308,7 @@ namespace AsciidocGenerator
             sw.WriteLine("|===");
             sw.WriteLine("| キー | 値");
 
-            foreach (MethodTagVO tv in methodTags)
+            foreach (TaggedValueVO tv in methodTags)
             {
                 sw.Write("|" + tv.name);
 

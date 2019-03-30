@@ -51,6 +51,7 @@ namespace AsciidocGenerator
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                throw ex;
             }
 
         }
@@ -135,7 +136,7 @@ namespace AsciidocGenerator
         /// <param name="sw"></param>
         private void writeElement(ElementVO element, StreamWriter sw)
         {
-
+            sw.WriteLine("//##BEGIN element GUID=" + element.guid + "##");
             string stereotypeStr = "";
             if (element.stereoType != null && element.stereoType != "")
             {
@@ -147,7 +148,6 @@ namespace AsciidocGenerator
             sw.WriteLine("### 要素:" + element.name);
 
             //sw.WriteLine("[horizontal]");
-            sw.WriteLine("// GUID:: " + element.guid);
             sw.WriteLine("クラス宣言:: " + element.visibility + " " + element.eaType + " " + stereotypeStr + element.name + "[" + element.alias + "]");
             //sw.WriteLine("ステレオタイプ: " + element.stereoType);
             sw.WriteLine("");
@@ -188,11 +188,12 @@ namespace AsciidocGenerator
                     writeMethod(mth, sw);
                 }
             }
-
+            sw.WriteLine("//##END element" + "##");
         }
 
         private void writeTaggedValueElem(List<TaggedValueVO> elemTags, StreamWriter sw)
         {
+            sw.WriteLine("//##BEGIN element-taggedvalues##");
             sw.WriteLine(".要素のタグ付き値");
             sw.WriteLine("[cols = \"1,3\"]");
             sw.WriteLine("|===");
@@ -200,6 +201,7 @@ namespace AsciidocGenerator
 
             foreach (TaggedValueVO tv in elemTags)
             {
+                sw.WriteLine("//##BEGIN taggedvalue GUID=" + tv.guid + "##");
                 sw.Write("|" + tv.name);
 
                 if (tv.tagValue == "<memo>")
@@ -212,14 +214,18 @@ namespace AsciidocGenerator
                 }
 
                 sw.WriteLine("");
+                sw.WriteLine("//##END taggedvalue##");
             }
             sw.WriteLine("|===");
             sw.WriteLine("");
+            sw.WriteLine("//##END element-taggedvalues##");
         }
 
 
         private void writeAttribute(AttributeVO attribute, StreamWriter sw)
         {
+            sw.WriteLine("//##BEGIN attribute GUID=" + attribute.guid + "##");
+
             string stereotypeStr = "", staticFinalStr, defaultStr;
             if (attribute.stereoType != null && attribute.stereoType != "")
             {
@@ -276,9 +282,10 @@ namespace AsciidocGenerator
             }
 
             sw.WriteLine("");
+            sw.WriteLine("//##END attribute##");
         }
 
-        private void writeTaggedValueAttr(List<AttributeTagVO> attributeTags, StreamWriter sw)
+        private void writeTaggedValueAttr(List<TaggedValueVO> attributeTags, StreamWriter sw)
         {
             sw.WriteLine("##### タグ付き値");
             sw.WriteLine("");
@@ -287,7 +294,7 @@ namespace AsciidocGenerator
             sw.WriteLine("|===");
             sw.WriteLine("| キー | 値");
 
-            foreach (AttributeTagVO tv in attributeTags)
+            foreach (TaggedValueVO tv in attributeTags)
             {
                 sw.Write("|" + tv.name);
 
@@ -307,6 +314,8 @@ namespace AsciidocGenerator
 
         private void writeMethod(MethodVO method, StreamWriter sw)
         {
+            sw.WriteLine("//##BEGIN method GUID=" + method.guid + "##");
+
             string stereotypeStr = "";
             if (method.stereoType != null && method.stereoType != "")
             {
@@ -331,7 +340,7 @@ namespace AsciidocGenerator
             // ノートの出力
             if (method.notes != null && method.notes != "")
             {
-                sw.WriteLine("#####  概要");
+                sw.WriteLine("#####  メソッドの概要");
                 sw.WriteLine("");
                 sw.WriteLine("[%hardbreaks]");
                 sw.WriteLine(method.notes);
@@ -358,6 +367,8 @@ namespace AsciidocGenerator
 
                 sw.WriteLine("");
             }
+
+            sw.WriteLine("//##END method##");
         }
 
         private void writeParameters(List<ParameterVO> parameters, StreamWriter sw)
@@ -381,7 +392,7 @@ namespace AsciidocGenerator
         }
 
 
-        private void writeTaggedValueMth(List<MethodTagVO> methodTags, StreamWriter sw)
+        private void writeTaggedValueMth(List<TaggedValueVO> methodTags, StreamWriter sw)
         {
             sw.WriteLine("##### タグ付き値");
             sw.WriteLine("");
@@ -391,7 +402,7 @@ namespace AsciidocGenerator
             sw.WriteLine("|===");
             sw.WriteLine("| キー | 値");
 
-            foreach (MethodTagVO tv in methodTags)
+            foreach (TaggedValueVO tv in methodTags)
             {
                 sw.Write("|" + tv.name);
 

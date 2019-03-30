@@ -33,18 +33,16 @@ namespace AsciidocGenerator
                 {
                     // その配下の成果物ファイルを取得
                     string[] atfFiles = Directory.GetFiles(artifactDir, "atf_*.xml");
-
                     Console.WriteLine("成果物Path=" + artifactDir);
-
-
 
                     for (var i=0; i < atfFiles.Length; i++)
                     {
-                        outputArtifactAsciidoc(atfReader, Path.GetFileName(atfFiles[i]), asciidocDir);
+                        string adocfile = outputArtifactAsciidoc(atfReader, Path.GetFileName(atfFiles[i]), asciidocDir);
+
+                        Console.WriteLine("({0}/{1})ドキュメント出力: {2}", i+1, atfFiles.Length, adocfile);
                     }
 
                 }
-
 
             }
             else
@@ -55,19 +53,27 @@ namespace AsciidocGenerator
 
         }
 
-        private static void outputArtifactAsciidoc(ArtifactXmlReader atfReader, string artifactFile, string asciidocDir)
+        private static string outputArtifactAsciidoc(ArtifactXmlReader atfReader, string artifactFile, string asciidocDir)
         {
-            //
+            // 
             ArtifactVO artifact = atfReader.readArtifactFile(artifactFile);
 
-            Console.WriteLine("ドキュメント出力");
             ArtifactAsciidocWriter aaWriter = new ArtifactAsciidocWriter(artifact);
-            string plainFile = Path.GetFileNameWithoutExtension(artifactFile);
+            string plainFileName = Path.GetFileNameWithoutExtension(artifactFile);
 
-            aaWriter.writeFile(asciidocDir + "\\" + plainFile + ".adoc");
+            string partGuid = artifact.guid.Substring(1, 8);
+            string artifactFileName = "atf_" + filterSpecialChar(artifact.name) + "_" + partGuid + ".adoc";
+
+            aaWriter.writeFile(asciidocDir + "\\" + artifactFileName);
+
+            return artifactFileName;
         }
 
-
+        /// <summary>
+        /// Asciidoc出力用フォルダを作る。
+        /// 先に存在チェックし、なかった場合だけフォルダ作成を行う。
+        /// </summary>
+        /// <param name="asciidocDir">出力先asciidocパス</param>
         private static void makeAsciidocDirIfNotExist(string asciidocDir)
         {
             // 成果物出力先の artifacts フォルダが存在しない場合
@@ -77,6 +83,29 @@ namespace AsciidocGenerator
                 Console.WriteLine("出力ディレクトリを作成しました。 : " + asciidocDir);
             }
         }
+
+
+        /// <summary>
+        /// 引数の文字列から、ファイル名に使用できない文字をフィルタして返却する
+        /// </summary>
+        /// <param name="orig"></param>
+        /// <returns></returns>
+        private static string filterSpecialChar(string orig)
+        {
+            System.Text.StringBuilder sb = new System.Text.StringBuilder(orig);
+            sb.Replace("(", "（");
+            sb.Replace(")", "）");
+            sb.Replace(" ", "_");
+            sb.Replace("^", "＾");
+            sb.Replace("？", "");
+            sb.Replace("/", "_");
+            sb.Replace("\\", "_");
+            sb.Replace("\r", "");
+            sb.Replace("\n", "");
+
+            return sb.ToString();
+        }
+
 
     }
 }
