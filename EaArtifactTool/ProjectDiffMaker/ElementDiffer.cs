@@ -28,7 +28,7 @@ namespace ProjectDiffMaker
 		/// <param name="rightElm"></param>
 		/// <param name="outputDetailFileFlg"></param>
 		/// <returns></returns>
-		public static ElementVO getDiffElement(ElementVO leftElm, ElementVO rightElm) {
+		public static ElementVO getMergedElement(ElementVO leftElm, ElementVO rightElm) {
 			ElementDiffer differ = new ElementDiffer();
 			differ.skipAttributeNoteFlg = false;
 			differ.skipElementTaggedValue = false;
@@ -68,12 +68,10 @@ namespace ProjectDiffMaker
 					outElm.changed = ' ';
 				}
 			}
-			
 
-			Int16 lCnt, rCnt;
-
-			// 要素が保持する属性リストの比較
-			AttributeVO lAtr, rAtr, oAtr;
+            // 要素が保持する属性リストの比較
+            Int16 lCnt, rCnt;
+            AttributeVO lAtr, rAtr, oAtr;
 			List<AttributeVO> outAttributeList = new List<AttributeVO>();
 			for (lCnt=0, rCnt=0; lCnt < leftElm.attributes.Count && rCnt < rightElm.attributes.Count; ) {
 				// 左側が最終の属性に達した場合
