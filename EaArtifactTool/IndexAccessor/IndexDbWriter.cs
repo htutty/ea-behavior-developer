@@ -18,15 +18,18 @@ namespace IndexAccessor
 		string projectDir = null;
         string artifactDir = null;
 
-		SQLiteConnection conn;
+        BehaviorParser bhvParser;
+
+        SQLiteConnection conn;
 		SQLiteTransaction transaction = null;
 		Int32 elementRecCount = 0;
+        Int32 behaviorRecCount = 0;
 
         /// <summary>
-        ///
+        ///　コンストラクタ
         /// </summary>
-        /// <param name="projectDir"></param>
-        /// <param name="dbfile"></param>
+        /// <param name="projectDir">.bdprjファイルの配置ディレクトリ</param>
+        /// <param name="dbfile">.dbファイル名</param>
 	    public IndexDbWriter(string projectDir, string dbfile)
 		{
             try {
@@ -48,6 +51,7 @@ namespace IndexAccessor
 
 		}
 
+        #region キャッシュDBの書き込み：t_connector
         /// <summary>
         /// 全接続リスト(All_Connectors.xml)からキャッシュDBの接続(t_connector)テーブルに登録する
         /// </summary>
@@ -111,10 +115,10 @@ namespace IndexAccessor
 
 		    conn.Close();
 		}
+        #endregion
 
-
-
-		public void writeAllElements(ArtifactsVO allArtifacts)
+        #region キャッシュDBの書き込み：t_element, t_attr_meth
+        public void writeAllElements(ArtifactsVO allArtifacts)
         {
             Console.Write("inserting tables for element, attribute, method ");
 
@@ -124,14 +128,17 @@ namespace IndexAccessor
                 recreateElementTable();
                 recreateAttrMthTable();
 
-
+                // トランザクションの開始
+                // （トランザクションのcommitは指定行数がINSERTされる度にループ内で実施）
                 transaction = conn.BeginTransaction();
 
-                foreach (ArtifactVO atf in allArtifacts.artifactList)
+                // 実装モデルを除いてインデックスに登録
+                foreach (ArtifactVO atf in allArtifacts.getArtifactsExcludeImplModel())
                 {
-                    insertElementsInArtifact(atf, atf.getOwnElements());
-
-                    insertAttrMthInArtifact(atf, atf.getOwnElements());
+                    // 要素テーブルの書き込み
+                    insertElementsInArtifact(atf);
+                    // 属性・操作テーブルの書き込み
+                    insertAttrMthInArtifact(atf);
                 }
 
                 transaction.Commit();
@@ -146,9 +153,13 @@ namespace IndexAccessor
 
         }
 
-		private void insertElementsInArtifact(ArtifactVO atf, List<ElementVO> elements) {
+        /// <summary>
+        /// 引数の成果物フォルダ内の要素を全て要素テーブルに書き込み
+        /// </summary>
+        /// <param name="atf">成果物フォルダ</param>
+		private void insertElementsInArtifact(ArtifactVO atf) {
 
-            foreach ( ElementVO elem in elements ) {
+            foreach ( ElementVO elem in atf.getOwnElements() ) {
 				insertElementTable(atf, elem);
 				// Console.WriteLine("insert element : " + elementRecCount + " records." );
 
@@ -196,16 +207,15 @@ namespace IndexAccessor
 				command2.ExecuteNonQuery();
 	    	}
 
-		}
+        }
 
         /// <summary>
         ///
         /// </summary>
         /// <param name="atf"></param>
-        /// <param name="elements"></param>
-        private void insertAttrMthInArtifact(ArtifactVO atf, List<ElementVO> elements)
+        private void insertAttrMthInArtifact(ArtifactVO atf)
         {
-            foreach (ElementVO elem in elements)
+            foreach (ElementVO elem in atf.getOwnElements())
             {
 
                 foreach(AttributeVO attr in elem.attributes )
@@ -235,12 +245,11 @@ namespace IndexAccessor
                     }
                 }
             }
-
         }
 
 
         /// <summary>
-        /// 要素情報のインデックステーブルの行追加
+        /// t_attr_meth テーブルに属性行の追加
         /// </summary>
         /// <param name="atf"></param>
         /// <param name="elem"></param>
@@ -249,23 +258,21 @@ namespace IndexAccessor
 
             string sql = @"insert into t_attr_mth
 					(
-                      attrMthId,  artifactGuid,  elemId,  elemGuid, elemName, elemAlias,
-                      attrMthType,  attrMthGuid,  attrMthName,  attrMthAlias,  attrMthNotes
+                      attrMthId, elemId, elemGuid, attrMthFlg, attrMthType, 
+                      attrMthGuid, attrMthName, attrMthAlias, attrMthNotes
 					) values (
-					  @attrMthId, @artifactGuid, @elemId, @elemGuid, @elemName, @elemAlias,
-                      @attrMthType, @attrMthGuid, @attrMthName, @attrMthAlias, @attrMthNotes
+					  @attrMthId, @elemId, @elemGuid, @attrMthFlg, @attrMthType, 
+                      @attrMthGuid, @attrMthName, @attrMthAlias, @attrMthNotes
 					) ";
 
             using (SQLiteCommand command2 = conn.CreateCommand())
             {
                 SQLiteParameter[] parameters = new SQLiteParameter[]{
                   new SQLiteParameter("@attrMthId",(attr.attributeId)*-1)
-                  , new SQLiteParameter("@artifactGuid",atf.guid)
                   , new SQLiteParameter("@elemId",elem.elementId)
                   , new SQLiteParameter("@elemGuid",elem.guid)
-                  , new SQLiteParameter("@elemName",elem.name)
-                  , new SQLiteParameter("@elemAlias",elem.alias)
-                  , new SQLiteParameter("@attrMthType", "a")
+                  , new SQLiteParameter("@attrMthFlg", "a")
+                  , new SQLiteParameter("@attrMthType", attr.eaType)
                   , new SQLiteParameter("@attrMthGuid", attr.guid)
                   , new SQLiteParameter("@attrMthName", attr.name)
                   , new SQLiteParameter("@attrMthAlias",attr.alias)
@@ -276,10 +283,7 @@ namespace IndexAccessor
                 command2.Parameters.AddRange(parameters);
                 command2.ExecuteNonQuery();
             }
-
         }
-
-
 
         /// <summary>
         /// 要素情報のインデックステーブルの行追加
@@ -291,27 +295,26 @@ namespace IndexAccessor
 
             string sql = @"insert into t_attr_mth
 					(
-                      attrMthId,  artifactGuid,  elemId,  elemGuid, elemName, elemAlias,
-                      attrMthType,  attrMthGuid,  attrMthName,  attrMthAlias,  attrMthNotes
+                      attrMthId, elemId, elemGuid, attrMthFlg, attrMthType, 
+                      attrMthGuid, attrMthName, attrMthAlias, attrMthNotes, mthParamDesc
 					) values (
-					  @attrMthId, @artifactGuid, @elemId, @elemGuid, @elemName, @elemAlias,
-                      @attrMthType, @attrMthGuid, @attrMthName, @attrMthAlias, @attrMthNotes
+					  @attrMthId, @elemId, @elemGuid, @attrMthFlg, @attrMthType, 
+                      @attrMthGuid, @attrMthName, @attrMthAlias, @attrMthNotes, @mthParamDesc
 					) ";
 
             using (SQLiteCommand command2 = conn.CreateCommand())
             {
                 SQLiteParameter[] parameters = new SQLiteParameter[]{
-                  new SQLiteParameter("@attrMthId",mth.methodId)
-                  , new SQLiteParameter("@artifactGuid",atf.guid)
+                  new SQLiteParameter("@attrMthId",(mth.methodId))
                   , new SQLiteParameter("@elemId",elem.elementId)
                   , new SQLiteParameter("@elemGuid",elem.guid)
-                  , new SQLiteParameter("@elemName",elem.name)
-                  , new SQLiteParameter("@elemAlias",elem.alias)
-                  , new SQLiteParameter("@attrMthType", "m")
+                  , new SQLiteParameter("@attrMthFlg", "m")
+                  , new SQLiteParameter("@attrMthType", mth.returnType)
                   , new SQLiteParameter("@attrMthGuid", mth.guid)
                   , new SQLiteParameter("@attrMthName", mth.name)
                   , new SQLiteParameter("@attrMthAlias",mth.alias)
                   , new SQLiteParameter("@attrMthNotes",mth.notes)
+                  , new SQLiteParameter("@mthParamDesc",mth.getParamDesc())
                 };
 
                 command2.CommandText = sql;
@@ -320,11 +323,127 @@ namespace IndexAccessor
             }
 
         }
+        #endregion
+
+        #region キャッシュDBの書き込み：t_parsed_behavior
+        public void writeAllBehaviors(ArtifactsVO allArtifacts)
+        {
+            Console.Write("inserting table for behaviors ");
+
+            try
+            {
+                conn.Open();
+                recreateBehaviorTable();
+
+                behaviorRecCount = 0;
+                bhvParser = new BehaviorParser();
+
+                // トランザクションの開始
+                // （トランザクションのcommitは指定行数がINSERTされる度にループ内で実施）
+                transaction = conn.BeginTransaction();
+
+                // 実装モデルを除いてインデックスに登録
+                foreach (ArtifactVO atf in allArtifacts.getArtifactsExcludeImplModel())
+                {
+                    // ふるまいテーブルの書き込み（成果物フォルダ配下のクラス要素）
+                    insertBehaviorsInArtifact(atf);
+                }
+
+                transaction.Commit();
+                Console.WriteLine(".  done(" + behaviorRecCount + "records)");
+
+                conn.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+        }
 
 
+        /// <summary>
+        /// 引数の成果物フォルダ内の要素のふるまいをインサートする
+        /// </summary>
+        /// <param name="atf"></param>
+        private void insertBehaviorsInArtifact(ArtifactVO atf)
+        {
+            foreach (ElementVO elem in atf.getOwnElements())
+            {
+                if (elem.eaType == "Class")
+                {
+                    foreach (MethodVO mth in elem.methods)
+                    {
+                        // メソッド単位でのふるまいのインサート
+                        insertBehaviorsInMethod(elem, mth);
 
-        #region "elementテーブルの存在チェック、再作成の処理"
+                    }
+                }
 
+            }
+        }
+
+        private void insertBehaviorsInMethod(ElementVO elem, MethodVO mth)
+        {
+            // ふるまいを行ごとに切り分け、チャンク単位で登録
+            List<BehaviorChunk> chunks = bhvParser.parseBehavior(elem, mth);
+
+            foreach (BehaviorChunk chk in chunks)
+            {
+                insertBehaviorTable(mth, chk);
+                behaviorRecCount++;
+
+                if (behaviorRecCount > 0 && (behaviorRecCount + 1) % 1000 == 0)
+                {
+                    Console.Write(".");
+                    transaction.Commit();
+                    transaction = conn.BeginTransaction();
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// ふるまい情報のインデックステーブルの行追加
+        /// </summary>
+        private void insertBehaviorTable(MethodVO mth, BehaviorChunk chk)
+        {
+            string sql = @"insert into t_parsed_behavior
+			               (
+                             chunkId, methodId, pos, parentId, previousId, 
+                             indLv, dottedNum, indent, behavior 
+				           ) values (
+                             @chunkId, @methodId, @pos, @parentId, @previousId, 
+                             @indLv, @dottedNum, @indent, @behavior 
+			               ) ";
+
+            using (SQLiteCommand command2 = conn.CreateCommand())
+            {
+                SQLiteParameter[] parameters = new SQLiteParameter[]{
+                  new SQLiteParameter("@chunkId",(chk.chunkId))
+                  , new SQLiteParameter("@methodId",chk.methodId)
+                  , new SQLiteParameter("@pos",chk.pos)
+                  , new SQLiteParameter("@parentId", chk.parentChunkId)
+                  , new SQLiteParameter("@previousId", chk.previousChunkId)
+                  , new SQLiteParameter("@indLv", chk.indLv)
+                  , new SQLiteParameter("@dottedNum", chk.dottedNum)
+                  , new SQLiteParameter("@indent",chk.indent)
+                  , new SQLiteParameter("@behavior",chk.behavior)
+                };
+
+                command2.CommandText = sql;
+                command2.Parameters.AddRange(parameters);
+                command2.ExecuteNonQuery();
+            }
+
+        }
+        #endregion
+
+        #region t_elementテーブルの存在チェック、再作成の処理
+
+        /// <summary>
+        /// t_elementテーブルの再作成(存在チェック＋DROP、CREATE)
+        /// </summary>
         private void recreateElementTable()
         {
             string tableName = "t_element";
@@ -337,6 +456,9 @@ namespace IndexAccessor
             createElementTable();
         }
 
+        /// <summary>
+        /// t_elementテーブルのCREATE
+        /// </summary>
         private void createElementTable()
         {
 
@@ -361,8 +483,11 @@ namespace IndexAccessor
 
         #endregion
 
-        #region "connectorテーブルの存在チェック、再作成の処理"
+        #region t_connectorテーブルの存在チェック、再作成の処理
 
+        /// <summary>
+        /// t_connectorテーブルの再作成(存在チェック＋DROP、CREATE)
+        /// </summary>
         private void recreateConnectorTable()
         {
             string tableName = "t_connector";
@@ -375,7 +500,9 @@ namespace IndexAccessor
             createConnectorTable();
         }
 
-
+        /// <summary>
+        /// t_connectorテーブルのCREATE
+        /// </summary>
         private void createConnectorTable()
         {
 
@@ -400,9 +527,10 @@ namespace IndexAccessor
         }
         #endregion
 
-
-        #region "attrMthテーブルの存在チェック、再作成の処理"
-
+        #region t_attr_mthテーブルの存在チェック、再作成の処理
+        /// <summary>
+        /// t_attr_mthテーブルの存在チェック、再作成の処理
+        /// </summary>
         private void recreateAttrMthTable()
         {
             string tableName = "t_attr_mth";
@@ -415,7 +543,9 @@ namespace IndexAccessor
             createAttrMthTable();
         }
 
-
+        /// <summary>
+        /// t_attr_mthテーブルのCREATE
+        /// </summary>
         private void createAttrMthTable()
         {
 
@@ -424,16 +554,15 @@ namespace IndexAccessor
                 command.CommandText =
                     @"create table t_attr_mth (
                       attrMthId INTEGER PRIMARY KEY,
-                      artifactGuid TEXT ,
                       elemId INTEGER ,
                       elemGuid TEXT ,
-                      elemName TEXT ,
-                      elemAlias TEXT ,
+                      attrMthFlg TEXT ,
                       attrMthType TEXT ,
                       attrMthGuid TEXT ,
                       attrMthName TEXT ,
                       attrMthAlias TEXT ,
-                      attrMthNotes TEXT
+                      attrMthNotes TEXT ,
+                      mthParamDesc TEXT
 					)";
                 command.ExecuteNonQuery();
             }
@@ -441,8 +570,52 @@ namespace IndexAccessor
         }
         #endregion
 
+        #region t_parsed_behavior テーブルの存在チェック、再作成の処理
+        /// <summary>
+        /// t_parsed_behavior テーブルの存在チェック、再作成の処理
+        /// </summary>
+        private void recreateBehaviorTable()
+        {
+            string tableName = "t_parsed_behavior";
 
-        #region "各テーブルの存在チェックとDROP共通処理"
+            if (existTargetTable(tableName))
+            {
+                dropTargetTable(tableName);
+            }
+
+            createBehaviorTable();
+        }
+
+        /// <summary>
+        /// t_parsed_behavior テーブルのCREATE
+        /// </summary>
+        private void createBehaviorTable()
+        {
+
+            using (SQLiteCommand command = conn.CreateCommand())
+            {
+                command.CommandText =
+                    @"create table t_parsed_behavior (
+                      chunkId INTEGER PRIMARY KEY,
+                      methodId INTEGER, 
+                      pos INTEGER, 
+                      parentId INTEGER, 
+                      previousId INTEGER, 
+                      indLv INTEGER, 
+                      hasFollower BOOL, 
+                      followeeIdx INTEGER, 
+                      dottedNum TEXT, 
+                      indent TEXT, 
+                      behavior TEXT
+				    )";
+                command.ExecuteNonQuery();
+            }
+
+        }
+        #endregion
+
+
+        #region 各テーブルの存在チェックとDROP共通処理
 
         private Boolean existTargetTable(string tableName)
         {
@@ -480,53 +653,6 @@ namespace IndexAccessor
 
 
         #endregion
-
-
-        private void writeElementFiles(XmlNodeList elementNodes) {
-	    	foreach( XmlNode elem in elementNodes ) {
-	    		if( elem.SelectNodes("@guid") !=null ) {
-	    			string elemguid = elem.SelectSingleNode("@guid").Value;
-	    			writeElementXml(elemguid, elem);
-	    		}
-	    	}
-	    }
-
-	    private void writeElementXml(string guid, XmlNode elemNode) {
-
-	    	string outputDir = ProjectSetting.getVO().projectPath;
-    		XmlDocument xmlDocument = new XmlDocument();
-
-    		// XML宣言を設定する
-			XmlDeclaration xmlDecl =
-				xmlDocument.CreateXmlDeclaration("1.0", "UTF-8", null);
-
-			//作成したXML宣言をDOMドキュメントに追加
-			xmlDocument.AppendChild(xmlDecl);
-
-    		// XML宣言部分生成
-//			XmlProcessingInstruction head = xmlDocument.CreateProcessingInstruction("xml", "version='1.0'");
-
-    		// 新しいrootノードを、成果物XMLからインポートする形で作成
-			XmlNode root = xmlDocument.ImportNode( elemNode, true );
-
-	    	// ルート配下に引数のドキュメントを追加
-			xmlDocument.AppendChild(root);
-
-			// 要素XMLを出力するフォルダ (projectDir + /elements/ 配下) が存在するかを調べ、なければ作る
-			string edir = outputDir + @"\elements\" + guid.Substring(1,1) + @"\" + guid.Substring(2,1) ;
-			checkAndMakeElementDir(edir);
-
-			Console.WriteLine("output element xml : " + edir + @"\" + guid.Substring(1,36) + ".xml" );
-			// この内容で要素XMLに記録する
-			xmlDocument.Save(edir + @"\" + guid.Substring(1,36) + ".xml");
-	    }
-
-
-		private static void checkAndMakeElementDir(string edir) {
-			if (!Directory.Exists(edir)) {
-				Directory.CreateDirectory(edir);
-			}
-		}
 
 	}
 }
