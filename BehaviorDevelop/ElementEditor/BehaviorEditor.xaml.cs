@@ -92,17 +92,18 @@ namespace ElementEditor
         {
             Console.WriteLine("TextArea_TextEntered: " + e.ToString());
 
-            ElementSearcher elementSearcher = new ElementSearcher();
+            CompletionHelper completionHelpler = new CompletionHelper();
 
-           
-            // Ctrl+スペース で入力補完Windowを表示する (クラスの一覧)
+
+            // Ctrl+スペース で入力補完Windowを表示する 
+            // 自クラスが保持する属性・操作の一覧("this."付き)と、集約・参照・依存の接続先クラス名が対象
             if (e.Text == " " && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
             { 
                 //入力補完Windowを生成
                 completionWindow = new CompletionWindow(jpBehaviorEdit.TextArea);
 
                 // 補完リストに表示するアイテムをコレクションに追加する
-                IList<ICompletionData> cmplList = elementSearcher.searchCompletionDataFromMyOwn(this.element);
+                IList<ICompletionData> cmplList = completionHelpler.searchCompletionDataFromMyOwn(this.element);
                 foreach(ICompletionData cmp in cmplList)
                 {
                     completionWindow.CompletionList.CompletionData.Add(cmp);
@@ -116,7 +117,7 @@ namespace ElementEditor
                 };
             }
 
-            // "$"入力で別Windowを表示する (クラス内の属性・メソッドの一覧)
+            // "$"入力で別Windowを表示する（全クラスから属性・メソッドを一覧検索する）
             if (e.Text == "$")
             {
                 attrMethSearch = new AttrMethSearch();
@@ -126,7 +127,7 @@ namespace ElementEditor
 
             }
 
-            // ピリオドを入力
+            // ピリオドを入力 -> キャレットの前のキーワードをクラス名とし、配下の属性・要素の一覧を表示する
             if (e.Text == ".")
             {
                 string className = getClassNameFromText(jpBehaviorEdit.Text, jpBehaviorEdit.TextArea.Caret.Offset-1);

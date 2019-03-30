@@ -11,14 +11,14 @@ using ElementEditor.vo;
 
 namespace ElementEditor.util
 {
-    class ElementSearcher
+    public class CompletionHelper
     {
 
         // リソースで管理されている属性アイコン、操作アイコンをWPFで使用するImageSourceに変換
         private ImageSource bitmapAttr;
         private ImageSource bitmapMth;
 
-        public ElementSearcher()
+        public CompletionHelper()
         {
             bitmapAttr = convertBitmapToImageSource(Properties.Resources.ICON_SYMBOL_ATTRIBUTE);
             bitmapMth = convertBitmapToImageSource(Properties.Resources.ICON_SYMBOL_METHOD);
