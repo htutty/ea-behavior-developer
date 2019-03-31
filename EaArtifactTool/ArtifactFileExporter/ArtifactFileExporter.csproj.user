@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <StartArguments>D:\DesignHistory\staging\EAPBAK_simba_ea_master_20180719.eap simba-master D:\DesignHistory\simba-ea-master</StartArguments>
+    <StartArguments>-index D:\DesignHistory\staging\EAPBAK_temp_cuvic_aswea_20200401_20190214.eap  ASW-DOM-BE D:\DesignHistory\aswea_20200401</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <StartArguments>-index C:\DesignHistory\staging\EAPBAK_cuvic_aswea_20190401_20190326.eap ASW-DOM-BE C:\ea-artifacts\for-merge\0401マージ\aswea_20190401_begin</StartArguments>

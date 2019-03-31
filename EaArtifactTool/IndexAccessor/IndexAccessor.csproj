@@ -58,6 +58,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AttrMthSearchItem.cs" />
+    <Compile Include="AttrMthSearcher.cs" />
     <Compile Include="ConnectorSearcher.cs" />
     <Compile Include="ElementSearcher.cs" />
     <Compile Include="IndexDbWriter.cs" />
