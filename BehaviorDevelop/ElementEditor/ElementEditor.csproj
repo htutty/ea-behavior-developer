@@ -67,7 +67,7 @@
       <HintPath>..\packages\AvalonEdit.5.0.4\lib\Net40\ICSharpCode.AvalonEdit.dll</HintPath>
     </Reference>
     <Reference Include="Interop.EA">
-      <HintPath>..\..\..\..\Program Files (x86)\SparxSystems Japan\EA\Interop.EA.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\SparxSystems Japan\EA\Interop.EA.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
@@ -106,6 +106,7 @@
       <DependentUpon>AttrMethSearch.xaml</DependentUpon>
     </Compile>
     <Compile Include="model\AttrMethSearchModel.cs" />
+    <Compile Include="ViewModel.cs" />
     <Compile Include="viewmodel\AttrMethSearchViewModel.cs" />
     <Compile Include="BehaviorEditor.xaml.cs">
       <DependentUpon>BehaviorEditor.xaml</DependentUpon>

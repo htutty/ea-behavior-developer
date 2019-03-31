@@ -54,6 +54,11 @@ namespace ElementEditor.util
             return retDatas;
         }
 
+        /// <summary>
+        /// 自クラスから参照できる識別子を検索し、補完ウィンドウに出力する。
+        /// </summary>
+        /// <param name="elementVO"></param>
+        /// <returns></returns>
         public IList<ICompletionData> searchCompletionDataFromMyOwn(ElementVO elementVO)
         {
 
@@ -113,6 +118,43 @@ namespace ElementEditor.util
             return retDatas;
         }
 
+        /// <summary>
+        /// 自クラスから参照できる識別子を検索し、補完ウィンドウに出力する。
+        /// </summary>
+        /// <param name="className"></param>
+        /// <returns></returns>
+        public IList<ICompletionData> searchCompletionDataFromClassName(string className)
+        {
+            IList<ICompletionData> retDatas = new List<ICompletionData>();
+            double priority = 1.0;
+
+            // 自要素の接続先要素を全て抽出
+            AttrMthSearcher attrMthSearcher = new AttrMthSearcher();
+            List<AttrMthSearchItem> items = attrMthSearcher.findByClassName(className);
+            foreach (AttrMthSearchItem amItem in items)
+            {
+                string content = amItem.attrMethName;
+                string description = amItem.attrMethNotes;
+                string text;
+
+                if (amItem.attrMethFlg == "a")
+                {
+                    // 展開後の文字列
+                    text = amItem.attrMethName;
+                    retDatas.Add(new CompletionData(content, description, bitmapAttr, priority++, text));
+                }
+                else
+                {
+                    // 展開後の文字列 に "メソッド名 + ( パラメータ )" をセットする
+                    text = "this." + amItem.attrMethName + "(" + amItem.methParameterDesc + ")";
+                    retDatas.Add(new CompletionData(content, description, bitmapMth, priority++, text));
+                }
+
+            }
+
+            return retDatas;
+        }
+
 
         private string getParameterString(List<ParameterVO> parameters)
         {
@@ -143,7 +185,7 @@ namespace ElementEditor.util
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="bitmap">変換元の画像(Bitmap型)</param>
         /// <returns></returns>

@@ -44,10 +44,10 @@ namespace ElementEditor
 
             try
             {
-                using (var reader = new XmlTextReader("jbdl.xshd"))
-                {
-                    jpBehaviorEdit.SyntaxHighlighting = HighlightingLoader.Load(reader, HighlightingManager.Instance);
-                }
+                //using (var reader = new XmlTextReader("jbdl.xshd"))
+                //{
+                //    jpBehaviorEdit.SyntaxHighlighting = HighlightingLoader.Load(reader, HighlightingManager.Instance);
+                //}
             }
             catch (Exception ex)
             {
@@ -68,6 +68,21 @@ namespace ElementEditor
 
         }
 
+        /// <summary>
+        /// 引数のテキストをキャレット位置に挿入
+        /// </summary>
+        /// <param name="insertText"></param>
+        public void insertTextOnCaret(string insertText)
+        {
+            //
+            StringBuilder sb = new StringBuilder(this.jpBehaviorEdit.Text);
+            int offset = jpBehaviorEdit.CaretOffset;
+            sb.Insert(offset, insertText);
+
+            this.jpBehaviorEdit.Text = sb.ToString();
+        }
+
+
         //文字入力中
         private void TextArea_TextEntering(object sender, System.Windows.Input.TextCompositionEventArgs e)
         {
@@ -79,7 +94,7 @@ namespace ElementEditor
                 //英数字以外が入力された場合
                 if (!char.IsLetterOrDigit(e.Text[0]))
                 {
-                    //選択中のリストの項目をエディタに挿入する                
+                    //選択中のリストの項目をエディタに挿入する
                     completionWindow.CompletionList.RequestInsertion(e);
                 }
             }
@@ -95,10 +110,10 @@ namespace ElementEditor
             CompletionHelper completionHelpler = new CompletionHelper();
 
 
-            // Ctrl+スペース で入力補完Windowを表示する 
+            // Ctrl+スペース で入力補完Windowを表示する
             // 自クラスが保持する属性・操作の一覧("this."付き)と、集約・参照・依存の接続先クラス名が対象
             if (e.Text == " " && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
-            { 
+            {
                 //入力補完Windowを生成
                 completionWindow = new CompletionWindow(jpBehaviorEdit.TextArea);
 
@@ -120,10 +135,12 @@ namespace ElementEditor
             // "$"入力で別Windowを表示する（全クラスから属性・メソッドを一覧検索する）
             if (e.Text == "$")
             {
+                // モーダル表示する
                 attrMethSearch = new AttrMethSearch();
+                attrMethSearch.Owner = GetWindow(this);
+                attrMethSearch.ShowDialog();
 
-                // Windowを表示
-                attrMethSearch.Show();
+                //attrMethSearch.Show();
 
             }
 
@@ -135,19 +152,22 @@ namespace ElementEditor
                 Console.WriteLine("探しに行くクラス名 = " + className);
 
                 // 補完リストに表示するアイテムをコレクションに追加する
-                //IList<ICompletionData> cmplList = elementSearcher.searchCompletionDataByElement(this.element);
+                IList<ICompletionData> cmplList = completionHelpler.searchCompletionDataFromClassName(className);
 
-                //foreach (ICompletionData cmp in cmplList)
-                //{
-                //    completionWindow.CompletionList.CompletionData.Add(cmp);
-                //}
+                if(cmplList != null && cmplList.Count > 0)
+                {
+                    foreach (ICompletionData cmp in cmplList)
+                    {
+                        completionWindow.CompletionList.CompletionData.Add(cmp);
+                    }
 
-                //// Windowを表示
-                //completionWindow.Show();
-                //completionWindow.Closed += delegate
-                //{
-                //    completionWindow = null;
-                //};
+                    // Windowを表示
+                    completionWindow.Show();
+                    completionWindow.Closed += delegate
+                    {
+                        completionWindow = null;
+                    };
+                }
             }
         }
 
@@ -162,7 +182,7 @@ namespace ElementEditor
             for(int i=sb.Length-1; i>=0; i--)
             {
                 // デリミタとして定めた文字(空白(半角、全角), '$', 改行)が来たらループを抜ける
-                if( sb[i] == ' ' || sb[i] == '$' || sb[i] == '　' || sb[i] == '\n' || sb[i] == '、' || sb[i] == '。')
+                if( sb[i] == ' ' || sb[i] == '$' || sb[i] == '　' || sb[i] == '\n' || sb[i] == '、' || sb[i] == '。' || sb[i] == '(')
                 {
                     break;
                 }
@@ -175,7 +195,6 @@ namespace ElementEditor
 
             return namepick.ToString();
         }
-
 
 
         private void CommitButton_Click(object sender, RoutedEventArgs e)
