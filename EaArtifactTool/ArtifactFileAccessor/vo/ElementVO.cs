@@ -86,8 +86,11 @@ namespace ArtifactFileAccessor.vo
 		/// <summary>可視性</summary>
     	public string visibility { get; set; }
 
-    	/// <summary> 要素の参照ファイル（このクラスに対応する実装コード）の情報 </summary>
-    	public ElementReferenceVO elementReferenceVO { get; set; }
+        /// <summary>要素が配置されたパッケージまでのパス</summary>
+        public string elementPath { get; set; }
+
+        /// <summary> 要素の参照ファイル（このクラスに対応する実装コード）の情報 </summary>
+        public ElementReferenceVO elementReferenceVO { get; set; }
 
 		// <summary>要素のプロパティ</summary>
     	// public IList<PropertyVO> properties { get; set; }

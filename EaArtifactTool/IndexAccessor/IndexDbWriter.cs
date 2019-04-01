@@ -183,10 +183,10 @@ namespace IndexAccessor
 
 			string sql = @"insert into t_element
 					(objectId, elemGuid, elemName, elemAlias, elemType, elemStereotype,
-					 artifactGuid, artifactName, artifactPath
+					 artifactGuid, artifactName, elementPath
 					) values (
 					 @objectId, @elemGuid, @elemName, @elemAlias, @elemType, @elemStereotype,
-					 @artifactGuid, @artifactName, @artifactPath
+					 @artifactGuid, @artifactName, @elementPath
 					) ";
 
 	    	using (SQLiteCommand command2 = conn.CreateCommand()) {
@@ -199,7 +199,7 @@ namespace IndexAccessor
                   , new SQLiteParameter("@elemStereotype",elem.stereoType)
                   , new SQLiteParameter("@artifactGuid",atf.guid)
                   , new SQLiteParameter("@artifactName",atf.name)
-                 , new SQLiteParameter("@artifactPath",atf.pathName)
+                 , new SQLiteParameter("@elementPath",elem.elementPath)
 				};
 
 				command2.CommandText = sql;
@@ -258,10 +258,10 @@ namespace IndexAccessor
 
             string sql = @"insert into t_attr_mth
 					(
-                      attrMthId, elemId, elemGuid, attrMthFlg, attrMthType, 
+                      attrMthId, elemId, elemGuid, attrMthFlg, attrMthType,
                       attrMthGuid, attrMthName, attrMthAlias, attrMthNotes
 					) values (
-					  @attrMthId, @elemId, @elemGuid, @attrMthFlg, @attrMthType, 
+					  @attrMthId, @elemId, @elemGuid, @attrMthFlg, @attrMthType,
                       @attrMthGuid, @attrMthName, @attrMthAlias, @attrMthNotes
 					) ";
 
@@ -295,10 +295,10 @@ namespace IndexAccessor
 
             string sql = @"insert into t_attr_mth
 					(
-                      attrMthId, elemId, elemGuid, attrMthFlg, attrMthType, 
+                      attrMthId, elemId, elemGuid, attrMthFlg, attrMthType,
                       attrMthGuid, attrMthName, attrMthAlias, attrMthNotes, mthParamDesc
 					) values (
-					  @attrMthId, @elemId, @elemGuid, @attrMthFlg, @attrMthType, 
+					  @attrMthId, @elemId, @elemGuid, @attrMthFlg, @attrMthType,
                       @attrMthGuid, @attrMthName, @attrMthAlias, @attrMthNotes, @mthParamDesc
 					) ";
 
@@ -410,11 +410,11 @@ namespace IndexAccessor
         {
             string sql = @"insert into t_parsed_behavior
 			               (
-                             chunkId, methodId, pos, parentId, previousId, 
-                             indLv, dottedNum, indent, behavior 
+                             chunkId, methodId, pos, parentId, previousId,
+                             indLv, dottedNum, indent, behavior
 				           ) values (
-                             @chunkId, @methodId, @pos, @parentId, @previousId, 
-                             @indLv, @dottedNum, @indent, @behavior 
+                             @chunkId, @methodId, @pos, @parentId, @previousId,
+                             @indLv, @dottedNum, @indent, @behavior
 			               ) ";
 
             using (SQLiteCommand command2 = conn.CreateCommand())
@@ -474,7 +474,7 @@ namespace IndexAccessor
 					 elemStereotype TEXT,
 					 artifactGuid TEXT,
 					 artifactName TEXT,
-					 artifactPath TEXT
+					 elementPath TEXT
 					)";
                 command.ExecuteNonQuery();
             }
@@ -597,15 +597,15 @@ namespace IndexAccessor
                 command.CommandText =
                     @"create table t_parsed_behavior (
                       chunkId INTEGER PRIMARY KEY,
-                      methodId INTEGER, 
-                      pos INTEGER, 
-                      parentId INTEGER, 
-                      previousId INTEGER, 
-                      indLv INTEGER, 
-                      hasFollower BOOL, 
-                      followeeIdx INTEGER, 
-                      dottedNum TEXT, 
-                      indent TEXT, 
+                      methodId INTEGER,
+                      pos INTEGER,
+                      parentId INTEGER,
+                      previousId INTEGER,
+                      indLv INTEGER,
+                      hasFollower BOOL,
+                      followeeIdx INTEGER,
+                      dottedNum TEXT,
+                      indent TEXT,
                       behavior TEXT
 				    )";
                 command.ExecuteNonQuery();

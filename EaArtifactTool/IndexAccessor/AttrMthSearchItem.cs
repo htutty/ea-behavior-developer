@@ -46,7 +46,7 @@ namespace IndexAccessor
         public string attrMethNotes { get; set; }
 
         /// <summary>成果物パッケージのパス（"/"区切り） </summary>
-        public string artifactPath { get; set; }
+        public string elementPath { get; set; }
 
 
     }

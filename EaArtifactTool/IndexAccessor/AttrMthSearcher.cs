@@ -38,7 +38,7 @@ namespace IndexAccessor
             string fields = @"t_element.elemName, t_element.elemAlias, t_element.elemType, t_element.elemStereotype,
                 t_attr_mth.elemGuid, t_attr_mth.attrMthFlg, t_attr_mth.attrMthType,
                 t_attr_mth.attrMthGuid, t_attr_mth.attrMthName, t_attr_mth.attrMthAlias, t_attr_mth.attrMthNotes,
-                ifnull(t_attr_mth.mthParamDesc, ''), t_element.artifactPath";
+                ifnull(t_attr_mth.mthParamDesc, ''), t_element.elementPath";
 
             string sql =
                 @"select " + fields +
@@ -70,7 +70,7 @@ namespace IndexAccessor
                         attrMth.attrMethAlias = sdr.GetString(9);
                         attrMth.attrMethNotes = sdr.GetString(10);
                         attrMth.methParameterDesc = sdr.GetString(11);
-                        attrMth.artifactPath = sdr.GetString(12);
+                        attrMth.elementPath = sdr.GetString(12);
 
                         retList.Add(attrMth);
                     }

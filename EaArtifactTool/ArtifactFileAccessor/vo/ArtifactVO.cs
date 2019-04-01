@@ -68,6 +68,8 @@ namespace ArtifactFileAccessor.vo
         /// </summary>
         public char changed { get; set; }
 
+        private List<ElementVO> retElements;
+
 		public ArtifactVO()
 		{
 			changed = ' ';
@@ -79,25 +81,30 @@ namespace ArtifactFileAccessor.vo
 
         public List<ElementVO> getOwnElements()
         {
-            List<ElementVO> retElements = new List<ElementVO>();
+            this.retElements = new List<ElementVO>();
 
             if( this.package != null) {
-                retrievePackage(this.package, retElements);
+                retrievePackage(this.package, this.pathName);
             }
 
             return retElements;
         }
 
-        public void retrievePackage(PackageVO package, List<ElementVO> elements)
+        public void retrievePackage(PackageVO package, string pathName)
         {
-            if( package.elements != null && package.elements.Count > 0)
+            string myPathName = pathName + "/" + package.name;
+            if ( package.elements != null && package.elements.Count > 0)
             {
-                elements.AddRange(package.elements);
+                foreach (ElementVO elem in package.elements)
+                {
+                    elem.elementPath = myPathName;
+                    this.retElements.Add(elem);
+                }
             }
 
             foreach ( PackageVO pack in package.childPackageList )
             {
-                retrievePackage(pack, elements);
+                retrievePackage(pack, myPathName);
             }
         }
 
