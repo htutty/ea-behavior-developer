@@ -18,6 +18,5 @@
             <Button x:Name="CancelButton" Content="キャンセル" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,4,0,0" Width="75" Click="CancelButton_Click"/>
         </StackPanel>
 
-
     </Grid>
 </Window>

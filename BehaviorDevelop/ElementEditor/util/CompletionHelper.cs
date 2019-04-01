@@ -137,16 +137,27 @@ namespace ElementEditor.util
                 string description = amItem.attrMethNotes;
                 string text;
 
+                // 属性の場合
                 if (amItem.attrMethFlg == "a")
                 {
-                    // 展開後の文字列
+                    // 展開後の文字列 = 属性・操作名とする
                     text = amItem.attrMethName;
                     retDatas.Add(new CompletionData(content, description, bitmapAttr, priority++, text));
                 }
                 else
                 {
                     // 展開後の文字列 に "メソッド名 + ( パラメータ )" をセットする
-                    text = "this." + amItem.attrMethName + "(" + amItem.methParameterDesc + ")";
+                    text = amItem.attrMethName;
+                    if(amItem.methParameterDesc != null)
+                    {
+                        text = text +"(" + amItem.methParameterDesc + ")";
+
+                    }
+                    else
+                    {
+                        text = text + "( )";
+                    }
+
                     retDatas.Add(new CompletionData(content, description, bitmapMth, priority++, text));
                 }
 
@@ -166,7 +177,7 @@ namespace ElementEditor.util
                 {
                     paramStr = paramStr + ", ";
                 }
-                paramStr = paramStr + "["+ param.name + ":" + param.eaType + "]";
+                paramStr = paramStr + param.name + ":" + param.eaType;
             }
 
             return paramStr;

@@ -52,15 +52,34 @@ namespace ElementEditor
 
             int RowCnt = attrMethSearchResultList.Items.IndexOf(attrMethSearchResultList.SelectedItem);
             AttrMthSearchItem nowRow = viewModel.AttrMethItems[RowCnt];
-            string apendString = nowRow.elemName + "." + nowRow.attrMethName;
-            // MessageBox.Show("now=" + apendString);
 
-            if( this.Owner != null )
+            string appendString = "";
+            if ( nowRow.attrMethFlg == "m" )
             {
-                BehaviorEditor parent = (BehaviorEditor)this.Owner;
-                parent.insertTextOnCaret(apendString);
+                if( nowRow.methParameterDesc != null )
+                {
+                    appendString = nowRow.elemName + "." + nowRow.attrMethName + "(" + nowRow.methParameterDesc + ")" ;
+                }
+                else
+                {
+                    appendString = nowRow.elemName + "." + nowRow.attrMethName + "( )" ;
+                }
+            }
+            else
+            {
+                appendString = nowRow.elemName + "." + nowRow.attrMethName;
             }
 
+
+            // 親画面(BehaviorEditor)から呼ばれた場合
+            if( this.Owner != null )
+            {
+
+                BehaviorEditor parent = (BehaviorEditor)this.Owner;
+                parent.insertTextOnCaret(appendString);
+            }
+
+            this.Close();
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
@@ -70,4 +89,8 @@ namespace ElementEditor
         }
 
     }
+
+
+
+
 }

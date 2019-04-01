@@ -303,11 +303,21 @@ namespace ElementEditor
 				methNameText.BackColor = Color.LightYellow;
 				methNameText.ContextMenuStrip = methodContextMenuStrip;
 				methNameText.Tag = m;
-				
-				if (m.changed == ' ') {
-					methNameText.Text = m.name;
+
+                string methodDesc;
+                if(m.getParamDesc() != null && m.getParamDesc() != "")
+                {
+                    methodDesc = m.name + "(" + m.getParamDesc() + ")";
+                }
+                else
+                {
+                    methodDesc = m.name + "()";
+                }
+
+                if (m.changed == ' ') {
+					methNameText.Text = methodDesc;
 				} else {
-					methNameText.Text = "[" + m.changed + "] " + m.name;
+					methNameText.Text = "[" + m.changed + "] " + methodDesc;
 				}
 
 				Size parentSize = panel.Size;

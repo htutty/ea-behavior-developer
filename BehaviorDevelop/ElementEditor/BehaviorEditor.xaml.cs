@@ -44,15 +44,19 @@ namespace ElementEditor
 
             try
             {
-                //using (var reader = new XmlTextReader("jbdl.xshd"))
-                //{
-                //    jpBehaviorEdit.SyntaxHighlighting = HighlightingLoader.Load(reader, HighlightingManager.Instance);
-                //}
+                using (var reader = new XmlTextReader("jbdl.xshd"))
+                {
+                    jpBehaviorEdit.SyntaxHighlighting = HighlightingLoader.Load(reader, HighlightingManager.Instance);
+                }
             }
             catch (Exception ex)
             {
                 MessageBox.Show("XSHD読み込み処理でエラーが発生しました: " + ex.Message);
             }
+
+            jpBehaviorEdit.ShowLineNumbers = true;
+            jpBehaviorEdit.Options.ShowEndOfLine = true;
+            jpBehaviorEdit.Options.ShowSpaces = true;
 
             //イベントハンドラを登録
             jpBehaviorEdit.TextArea.TextEntered += TextArea_TextEntered;
@@ -156,6 +160,9 @@ namespace ElementEditor
 
                 if(cmplList != null && cmplList.Count > 0)
                 {
+                    //入力補完Windowを生成
+                    completionWindow = new CompletionWindow(jpBehaviorEdit.TextArea);
+
                     foreach (ICompletionData cmp in cmplList)
                     {
                         completionWindow.CompletionList.CompletionData.Add(cmp);
@@ -182,7 +189,7 @@ namespace ElementEditor
             for(int i=sb.Length-1; i>=0; i--)
             {
                 // デリミタとして定めた文字(空白(半角、全角), '$', 改行)が来たらループを抜ける
-                if( sb[i] == ' ' || sb[i] == '$' || sb[i] == '　' || sb[i] == '\n' || sb[i] == '、' || sb[i] == '。' || sb[i] == '(')
+                if( sb[i] == ' ' || sb[i] == '$' || sb[i] == '　' || sb[i] == '\n' || sb[i] == '、' || sb[i] == '。')
                 {
                     break;
                 }

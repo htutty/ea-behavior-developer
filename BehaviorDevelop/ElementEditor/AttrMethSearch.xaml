@@ -7,12 +7,12 @@
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="30" />
-                <RowDefinition Height="Auto" />
+                <RowDefinition Height="300*" />
                 <RowDefinition Height="30" />
             </Grid.RowDefinitions>
 
             <StackPanel Grid.Row="0" Orientation="Horizontal">
-                <TextBox Name="txtKeyword" MinWidth="500" MaxWidth="800" Margin="3,3,4,3"/>
+                <TextBox Name="txtKeyword" Width="500" MinWidth="300" MaxWidth="600" Margin="3,3,4,3"/>
                 <Button Name="btnSearch" Content="検索" Click="btnSearch_Click" Margin="0,3,0,3" Width="50" HorizontalAlignment="Right"/>
             </StackPanel>
             <DataGrid Grid.Row="1" ItemsSource="{Binding AttrMethItems}"  Name="attrMethSearchResultList" IsReadOnly="True" VerticalScrollBarVisibility="Disabled" AutoGenerateColumns="False" VerticalAlignment="Top" >

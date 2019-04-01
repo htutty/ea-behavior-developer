@@ -209,6 +209,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="jbdl.xshd" />
     <None Include="packages.config" />
     <None Include="Resources\ICON_BEHAVIOR.ico" />
     <Resource Include="Resources\ICON_SYMBOL_ATTRIBUTE.png">
