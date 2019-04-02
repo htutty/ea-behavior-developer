@@ -1,24 +1,15 @@
-﻿/*
- * Created by SharpDevelop.
- * User: ctc0065
- * Date: 2017/10/26
- * Time: 10:06
- * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
- */
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Drawing;
 using System.Xml;
 using System.Windows.Forms;
 using System.IO;
-using BDFileReader.writer;
-using BehaviorDevelop.util;
-using BDFileReader.vo;
-using BDFileReader.util;
-using BDFileReader.reader;
-using EA;
+using ElementEditor;
+using ArtifactFileAccessor.vo;
+using ArtifactFileAccessor.util;
+using ArtifactFileAccessor.reader;
+using ArtifactFileAccessor.writer;
 
 namespace BehaviorDevelop
 {
@@ -28,8 +19,6 @@ namespace BehaviorDevelop
 	public partial class MainForm : Form
 	{
 		TreeNode rootNode = new TreeNode("ルート");
-		
-		// EA.Repository eaRepo ;
 		
 		private IList<ArtifactVO> artifacts;
 		

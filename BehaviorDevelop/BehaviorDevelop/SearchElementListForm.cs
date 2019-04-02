@@ -10,8 +10,8 @@ using System;
 using System.Drawing;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using BehaviorDevelop.util;
-using BDFileReader.vo;
+using IndexAccessor;
+using ArtifactFileAccessor.vo;
 
 namespace BehaviorDevelop
 {
@@ -36,32 +36,41 @@ namespace BehaviorDevelop
 		{
 			ElementSearcher srch = new ElementSearcher();
 			string searchWord = SearchTermTextBox.Text;
-			List<ElementSearchVO> results;
 
 			if( searchWord.Length <= 0 ) {
 				listView1.Items.Clear();
 				return ;
 			}
 
-			if ( searchWord.Length > 1 && "{".Equals(searchWord.Substring(0,1)) ) {
-				results = srch.findByGuid( searchWord );
-			} else {
+
+            List<ElementVO> results = new List<ElementVO>();
+            if ( searchWord.Length > 1 && "{".Equals(searchWord.Substring(0,1)) ) {
+				ElementVO element = srch.findByGuid( searchWord );
+                results.Add(element);
+            } else {
 				results = srch.findByKeyword( searchWord );
 			}
 			
 			listView1.Items.Clear();
 			
-			foreach( ElementSearchVO esvo in results ) {
-				ListViewItem item = new ListViewItem(getStringArrayFromVO(esvo));
-	            item.Tag = esvo;
+			foreach( ElementVO elem in results ) {
+				ListViewItem item = new ListViewItem(getStringArrayFromVO(elem));
+	            item.Tag = elem;
 	            listView1.Items.Add(item);
 			}
 			
 		}
 		
-		private string[] getStringArrayFromVO(ElementSearchVO vo) {
-			string[] retAry = new String[] { vo.elemName, vo.elemAlias, vo.elemType, vo.elemStereotype,
-				vo.artifactPath, vo.artifactName };
+		private string[] getStringArrayFromVO(ElementVO vo) {
+            string projectName= "";
+            if (vo.elementPath != null && vo.elementPath.Contains("/"))
+            {
+                string[] ary = vo.elementPath.Split('/');
+                projectName = ary[1];
+            }
+
+			string[] retAry = new String[] { vo.name, vo.alias, vo.eaType, vo.stereoType,
+				vo.elementPath, projectName };
 			return retAry;
 		}
 		

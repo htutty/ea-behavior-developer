@@ -48,12 +48,6 @@
     <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.2.0\lib\net40\EntityFramework.dll</HintPath>
-    </Reference>
-    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.2.0\lib\net40\EntityFramework.SqlServer.dll</HintPath>
-    </Reference>
     <Reference Include="Interop.EA">
       <HintPath>..\..\..\..\Program Files (x86)\SparxSystems Japan\EA\Interop.EA.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
@@ -73,15 +67,6 @@
     <Reference Include="System.Data.DataSetExtensions">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Data.SQLite, Version=1.0.109.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Data.SQLite.Core.1.0.109.2\lib\net40\System.Data.SQLite.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Data.SQLite.EF6, Version=1.0.109.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Data.SQLite.EF6.1.0.109.0\lib\net40\System.Data.SQLite.EF6.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Data.SQLite.Linq, Version=1.0.109.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Data.SQLite.Linq.1.0.109.0\lib\net40\System.Data.SQLite.Linq.dll</HintPath>
-    </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
@@ -91,41 +76,11 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AttributePropertyForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="AttributePropertyForm.Designer.cs">
-      <DependentUpon>AttributePropertyForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="DiffElementForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="DiffElementForm.Designer.cs">
-      <DependentUpon>DiffElementForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="ElementForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ElementForm.Designer.cs">
-      <DependentUpon>ElementForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="MethodBehaviorEditForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="MethodBehaviorEditForm.Designer.cs">
-      <DependentUpon>MethodBehaviorEditForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="MethodPropertyForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="MethodPropertyForm.Designer.cs">
-      <DependentUpon>MethodPropertyForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -144,45 +99,11 @@
     <Compile Include="SplashForm.Designer.cs">
       <DependentUpon>SplashForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="usercontrol\SyntaxRichTextBox.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="usercontrol\TipsListBox.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="usercontrol\ToggleButton.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="usercontrol\vo\HeaderNumber.cs" />
-    <Compile Include="usercontrol\vo\HistoryBehavior.cs" />
     <Compile Include="util\ClassDocumentMaker.cs" />
-    <Compile Include="util\ConnectorSearcher.cs" />
-    <Compile Include="util\ElementSearcher.cs" />
-    <Compile Include="util\StringUtil.cs" />
-    <Compile Include="vo\AttributeMethod.cs" />
-    <Compile Include="vo\CompareItem.cs" />
-    <Compile Include="vo\CompareProperty.cs" />
-    <Compile Include="vo\CrossReference.cs" />
-    <Compile Include="vo\Item.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="AttributePropertyForm.resx">
-      <DependentUpon>AttributePropertyForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="DiffElementForm.resx">
-      <DependentUpon>DiffElementForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ElementForm.resx">
-      <DependentUpon>ElementForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="MethodBehaviorEditForm.resx">
-      <DependentUpon>MethodBehaviorEditForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="MethodPropertyForm.resx">
-      <DependentUpon>MethodPropertyForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -206,9 +127,21 @@
     <None Include="Resources\NumberingON.png" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\EaArtifactTool\ArtifactFileAccessor\ArtifactFileAccessor.csproj">
+      <Project>{b0efd60e-7d58-4600-8e30-aeaeb4424690}</Project>
+      <Name>ArtifactFileAccessor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\EaArtifactTool\IndexAccessor\IndexAccessor.csproj">
+      <Project>{647f1691-ec36-47f1-9f21-f86d4b562974}</Project>
+      <Name>IndexAccessor</Name>
+    </ProjectReference>
     <ProjectReference Include="..\BDFileReader\BDFileReader.csproj">
       <Project>{6070881C-93B6-402C-8539-8876A3F2A1D7}</Project>
       <Name>BDFileReader</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ElementEditor\ElementEditor.csproj">
+      <Project>{13a29357-9ff8-44a8-b028-e7f4d12ed1c4}</Project>
+      <Name>ElementEditor</Name>
     </ProjectReference>
     <ProjectReference Include="..\VoidNish.Diff\VoidNish.Diff.csproj">
       <Project>{7F2DFFF8-1202-4C31-9D3F-094CB7528A65}</Project>
