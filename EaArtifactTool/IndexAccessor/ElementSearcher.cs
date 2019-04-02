@@ -63,7 +63,8 @@ namespace IndexAccessor
 			List<ElementVO> retList = new List<ElementVO>() ;
 
 			string sql =
-                @"select objectId, elemGuid, elemName, elemAlias, elemType, ifnull(elemStereotype, '')
+                @"select objectId, elemGuid, elemName, elemAlias, elemType, ifnull(elemStereotype, ''),
+                         elementPath
 				   from t_element where " + whereCond;
 
 			conn.Open();
@@ -84,8 +85,9 @@ namespace IndexAccessor
 	            		elemvo.alias = sdr.GetString(3);
 	            		elemvo.eaType = sdr.GetString(4);
 		            	elemvo.stereoType =  sdr.GetString(5);
+                        elemvo.elementPath = sdr.GetString(6);
 
-	            		retList.Add(elemvo);
+                        retList.Add(elemvo);
 	            	}
 	            }
 			}
