@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Windows;
+using System.Windows.Input;
 using System.Xml;
 using IndexAccessor;
 
@@ -14,10 +15,11 @@ namespace ElementEditor
 	{
         private ViewModel viewModel;
 
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
         public AttrMethSearch()
 		{
-//            ProjectSetting.load(@"D:\DesignHistory\aswea_20200401\project.bdprj");
-
             InitializeComponent();
 
             this.viewModel = new ViewModel();
@@ -35,17 +37,28 @@ namespace ElementEditor
         {
             if (txtKeyword.Text != "")
             {
+                //マウスカーソルを砂時計にする
+                this.Cursor = Cursors.Wait;
+
+                // テキストで入力されたキーワードをViewModelの検索機能に渡し、結果を反映する
                 string keyword = txtKeyword.Text;
-                //AttrMethSearcher search = new AttrMethSearcher();
-                //List <AttrMethItem> list = search.findByKeyword(keyword);
-
                 this.viewModel.searchAttrMethFromIndex(keyword);
-
                 this.attrMethSearchResultList.ItemsSource = viewModel.AttrMethItems;
+
+                //マウスカーソルを矢印に戻す
+                this.Cursor = Cursors.Arrow;
+            }
+            else
+            {
+                MessageBox.Show("検索キーワードを何か入力してください（要素名、属性・操作名の両方の部分一致で検索します）");
             }
         }
 
-
+        /// <summary>
+        /// OKボタン押下時の動作
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void CommitButton_Click(object sender, RoutedEventArgs e)
         {
             // this.SaveMethodChange();
@@ -74,7 +87,6 @@ namespace ElementEditor
             // 親画面(BehaviorEditor)から呼ばれた場合
             if( this.Owner != null )
             {
-
                 BehaviorEditor parent = (BehaviorEditor)this.Owner;
                 parent.insertTextOnCaret(appendString);
             }
@@ -82,9 +94,13 @@ namespace ElementEditor
             this.Close();
         }
 
+        /// <summary>
+        /// キャンセルボタン押下時の動作
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
-
             this.Close();
         }
 

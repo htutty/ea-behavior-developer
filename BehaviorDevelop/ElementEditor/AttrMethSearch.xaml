@@ -24,7 +24,7 @@
                     <DataGridTextColumn Header="操作名" Width="250"  
                                         Binding="{Binding attrMethName}" />
                     <DataGridTextColumn Header="成果物パス" Width="300"  
-                                        Binding="{Binding artifactPath}" />
+                                        Binding="{Binding elementPath}" />
                 </DataGrid.Columns>
 
             </DataGrid>

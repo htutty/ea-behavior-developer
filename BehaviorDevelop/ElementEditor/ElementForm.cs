@@ -735,10 +735,20 @@ namespace ElementEditor
 
         private void ElementForm_FormClosed(object sender, FormClosedEventArgs e)
         {
-            if( this.Owner != null )
+            try
             {
-                MainForm main = (MainForm)this.Owner;
-                main.deleteOpenedElement(myElement);
+                if (this.Owner != null)
+                {
+                    MainForm main = (MainForm)this.Owner;
+                    main.deleteOpenedElement(myElement);
+                }
+            }
+            catch (InvalidCastException ex)
+            {
+                // 呼出し元が BehaviorDevelop の場合を考慮し、あえて例外のコンソール出力のみ実行
+                Console.WriteLine("");
+                Console.WriteLine("※BehaviorDevelopから呼ばれた場合、毎回この例外が出力される");
+                Console.WriteLine(ex.Message);
             }
 
         }
