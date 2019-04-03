@@ -62,6 +62,7 @@
     <Compile Include="AttrMthSearcher.cs" />
     <Compile Include="ConnectorSearcher.cs" />
     <Compile Include="ElementSearcher.cs" />
+    <Compile Include="ElementSearchItem.cs" />
     <Compile Include="IndexDbWriter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

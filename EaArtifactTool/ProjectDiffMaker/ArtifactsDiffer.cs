@@ -6,6 +6,7 @@ using System.Xml;
 using ArtifactFileAccessor.reader;
 using ArtifactFileAccessor.vo;
 using ArtifactFileAccessor.util;
+using ArtifactFileAccessor.writer;
 
 namespace ProjectDiffMaker
 {
@@ -81,15 +82,16 @@ namespace ProjectDiffMaker
 		/// <param name="projectDir"></param>
 		/// <returns>全成果物のリスト</returns>
 		private List<ArtifactVO> readAllArtifacts( string artifactsDir) {
-            ArtifactXmlReader reader = new ArtifactXmlReader(artifactsDir);
-
             List<ArtifactVO> retList = ArtifactsXmlReader.readArtifactList(artifactsDir, ProjectSetting.getVO().artifactsFile);
 			ArtifactXmlReader atfReader = new ArtifactXmlReader(artifactsDir);
 			
 			foreach( ArtifactVO atf in retList ) {
 				// 成果物パッケージ別のXMLファイル読み込み
 				atfReader.readArtifactDesc(atf);
-			}
+
+                // 成果物配下の子ノードをGUIDでソート
+                atf.sortChildNodesGuid();
+            }
 			
 			// 成果物リストをソートする。 ソートキー＝GUID（自然順序付け）see: BehaviorDevelop.vo.ArtifactVO#compareTo
 			retList.Sort();
@@ -98,7 +100,7 @@ namespace ProjectDiffMaker
 		
 		
 		/// <summary>
-		/// 
+		/// 全成果物のマージ
 		/// </summary>
 		public void mergeAllArtifacts() {
 			Int16 lCnt, rCnt;
@@ -142,9 +144,14 @@ namespace ProjectDiffMaker
 			
 			this.outArtifacts = outList;
 		}
-		
-		
-		private ArtifactVO getAgreedContentsOfArtifact(ArtifactVO leftAtf, ArtifactVO rightAtf) {
+
+        /// <summary>
+        /// 成果物の中での同一GUIDのパッケージの中身の比較
+        /// </summary>
+        /// <param name="leftAtf">成果物：左</param>
+        /// <param name="rightAtf">成果物：右</param>
+        /// <returns></returns>
+        private ArtifactVO getAgreedContentsOfArtifact(ArtifactVO leftAtf, ArtifactVO rightAtf) {
 			ArtifactVO outAtf = leftAtf;
 			
 			outAtf.package = getDisagreedPackage(leftAtf.package, rightAtf.package) ;
@@ -156,7 +163,12 @@ namespace ProjectDiffMaker
 			return outAtf;
 		}
 		
-		
+		/// <summary>
+        /// パッケージ配下のマージ
+        /// </summary>
+        /// <param name="leftPkg"></param>
+        /// <param name="rightPkg"></param>
+        /// <returns></returns>
 		private PackageVO getDisagreedPackage(PackageVO leftPkg, PackageVO rightPkg) {
 			PackageVO outPkg;
 			if( !leftPkg.name.Equals(rightPkg.name) ) {
@@ -281,9 +293,9 @@ namespace ProjectDiffMaker
 			differ.skipMethodPosFlg = this.skipMethodPosFlg;
 			
 			
-		// GUIDで一致するものがあった場合:
+		    // GUIDで一致するものがあった場合:
 
-		// GUIDで一致するものが無かった場合: L > R なら Rの追加、 R < L なら Lの削除 とみなす
+		    // GUIDで一致するものが無かった場合: L > R なら Rの追加、 R < L なら Lの削除 とみなす
 			ElementVO lElm, rElm, oElm;
 			List<ElementVO> outElements = new List<ElementVO>();
 			for (lCnt = 0,rCnt = 0; lCnt < leftElements.Count && rCnt < rightElements.Count;) {
@@ -336,7 +348,11 @@ namespace ProjectDiffMaker
 			outPkg.elements = outElements;
 		}
 
-
+        /// <summary>
+        /// パッケージ単位での追加(C)・削除(D)があったら配下の要素と、さらに属性・メソッドに伝搬する
+        /// </summary>
+        /// <param name="pkg"></param>
+        /// <param name="updChanged"></param>
         private void setChangedToChilds(PackageVO pkg, char updChanged) {
 			pkg.changed = updChanged;
 			foreach( PackageVO p in pkg.childPackageList ) {
@@ -414,11 +430,13 @@ namespace ProjectDiffMaker
 		public void outputMerged() {
 			Console.WriteLine("outputMerged: outputDir=" + this.outputDir);
 
+            string artifactDir = this.outputDir + @"\artifacts";
+
             // 差分のdetailファイルが出力されるフォルダを事前に作成する
-            makeDetailDirIfNotExist(this.outputDir + "\\detail");
+            makeDetailDirIfNotExist(artifactDir + "\\detail");
 
             //BOM無しのUTF8でテキストファイルを作成する
-            StreamWriter listsw = new StreamWriter(outputDir + "\\ChangedArtifacts.xml");
+            StreamWriter listsw = new StreamWriter(artifactDir + "\\ChangedArtifacts.xml");
 			listsw.WriteLine( @"<?xml version=""1.0"" encoding=""utf-8""?> " );
 			listsw.WriteLine( "" );
 			
@@ -436,12 +454,12 @@ namespace ProjectDiffMaker
                     outputChangedArtifactList(atf, listsw);
 					
 					//BOM無しのUTF8でテキストファイルを作成する
-					StreamWriter atfsw = new StreamWriter(outputDir + "\\atf_" + atf.guid.Substring(1,36) + ".xml");
+					StreamWriter atfsw = new StreamWriter(artifactDir + "\\atf_" + atf.guid.Substring(1,36) + ".xml");
 					atfsw.WriteLine( @"<?xml version=""1.0"" encoding=""utf-8""?>" );
 					atfsw.WriteLine( "" );
 
 					if( atf.package != null ) {
-						atfsw.Write( indent(1) + "<artifact " );
+						atfsw.Write( "<artifact " );
 						atfsw.Write( " changed='" + atf.changed + "' " );
 						atfsw.Write( " guid='" + atf.guid + "' " );
 						atfsw.Write( " name='" + escapeXML(atf.name) + "' " );
@@ -453,7 +471,7 @@ namespace ProjectDiffMaker
 						//sw.WriteLine("■成果物(" + atf.changed + "): GUID="+ atf.guid + ", Name=" + atf.name );
 						outputChangedPackage(atf.package, 2, atfsw);
 						
-						atfsw.WriteLine(indent(1) +  "</artifact>" );
+						atfsw.WriteLine("</artifact>" );
 					}
 					atfsw.Close();
 				}
@@ -492,10 +510,12 @@ namespace ProjectDiffMaker
 			prjsw.WriteLine( "" );
 			
 			prjsw.WriteLine( "<project>" );
-			prjsw.Write(@" <projectName>merged</projectName>
+			prjsw.WriteLine(@" <projectName>merged</projectName>
   <artifactsFile>ChangedArtifacts.xml</artifactsFile>
+  <artifactPath>artifacts</artifactPath>
   <allConnector>AllConnectors.xml</allConnector>
-  <dbName>_merged.db</dbName>" );
+  <dbName>merged.db</dbName>" );
+
 			prjsw.WriteLine( "</project>" );
 			prjsw.Close();
 
@@ -705,16 +725,17 @@ namespace ProjectDiffMaker
 		
 		private void outputElements(List<ElementVO> elements, int depth, StreamWriter sw) {
 			foreach( ElementVO elem in elements ) {
-				outputClass(elem, depth, sw);
+                ElementXmlWriter.writeElementXml(elem, depth, sw);
 			}
 		}
+
 
 		private void outputClass(ElementVO elemvo, int depth, StreamWriter sw) {
 			sw.Write(indent(depth) + "<element ");
 			sw.Write(" changed='" + elemvo.changed + "' ");
 			sw.Write(" guid='" + escapeXML(elemvo.guid) + "' ");
 			sw.Write(" tpos='" + elemvo.treePos + "' ");
-			sw.Write(" type='" + elemvo.objectType + "' ");
+			sw.Write(" type='" + elemvo.eaType + "' ");
 			sw.Write(" name='" + escapeXML(elemvo.name) + "' ");
 			sw.Write(" alias='" + escapeXML(elemvo.alias) + "' ");
 			

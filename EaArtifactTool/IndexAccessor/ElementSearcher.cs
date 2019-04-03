@@ -18,12 +18,12 @@ namespace IndexAccessor
             this.conn = new SQLiteConnection("Data Source=" + dbFileName);
         }
 
-		public List<ElementVO> findByKeyword( string keyword ) {
+		public List<ElementSearchItem> findByKeyword( string keyword ) {
 			return find( "elemType = 'Class' and elemName like '%" + keyword + "%'" );
 		}
 
 
-        public List<ElementVO> findByKeywords(string[] keywords)
+        public List<ElementSearchItem> findByKeywords(string[] keywords)
         {
             string nameCondStr = "";
             for(var i=0; i < keywords.Length; i++)
@@ -35,23 +35,23 @@ namespace IndexAccessor
         }
 
 
-        public ElementVO findByGuid(string guid)
+        public ElementSearchItem findByGuid(string guid)
         {
-            List <ElementVO> ret = find("elemGuid = '" + guid + "'");
+            List <ElementSearchItem> ret = find("elemGuid = '" + guid + "'");
 
             // 戻り値のリストがちょうど1件だった場合のみ、0件目を返す
             if (ret != null && ret.Count == 1) return ret[0];
             else return null;
         }
 
-        public List<ElementVO> findByGuidPart(string guid)
+        public List<ElementSearchItem> findByGuidPart(string guid)
         {
             return find("elemGuid like '%" + guid + "%'");
         }
 
-        public ElementVO findByElementId(int elementId)
+        public ElementSearchItem findByElementId(int elementId)
         {
-            List<ElementVO> ret = find("objectId = " + elementId + "");
+            List<ElementSearchItem> ret = find("objectId = " + elementId + "");
 
             // 戻り値のリストがちょうど1件だった場合のみ、0件目を返す
             if (ret != null && ret.Count == 1) return ret[0];
@@ -59,12 +59,12 @@ namespace IndexAccessor
         }
 
 
-        private List<ElementVO> find(string whereCond) {
-			List<ElementVO> retList = new List<ElementVO>() ;
+        private List<ElementSearchItem> find(string whereCond) {
+			List<ElementSearchItem> retList = new List<ElementSearchItem>() ;
 
 			string sql =
                 @"select objectId, elemGuid, elemName, elemAlias, elemType, ifnull(elemStereotype, ''),
-                         elementPath
+                         elementPath, artifactGuid,  artifactName
 				   from t_element where " + whereCond;
 
 			conn.Open();
@@ -77,17 +77,19 @@ namespace IndexAccessor
 	            {
 	            	//
 	            	while(sdr.Read()) {
-	            		ElementVO elemvo = new ElementVO() ;
+	            		ElementSearchItem elemSrcItem = new ElementSearchItem() ;
 
-                        elemvo.elementId = sdr.GetInt32(0);
-                        elemvo.guid = sdr.GetString(1);
-	            		elemvo.name = sdr.GetString(2);
-	            		elemvo.alias = sdr.GetString(3);
-	            		elemvo.eaType = sdr.GetString(4);
-		            	elemvo.stereoType =  sdr.GetString(5);
-                        elemvo.elementPath = sdr.GetString(6);
+                        elemSrcItem.elementId = sdr.GetInt32(0);
+                        elemSrcItem.elemGuid = sdr.GetString(1);
+	            		elemSrcItem.elemName = sdr.GetString(2);
+	            		elemSrcItem.elemAlias = sdr.GetString(3);
+	            		elemSrcItem.elemType = sdr.GetString(4);
+		            	elemSrcItem.elemStereotype =  sdr.GetString(5);
+                        elemSrcItem.elemPath = sdr.GetString(6);
+                        elemSrcItem.artifactGuid = sdr.GetString(7);
+                        elemSrcItem.artifactName = sdr.GetString(8);
 
-                        retList.Add(elemvo);
+                        retList.Add(elemSrcItem);
 	            	}
 	            }
 			}

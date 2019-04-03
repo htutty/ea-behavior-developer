@@ -79,6 +79,15 @@ namespace ArtifactFileAccessor.vo
 			return (this.guid.CompareTo(o.guid));
 		}
 
+        /// <summary>
+        /// 子ノードのGUIDでのソート
+        /// </summary>
+        public void sortChildNodesGuid()
+        {
+            package.sortChildNodesGuid();
+        }
+
+
         public List<ElementVO> getOwnElements()
         {
             this.retElements = new List<ElementVO>();

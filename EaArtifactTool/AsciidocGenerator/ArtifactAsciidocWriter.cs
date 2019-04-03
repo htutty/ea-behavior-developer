@@ -455,7 +455,7 @@ namespace AsciidocGenerator
             ConnectorSearcher searcher = new ConnectorSearcher();
             List<ConnectorVO> conns = searcher.findByObjectGuid(element.guid);
 
-            Dictionary<string, ElementVO> nameHash = new Dictionary<string, ElementVO>();
+            Dictionary<string, ElementSearchItem> nameHash = new Dictionary<string, ElementSearchItem>();
 
             List<ConnectorVO> srcConnList = new List<ConnectorVO>();
             List<ConnectorVO> destConnList = new List<ConnectorVO>();
@@ -491,17 +491,17 @@ namespace AsciidocGenerator
         }
 
 
-        private void outputConnDestClass(string objGuid, ElementSearcher elemSrch, Dictionary<string, ElementVO> nameHash, StreamWriter sw)
+        private void outputConnDestClass(string objGuid, ElementSearcher elemSrch, Dictionary<string, ElementSearchItem> nameHash, StreamWriter sw)
         {
-            ElementVO targetObj = elemSrch.findByGuid(objGuid);
-            if (targetObj != null)
+            ElementSearchItem elemSrcItem = elemSrch.findByGuid(objGuid);
+            if (elemSrcItem != null)
             {
-                string identifiedName = filterSpecialChar(targetObj.name);
+                string identifiedName = filterSpecialChar(elemSrcItem.elemName);
                 if (!nameHash.ContainsKey(identifiedName))
                 {
-                    sw.WriteLine("class \"" + identifiedName + "\" " + getStereotypeStr(targetObj.stereoType) + " {");
+                    sw.WriteLine("class \"" + identifiedName + "\" " + getStereotypeStr(elemSrcItem.elemStereotype) + " {");
                     sw.WriteLine("}");
-                    nameHash.Add(identifiedName, targetObj);
+                    nameHash.Add(identifiedName, elemSrcItem);
                 }
             }
         }

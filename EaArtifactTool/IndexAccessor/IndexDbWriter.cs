@@ -386,7 +386,7 @@ namespace IndexAccessor
         private void insertBehaviorsInMethod(ElementVO elem, MethodVO mth)
         {
             // ふるまいを行ごとに切り分け、チャンク単位で登録
-            List<BehaviorChunk> chunks = bhvParser.parseBehavior(elem, mth);
+            List<BehaviorChunk> chunks = bhvParser.parseBehavior(mth);
 
             foreach (BehaviorChunk chk in chunks)
             {

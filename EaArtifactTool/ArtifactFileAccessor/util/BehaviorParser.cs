@@ -12,24 +12,29 @@ namespace ArtifactFileAccessor.util
 
         private int chunkCount;
 
-        private ElementVO parsingElement;
         private MethodVO parsingMethod;
 
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
         public BehaviorParser()
         {
             chunkCount = 1;
         }
 
-
-        public List<BehaviorChunk> parseBehavior(ElementVO element, MethodVO method)
+        /// <summary>
+        /// 受領した操作のふるまいを解析し、ふるまいのチャンクリストを返す
+        /// </summary>
+        /// <param name="method"></param>
+        /// <returns></returns>
+        public List<BehaviorChunk> parseBehavior(MethodVO method)
         {
-            this.parsingElement = element;
             this.parsingMethod = method;
 
             string[] delimiter = { "\r\n" };
             string[] lins = method.behavior.Split(delimiter, StringSplitOptions.None);
 
-            return parseBehavior_(lins);
+            return parseBehaviorLines(lins);
         }
 
 
@@ -39,9 +44,9 @@ namespace ArtifactFileAccessor.util
         /// <param name="tlin"></param>
         /// <param name="idx"></param>
         /// <returns></returns>
-        private List<BehaviorChunk> parseBehavior_(string[] tlin)
+        private List<BehaviorChunk> parseBehaviorLines(string[] tlin)
         {
-            Console.WriteLine("start parsedBehavior()");
+            //Console.WriteLine("start parsedBehavior()");
 
             List<BehaviorChunk> chunkList = new List<BehaviorChunk>();
 

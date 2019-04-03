@@ -72,7 +72,7 @@ namespace ArtifactFileExporter
                 {
                     foreach ( MethodVO mth in elem.methods )
                     {
-                        List<BehaviorChunk> chunks = behaviorParser.parseBehavior(elem, mth);
+                        List<BehaviorChunk> chunks = behaviorParser.parseBehavior(mth);
 
                         foreach (BehaviorChunk cnk in chunks)
                         {

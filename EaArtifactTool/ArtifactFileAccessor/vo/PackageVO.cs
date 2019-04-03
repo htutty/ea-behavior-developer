@@ -122,7 +122,7 @@ namespace ArtifactFileAccessor.vo
             {
                 pkg.sortChildNodesGuid();
             }
-            PackageComparer pcmp = new PackageComparer();
+            PackageGuidComparer pcmp = new PackageGuidComparer();
             childPackageList.Sort(pcmp);
 
         }
@@ -150,9 +150,9 @@ namespace ArtifactFileAccessor.vo
 	/// <summary>
 	/// Description of PackageComparer.
 	/// </summary>
-	public class PackageComparer  : IComparer<PackageVO>
+	public class PackageGuidComparer : IComparer<PackageVO>
 	{
-		public PackageComparer()
+		public PackageGuidComparer()
 		{
 		}
 

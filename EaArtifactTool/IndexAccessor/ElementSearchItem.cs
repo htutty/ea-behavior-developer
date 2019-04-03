@@ -1,14 +1,17 @@
 ﻿using System;
 
-namespace ArtifactFileAccessor.vo
+namespace IndexAccessor
 {
-	/// <summary>
-	/// Description of ElementSearchVO.
-	/// </summary>
-	public class ElementSearchVO
+    /// <summary>
+    /// Description of ElementSearchItem.
+    /// </summary>
+    public class ElementSearchItem
 	{
-		/// <summary>名前</summary>
-    	public string elemName { get; set; }
+        /// <summary>名前</summary>
+        public int elementId { get; set; }
+
+        /// <summary>名前</summary>
+        public string elemName { get; set; }
 
 		/// <summary>別名</summary>
     	public string elemAlias { get; set; }
@@ -23,15 +26,15 @@ namespace ArtifactFileAccessor.vo
     	public string elemGuid { get; set; }
 
         /// <summary>要素の配置パス</summary>
-        public string elementPath { get; set; }
+        public string elemPath { get; set; }
 
         /// <summary>成果物GUID </summary>
         public string artifactGuid { get; set; }
 
-    	/// <summary>成果物名(パッケージ名) </summary>
-    	public string artifactName { get; set; }
+        /// <summary>成果物名(パッケージ名) </summary>
+        public string artifactName { get; set; }
 
-    	public ElementSearchVO()
+        public ElementSearchItem()
 		{
 		}
 
