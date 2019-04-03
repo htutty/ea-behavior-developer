@@ -45,8 +45,6 @@ namespace ElementEditor
             this.implFileLinkLabel = new System.Windows.Forms.LinkLabel();
             this.btnCommit = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
-            this.buttonCopyContent = new System.Windows.Forms.Button();
-            this.buttonOutputJava = new System.Windows.Forms.Button();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.classContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.focusEAClassToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -56,6 +54,7 @@ namespace ElementEditor
             this.copyGuidMethodToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.buttonViewDiff = new System.Windows.Forms.Button();
+            this.ButtonRepaint = new System.Windows.Forms.Button();
             this.flowLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.elementTypePictureBox)).BeginInit();
             this.classContextMenuStrip.SuspendLayout();
@@ -143,29 +142,6 @@ namespace ElementEditor
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.BtnCancelClick);
             // 
-            // buttonCopyContent
-            // 
-            this.buttonCopyContent.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.buttonCopyContent.Cursor = System.Windows.Forms.Cursors.Default;
-            this.buttonCopyContent.Location = new System.Drawing.Point(12, 432);
-            this.buttonCopyContent.Name = "buttonCopyContent";
-            this.buttonCopyContent.Size = new System.Drawing.Size(95, 23);
-            this.buttonCopyContent.TabIndex = 3;
-            this.buttonCopyContent.Text = "クラス内容コピー";
-            this.buttonCopyContent.UseVisualStyleBackColor = true;
-            this.buttonCopyContent.Click += new System.EventHandler(this.ButtonCopyContentClick);
-            // 
-            // buttonOutputJava
-            // 
-            this.buttonOutputJava.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.buttonOutputJava.Location = new System.Drawing.Point(132, 432);
-            this.buttonOutputJava.Name = "buttonOutputJava";
-            this.buttonOutputJava.Size = new System.Drawing.Size(95, 23);
-            this.buttonOutputJava.TabIndex = 4;
-            this.buttonOutputJava.Text = "簡易Java出力";
-            this.buttonOutputJava.UseVisualStyleBackColor = true;
-            this.buttonOutputJava.Click += new System.EventHandler(this.ButtonOutputJavaClick);
-            // 
             // imageList1
             // 
             this.imageList1.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList1.ImageStream")));
@@ -234,6 +210,17 @@ namespace ElementEditor
             this.buttonViewDiff.UseVisualStyleBackColor = true;
             this.buttonViewDiff.Click += new System.EventHandler(this.ButtonViewDiffClick);
             // 
+            // ButtonRepaint
+            // 
+            this.ButtonRepaint.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.ButtonRepaint.Location = new System.Drawing.Point(10, 432);
+            this.ButtonRepaint.Name = "ButtonRepaint";
+            this.ButtonRepaint.Size = new System.Drawing.Size(55, 23);
+            this.ButtonRepaint.TabIndex = 6;
+            this.ButtonRepaint.Text = "再表示";
+            this.ButtonRepaint.UseVisualStyleBackColor = true;
+            this.ButtonRepaint.Click += new System.EventHandler(this.ButtonRepaint_Click);
+            // 
             // ElementForm
             // 
             this.AcceptButton = this.btnCommit;
@@ -241,10 +228,9 @@ namespace ElementEditor
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
             this.ClientSize = new System.Drawing.Size(844, 462);
+            this.Controls.Add(this.ButtonRepaint);
             this.Controls.Add(this.flowLayoutPanel1);
             this.Controls.Add(this.buttonViewDiff);
-            this.Controls.Add(this.buttonOutputJava);
-            this.Controls.Add(this.buttonCopyContent);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnCommit);
             this.Controls.Add(this.panel);
@@ -273,11 +259,9 @@ namespace ElementEditor
 		private System.Windows.Forms.PictureBox elementTypePictureBox;
 		private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
 		private System.Windows.Forms.ImageList imageList1;
-		private System.Windows.Forms.Button buttonOutputJava;
-		private System.Windows.Forms.Button buttonCopyContent;
 		private System.Windows.Forms.Button btnCancel;
 		private System.Windows.Forms.Button btnCommit;
 		private System.Windows.Forms.FlowLayoutPanel panel;
-
-	}
+        private System.Windows.Forms.Button ButtonRepaint;
+    }
 }

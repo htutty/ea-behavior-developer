@@ -27,6 +27,18 @@ namespace ElementEditor
             this.attrMethSearchResultList.ItemsSource = viewModel.AttrMethItems;
         }
 
+        /// <summary>
+        /// コンストラクタ(デフォルト文字列付き)
+        /// </summary>
+        public AttrMethSearch(string defaultKeyword)
+        {
+            InitializeComponent();
+
+            this.viewModel = new ViewModel();
+            this.DataContext = this.viewModel;
+
+            this.txtKeyword.Text = defaultKeyword;
+        }
 
         /// <summary>
         /// 検索ボタンクリック時のイベントハンドラ

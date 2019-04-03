@@ -72,8 +72,11 @@ namespace ElementEditor
 			} else {
 				buttonViewDiff.Enabled = true;
 			}
-			
-			setElementItems(myElement);
+
+            // 初期状態で一時保存ボタンは使用不可
+            btnCommit.Enabled = false;
+
+            setElementItems(myElement);
 		}
 
 		
@@ -133,7 +136,7 @@ namespace ElementEditor
 			makeMethodItems(elem.methods);
 			panel.ResumeLayout();
 			
-			btnCommit.Enabled = false;
+			//btnCommit.Enabled = false;
 		}
 
 		
@@ -374,7 +377,8 @@ namespace ElementEditor
 	            }
             }
 
-			mthText.Margin = new System.Windows.Forms.Padding(30,3,3,3);            
+			mthText.Margin = new System.Windows.Forms.Padding(30,3,3,3);
+            mthText.Refresh();
 		}
 		
 		
@@ -432,7 +436,6 @@ namespace ElementEditor
 		void MethodTextBoxDoubleClick(object sender, EventArgs e)
 		{
 			MethodVO method = (MethodVO)((TextBox)sender).Tag ;
-            //			MessageBox.Show("method text box double clicked");
 
             // Form f = new MethodBehaviorEditForm(myElement, method);
             // f.ShowDialog(this);
@@ -440,8 +443,12 @@ namespace ElementEditor
             var window = new BehaviorEditor(myElement, method);
             // var window = new BehaviorWindow();
             ElementHost.EnableModelessKeyboardInterop(window);
-
             window.Show();
+
+            if ( method.changed == 'U')
+            {
+                this.repaintFormMethod(method);
+            }
 
         }
 
@@ -751,6 +758,11 @@ namespace ElementEditor
                 Console.WriteLine(ex.Message);
             }
 
+        }
+
+        private void ButtonRepaint_Click(object sender, EventArgs e)
+        {
+            this.repaint(this.myElement);
         }
     }
 }

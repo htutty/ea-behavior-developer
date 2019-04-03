@@ -175,6 +175,15 @@ namespace ElementEditor
                         completionWindow = null;
                     };
                 }
+                else
+                {
+                    // 補完リストにうまくつながらないと判断した場合、
+                    // クラス名が初期表示された形で属性・操作検索画面をモーダル表示する
+                    attrMethSearch = new AttrMethSearch(className);
+                    attrMethSearch.Owner = GetWindow(this);
+                    attrMethSearch.ShowDialog();
+
+                }
             }
         }
 
@@ -216,11 +225,17 @@ namespace ElementEditor
         private void SaveMethodChange()
         {
 
-            // 振る舞い
-            this.method.behavior = this.jpBehaviorEdit.Text;
+            if(this.method.behavior != jpBehaviorEdit.Text)
+            {
+                //MessageBox.Show("ふるまいに変更があったため、登録する");
 
-            this.method.changed = 'U';
-            this.element.changed = 'U';
+                // 振る舞い
+                this.method.behavior = this.jpBehaviorEdit.Text;
+
+                this.method.changed = 'U';
+                this.element.changed = 'U';
+
+            }
 
             // ElementForm parentForm = (ElementForm)(this.Owner);
             // parentForm.repaintFormMethod(this.method);

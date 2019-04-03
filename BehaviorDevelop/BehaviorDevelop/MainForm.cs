@@ -709,23 +709,28 @@ namespace BehaviorDevelop
                 openNewElementForm(elem);
             }
         }
-		
-		/// <summary>
-		/// 要素リンクラベルのクリック時イベントハンドラ（要素差分確認画面を開く）
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-//		void BtnDiffElemOpenClick(object sender,  EventArgs e)
-//		{
-//			Button btn = (Button)sender;
-//			ElementVO elemvo = (ElementVO)btn.Tag;
-////			MessageBox.Show( "guid =" + elem.guid );
-			
-//			DiffElementForm eForm = new DiffElementForm( elemvo );
-//			eForm.Show(this);			
-//		}
-		
-		#endregion
 
-	}
+        /// <summary>
+        /// 要素リンクラベルのクリック時イベントハンドラ（要素差分確認画面を開く）
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        //		void BtnDiffElemOpenClick(object sender,  EventArgs e)
+        //		{
+        //			Button btn = (Button)sender;
+        //			ElementVO elemvo = (ElementVO)btn.Tag;
+        ////			MessageBox.Show( "guid =" + elem.guid );
+
+        //			DiffElementForm eForm = new DiffElementForm( elemvo );
+        //			eForm.Show(this);			
+        //		}
+
+        #endregion
+
+
+        private void artifactToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("このメニューはまだ実装が入ってません。すいません");
+        }
+    }
 }

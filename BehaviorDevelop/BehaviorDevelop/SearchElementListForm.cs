@@ -7,7 +7,6 @@
  * To change this template use Tools | Options | Coding | Edit Standard Headers.
  */
 using System;
-using System.Drawing;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using IndexAccessor;
@@ -43,9 +42,9 @@ namespace BehaviorDevelop
 			}
 
 
-            List<ElementVO> results = new List<ElementVO>();
+            List<ElementSearchItem> results = new List<ElementSearchItem>();
             if ( searchWord.Length > 1 && "{".Equals(searchWord.Substring(0,1)) ) {
-				ElementVO element = srch.findByGuid( searchWord );
+				ElementSearchItem element = srch.findByGuid( searchWord );
                 results.Add(element);
             } else {
 				results = srch.findByKeyword( searchWord );
@@ -53,7 +52,7 @@ namespace BehaviorDevelop
 			
 			listView1.Items.Clear();
 			
-			foreach( ElementVO elem in results ) {
+			foreach(ElementSearchItem elem in results ) {
 				ListViewItem item = new ListViewItem(getStringArrayFromVO(elem));
 	            item.Tag = elem;
 	            listView1.Items.Add(item);
@@ -61,23 +60,23 @@ namespace BehaviorDevelop
 			
 		}
 		
-		private string[] getStringArrayFromVO(ElementVO vo) {
+		private string[] getStringArrayFromVO(ElementSearchItem vo) {
             string projectName= "";
-            if (vo.elementPath != null && vo.elementPath.Contains("/"))
+            if (vo.elemPath != null && vo.elemPath.Contains("/"))
             {
-                string[] ary = vo.elementPath.Split('/');
+                string[] ary = vo.elemPath.Split('/');
                 projectName = ary[1];
             }
 
-			string[] retAry = new String[] { vo.name, vo.alias, vo.eaType, vo.stereoType,
-				vo.elementPath, projectName };
+			string[] retAry = new String[] { vo.elemName, vo.elemAlias, vo.elemType, vo.elemStereotype,
+				vo.elemPath, projectName };
 			return retAry;
 		}
 		
 		
 		void ListView1MouseDoubleClick(object sender, MouseEventArgs e)
 		{
-			ElementSearchVO vo = (ElementSearchVO)(listView1.SelectedItems[0].Tag);
+            ElementSearchItem vo = (ElementSearchItem)(listView1.SelectedItems[0].Tag);
 			MainForm parentForm = (MainForm)(this.Owner);
 			ArtifactVO atfvo = parentForm.getArtifactByGuid(vo.artifactGuid);
 			

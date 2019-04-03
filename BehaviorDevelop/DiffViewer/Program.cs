@@ -10,8 +10,6 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-using BehaviorDevelop.vo;
-using BehaviorDevelop.util;
 using BDFileReader.util;
 using BDFileReader.vo;
 
