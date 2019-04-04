@@ -115,21 +115,17 @@ namespace ElementEditor
 				
 				switch( a.changed ) {
 					case 'U':
-                        //leftAttr = reader.readAttributeDiffDetail(a.guid, "L");
-                        //rightAttr = reader.readAttributeDiffDetail(a.guid, "R");
                         leftAttr = a.srcAttribute;
                         rightAttr = a.destAttribute;
                         getDisagreedAttributeDesc( leftAttr, rightAttr, ref leftText, ref rightText ) ;
 						break;
 
 					case 'C':
-						//rightAttr = reader.readAttributeDiffDetail(a.guid, "R");
                         rightAttr = a;
 						getMonoAttributeDesc( rightAttr, ref rightText ) ;
 						break;
 
 					case 'D':
-						//leftAttr = reader.readAttributeDiffDetail(a.guid, "L");
                         leftAttr = a;
                         getMonoAttributeDesc( leftAttr, ref leftText ) ;
 						break;
@@ -149,13 +145,11 @@ namespace ElementEditor
 				if ( a.changed == 'D' || a.changed == 'U' ) {
 					txtL.Tag = leftAttr;
 					txtL.ContextMenuStrip = contextMenuStrip1;
-//					txtL.Click += new System.EventHandler(this.AttributeTextClick);
 				}
 
 				if ( a.changed == 'C' || a.changed == 'U' ) {
 					txtR.Tag = rightAttr;
 					txtR.ContextMenuStrip = contextMenuStrip1;
-//					txtR.Click += new System.EventHandler(this.AttributeTextClick);
 				}
 				
 				tableLayoutPanel1.Controls.Add(txtL, 0, rowIndex);
@@ -183,20 +177,16 @@ namespace ElementEditor
                         leftMth = m.srcMethod;
                         rightMth = m.destMethod;
 
-                        //leftMth = reader.readMethodDiffDetail(m.guid, "L");
-						//rightMth = reader.readMethodDiffDetail(m.guid, "R");
 						getDisagreedMethodDesc( leftMth, rightMth, ref leftText, ref rightText ) ;
 						break;
 
 					case 'C':
                         rightMth = m;
-						//rightMth = reader.readMethodDiffDetail(m.guid, "R");
 						getMonoMethodDesc( rightMth, ref rightText ) ;
 						break;
 
 					case 'D':
                         leftMth = m;
-                        //leftMth = reader.readMethodDiffDetail(m.guid, "L");
 						getMonoMethodDesc( leftMth, ref leftText ) ;
 						break;
 
@@ -214,18 +204,12 @@ namespace ElementEditor
 				if ( m.changed == 'D' || m.changed == 'U' ) {
 					txtL.Tag = leftMth;
 					txtL.ContextMenuStrip = contextMenuStrip1;
-//					txtL.Click += new System.EventHandler(this.MethodTextClick);
 				}
 
 				if ( m.changed == 'C' || m.changed == 'U' ) {
 					txtR.Tag = rightMth;
 					txtR.ContextMenuStrip = contextMenuStrip1;
-//					txtR.Click += new System.EventHandler(this.MethodTextClick);
 				}
-				
-//				txtR.Tag = m;
-//				txtR.ContextMenuStrip = contextMenuStrip1;
-//				txtR.Click += new System.EventHandler(this.MethodTextClick);
 				
 				tableLayoutPanel1.Controls.Add(txtL, 0, rowIndex);
 				tableLayoutPanel1.Controls.Add(txtR, 1, rowIndex);
