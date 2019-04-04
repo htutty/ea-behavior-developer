@@ -71,6 +71,7 @@
     <Compile Include="vo\DiagramVO.cs" />
     <Compile Include="vo\ElementReferenceVO.cs" />
     <Compile Include="vo\ElementSearchVO.cs" />
+    <Compile Include="vo\ElementPropertyVO.cs" />
     <Compile Include="vo\ElementVO.cs" />
     <Compile Include="vo\MethodTagVO.cs" />
     <Compile Include="vo\MethodVO.cs" />

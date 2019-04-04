@@ -512,7 +512,7 @@ namespace ProjectDiffMaker
 			prjsw.WriteLine( "<project>" );
 			prjsw.WriteLine(@" <projectName>merged</projectName>
   <artifactsFile>ChangedArtifacts.xml</artifactsFile>
-  <artifactPath>artifacts</artifactPath>
+  <artifactsPath>artifacts</artifactsPath>
   <allConnector>AllConnectors.xml</allConnector>
   <dbName>merged.db</dbName>" );
 
@@ -965,9 +965,12 @@ namespace ProjectDiffMaker
 			
 			sw.WriteLine( indent(depth) + "  <visibility>" + mth.visibility + "</visibility>"  );
 			sw.WriteLine( indent(depth) + "  <returnType>" + escapeXML(mth.returnType) + "</returnType>"  );
-			
-			// 1.2.3.1.1 メソッドパラメータの出力
-			outputMethodParams( mth, depth, sw );
+
+            // 1.2.3.1.2 メソッドのタグ付き値出力
+            // Call outputMethodTags( mth, resp );
+
+            // 1.2.3.1.1 メソッドパラメータの出力
+            outputMethodParams( mth, depth, sw );
 			
 			if (mth.notes != null) {
 				sw.WriteLine( indent(depth) + "  <notes>" + escapeXML( mth.notes ) + "</notes>" );
@@ -977,9 +980,9 @@ namespace ProjectDiffMaker
 				sw.WriteLine( indent(depth) + "  <behavior>" + escapeXML( mth.behavior ) + "</behavior>" );
 			}
 
-            // 1.2.3.1.2 メソッドのタグ付き値出力
-            // Call outputMethodTags( mth, resp );
 
+
+            //
             if (mth.changed == 'U' && mth.srcMethod != null && mth.destMethod != null)
             {
                 sw.WriteLine(indent(depth + 1) + "<srcMethod>");

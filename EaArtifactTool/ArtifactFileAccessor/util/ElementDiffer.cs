@@ -48,26 +48,21 @@ namespace ArtifactFileAccessor.util
 		/// <param name="rightElem">右の要素</param>
 		/// <returns></returns>
 		public ElementVO getDisagreedElement(ElementVO leftElm, ElementVO rightElm) {
+            // 出力する要素のインスタンスは一旦左側要素のクローンとする
+			ElementVO outElm = leftElm.Clone();
+            outElm.changed = ' ';
+            
+            // 要素自体が保持するプロパティの比較
+            ElementPropertyVO lProp = new ElementPropertyVO(leftElm);
+            ElementPropertyVO rProp = new ElementPropertyVO(rightElm);
 
-			// 要素自体が保持するプロパティの比較
-			ElementVO outElm;
-			if( !leftElm.name.Equals(rightElm.name) ) {
-				outElm = rightElm.Clone();
-				outElm.changed = 'U';
-			} else {
-				outElm = leftElm.Clone();
-				outElm.changed = ' ';
-			}
-			
-			if( !skipElementTPosFlg ) {
-				if( leftElm.treePos != rightElm.treePos ) {
-					outElm = rightElm.Clone();
-					outElm.changed = 'U';
-				} else {
-					outElm = leftElm.Clone();
-					outElm.changed = ' ';
-				}
-			}
+            if( lProp.getComparableString() != rProp.getComparableString())
+            {
+                outElm.changed = 'U';
+                outElm.propertyChanged = 'U';
+                outElm.srcElementProperty = lProp;
+                outElm.destElementProperty = rProp;
+            }
 
             // 要素が保持する属性リストの比較
             Int16 lCnt, rCnt;

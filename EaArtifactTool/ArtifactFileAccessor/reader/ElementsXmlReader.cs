@@ -92,7 +92,11 @@ namespace ArtifactFileAccessor.reader
 					case "changed":
 						elem.changed = attr.Value[0];
 						break;
-				}
+
+                    case "propChanged":
+                        elem.propertyChanged = attr.Value[0];
+                        break;
+                }
 			}
 
 			readElementContents(elementNode, sortByPosFlg, ref elem);

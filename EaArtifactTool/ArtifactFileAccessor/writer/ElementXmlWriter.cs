@@ -14,8 +14,19 @@ namespace ArtifactFileAccessor.writer
 		public ElementXmlWriter()
 		{
 		}
-		
-		public static bool outputElementXmlFile(ElementVO elem) {
+
+        /// <summary>
+        /// パラメータの要素を、要素単体のXMLファイルに出力する。
+        /// 要素のGUID から "{}" を除いた文字列をファイル名とし、
+        /// プロジェクトパスの要素ファイル配置ディレクトリ:elements配下に出力する。
+        /// 
+        /// ただし要素数単位となるとファイル数が大量となり、全てをelements直下に出すと
+        /// ファイルアクセス時の速度低下が予測されるので GUIDの１文字目、２文字目で
+        /// それぞれディレクトリを作成し、出力先を分散させる。
+        /// </summary>
+        /// <param name="elem">ファイル出力したい要素</param>
+        /// <returns>ファイル出力が成功したらtrue</returns>
+        public static bool outputElementXmlFile(ElementVO elem) {
 			string outputDir = ProjectSetting.getVO().projectPath;
 			bool retFlg = false;
 			StreamWriter swe = null;
@@ -40,93 +51,193 @@ namespace ArtifactFileAccessor.writer
 			return retFlg;
 		}
 		
+
+        /// <summary>
+        /// 要素ディレクトリの存在チェックとディレクトリ作成
+        /// </summary>
+        /// <param name="edir">目的の要素ディレクトリ</param>
 		private static void checkAndMakeElementDir(string edir) {
 			if (!Directory.Exists(edir)) {
 				Directory.CreateDirectory(edir);
 			}
 		}
-		
-		public static void writeElementXml(ElementVO elemvo, int depth, StreamWriter sw) {
-			sw.Write(indent(depth) + "<element ");
-			if( elemvo.changed != ' ' ) {
-				sw.Write("changed=\"" + elemvo.changed + "\" ");
-			}
-			sw.Write("guid=\"" + escapeXML(elemvo.guid) + "\" ");
-			sw.Write("tpos=\"" + elemvo.treePos + "\" ");
-			sw.Write("type=\"" + elemvo.eaType + "\" ");
-			sw.Write("name=\"" + escapeXML(elemvo.name) + "\" ");
-			sw.Write("alias=\"" + escapeXML(elemvo.alias) + "\" ");
-            sw.Write("elementId=\"" + elemvo.elementId + "\" ");
-            sw.Write("parentId=\"" + elemvo.parentID + "\"");
 
-            if ( elemvo.stereoType != null ) {
-				sw.Write( " stereotype=\"" + elemvo.stereoType + "\"" );
-			}
-			sw.WriteLine(">");
 
-			ElementReferenceVO elemref = elemvo.elementReferenceVO;
-			if( elemref != null ) {
-				sw.Write( indent(depth+1) +"<ref " );
-				sw.Write( "gentype=\"" + escapeXML(elemref.gentype) + "\" " );
-				sw.Write( "fqcn=\"" + escapeXML(elemref.fqcn) + "\" " );
-				sw.Write( "genfile=\"" + escapeXML(elemref.genfile) + "\"" );
-				sw.WriteLine( "/>" );
-			}
-	
-			if (elemvo.notes != null) {
-				sw.WriteLine(indent(depth+1) +"<notes>" + escapeXML(elemvo.notes) + "</notes>" );
-			}
+        #region 要素の出力処理
+        /// <summary>
+        /// パラメータのStreamに向けて要素配下のXML文書を出力。
+        /// 
+        /// ##タグの構成
+        /// Element
+        ///   +- TaggedValue
+        ///   +- Attribute
+        ///      +- AttributeTag
+        ///   +- Method
+        ///      +- MethodTag
+        ///      +- Parameter
+        ///         +- ParameterTag
+        /// </summary>
+        /// <param name="elemvo">要素VO</param>
+        /// <param name="depth">現在のインデントの深さ</param>
+        /// <param name="sw">出力用に開かれたStreamWriter</param>
+        public static void writeElementXml(ElementVO elemvo, int depth, StreamWriter sw) {
 
-			// 1.2.1 クラスのタグ付き値出力
-			if (elemvo.taggedValues.Count > 0) {
+            //　elementの保有プロパティ出力
+            outputElementPropertyXml(elemvo, depth, sw);
+
+            // クラスのタグ付き値出力
+            if (elemvo.taggedValues.Count > 0) {
 				outputClassTags(elemvo, depth+1, sw);
 			}
 	
-			// 1.2.2 クラスの属性出力
+			// クラスの属性出力
 			if (elemvo.attributes.Count > 0) {
 				outputClassAttributes(elemvo, depth+1, sw);
 			}
 	
-			// 1.2.3 クラスの操作（メソッド）出力
+			// クラスの操作（メソッド）出力
 			if (elemvo.methods.Count > 0) {
 				outputClassMethods(elemvo, depth+1, sw);
 			}
 	
 			// elementの閉じタグ
-			if( depth == 0 ) {
-				sw.Write("</element>");
-			} else {
-				sw.WriteLine(indent(depth) + "</element>");
-			}
-		}
-	
+			sw.WriteLine(indent(depth) + "</element>");
 
-		// 1.2.1 クラスのタグ付き値を出力
-		private static void outputClassTags( ElementVO currentElement, int depth, StreamWriter sw ) {
-	
-			if ( currentElement.taggedValues.Count <= 0 ) {
-				return ;
-			}
-	
-			sw.WriteLine( indent(depth) + "<taggedValues>" );
-	
-			// 　取得できたタグ付き値の情報をファイルに展開する
-			foreach( TaggedValueVO tagv in currentElement.taggedValues ) {
-				if ("<memo>".Equals(tagv.tagValue)) {
-					if (tagv.notes != null) {
-						sw.WriteLine( indent(depth) + "  <tv guid=\"" + escapeXML(tagv.guid) + "\" name=\"" + escapeXML(tagv.name) + "\" value=\"" + escapeXML(tagv.tagValue) + "\">" + escapeXML(tagv.notes) + "</tv>" );
-					}
-				} else {
-					sw.WriteLine( indent(depth) + "  <tv guid=\"" + escapeXML(tagv.guid) + "\" name=\"" + escapeXML(tagv.name) + "\" value=\"" + escapeXML(tagv.tagValue) + "\"/>" );
-				}
-			}
-	
-			sw.WriteLine( indent(depth) + "</taggedValues>" );
 		}
 
+        /// <summary>
+        /// elementタグの出力処理
+        /// </summary>
+        /// <param name="elemvo">要素VO</param>
+        /// <param name="depth">深さ</param>
+        /// <param name="sw">出力用に開かれたStreamWriter</param>
+        private static void outputElementPropertyXml(ElementVO elemvo, int depth, StreamWriter sw)
+        {
+            sw.Write(indent(depth) + "<element ");
+            if (elemvo.changed != ' ')
+            {
+                sw.Write("changed=\"" + elemvo.changed + "\" ");
+                if(elemvo.propertyChanged != ' ')
+                {
+                    sw.Write("propChanged=\"" + elemvo.propertyChanged + "\" "); 
+                }
+            }
+            sw.Write("guid=\"" + escapeXML(elemvo.guid) + "\" ");
+            sw.Write("tpos=\"" + elemvo.treePos + "\" ");
+            sw.Write("type=\"" + elemvo.eaType + "\" ");
+            sw.Write("name=\"" + escapeXML(elemvo.name) + "\" ");
+            sw.Write("alias=\"" + escapeXML(elemvo.alias) + "\" ");
+            sw.Write("elementId=\"" + elemvo.elementId + "\" ");
+            sw.Write("parentId=\"" + elemvo.parentID + "\"");
 
-		// 1.2.2 クラスの属性を出力
-		private static void outputClassAttributes( ElementVO currentElement, int depth, StreamWriter sw ) {
+            if (elemvo.stereoType != null)
+            {
+                sw.Write(" stereotype=\"" + elemvo.stereoType + "\"");
+            }
+            sw.WriteLine(">");
+
+            ElementReferenceVO elemref = elemvo.elementReferenceVO;
+            if (elemref != null)
+            {
+                sw.Write(indent(depth + 1) + "<ref ");
+                sw.Write("gentype=\"" + escapeXML(elemref.gentype) + "\" ");
+                sw.Write("fqcn=\"" + escapeXML(elemref.fqcn) + "\" ");
+                sw.Write("genfile=\"" + escapeXML(elemref.genfile) + "\"");
+                sw.WriteLine("/>");
+            }
+
+            // ノートが入っていたら notes タグを出力
+            if (elemvo.notes != null)
+            {
+                sw.WriteLine(indent(depth + 1) + "<notes>" + escapeXML(elemvo.notes) + "</notes>");
+            }
+
+            if( elemvo.propertyChanged == 'U' && elemvo.srcElementProperty != null && elemvo.destElementProperty != null)
+            {
+                depth++;
+
+                // srcElementProperty を出力
+                sw.WriteLine(indent(depth) + "<srcElementProperty>");
+                outputElementDiffedProperty(elemvo.srcElementProperty, depth+1, sw);
+                sw.WriteLine(indent(depth) + "</srcElementProperty>");
+
+                // destElementProperty を出力
+                sw.WriteLine(indent(depth) + "<destElementProperty>");
+                outputElementDiffedProperty(elemvo.destElementProperty, depth + 1, sw);
+                sw.WriteLine(indent(depth) + "</destElementProperty>");
+            }
+
+
+        }
+
+
+
+        private static void outputElementDiffedProperty(ElementPropertyVO elemPropvo, int depth, StreamWriter sw)
+        {
+            sw.Write(indent(depth) + "<elementProperty ");
+            sw.Write("tpos=\"" + elemPropvo.treePos + "\" ");
+            sw.Write("type=\"" + elemPropvo.eaType + "\" ");
+            sw.Write("name=\"" + escapeXML(elemPropvo.name) + "\" ");
+            sw.Write("alias=\"" + escapeXML(elemPropvo.alias) + "\" ");
+
+            if (elemPropvo.stereoType != null)
+            {
+                sw.Write(" stereotype=\"" + elemPropvo.stereoType + "\"");
+            }
+            sw.WriteLine(">");
+
+            // ノートが入っていたら notes タグを出力
+            if (elemPropvo.notes != null)
+            {
+                sw.WriteLine(indent(depth + 1) + "<notes>" + escapeXML(elemPropvo.notes) + "</notes>");
+            }
+
+			sw.WriteLine( indent(depth) + "</elementProperty>");
+		}
+
+
+        // 1.2.1 クラスのタグ付き値を出力
+        private static void outputClassTags(ElementVO currentElement, int depth, StreamWriter sw)
+        {
+
+            if (currentElement.taggedValues.Count <= 0)
+            {
+                return;
+            }
+
+            sw.WriteLine(indent(depth) + "<taggedValues>");
+
+            // 　取得できたタグ付き値の情報をファイルに展開する
+            foreach (TaggedValueVO tagv in currentElement.taggedValues)
+            {
+                if ("<memo>".Equals(tagv.tagValue))
+                {
+                    if (tagv.notes != null)
+                    {
+                        sw.WriteLine(indent(depth) + "  <tv guid=\"" + escapeXML(tagv.guid) + "\" name=\"" + escapeXML(tagv.name) + "\" value=\"" + escapeXML(tagv.tagValue) + "\">" + escapeXML(tagv.notes) + "</tv>");
+                    }
+                }
+                else
+                {
+                    sw.WriteLine(indent(depth) + "  <tv guid=\"" + escapeXML(tagv.guid) + "\" name=\"" + escapeXML(tagv.name) + "\" value=\"" + escapeXML(tagv.tagValue) + "\"/>");
+                }
+            }
+
+            sw.WriteLine(indent(depth) + "</taggedValues>");
+        }
+
+        #endregion
+
+
+        #region 属性の出力処理
+        /// <summary>
+        /// クラスの属性を出力。
+        /// パラメータのStreamに向けてXML文書を出力
+        /// </summary>
+        /// <param name="currentElement">要素VO</param>
+        /// <param name="depth">現在のインデントの深さ</param>
+        /// <param name="sw">出力用に開かれたStreamWriter</param>
+        private static void outputClassAttributes( ElementVO currentElement, int depth, StreamWriter sw ) {
 	
 			if ( currentElement.attributes.Count <= 0 ) {
 				return;
@@ -139,10 +250,15 @@ namespace ArtifactFileAccessor.writer
 	
 		}
 
-		
-		
-		
-		private static void outputAttribute(AttributeVO att, int depth, StreamWriter sw )
+
+        /// <summary>
+        /// 属性を１件出力。
+        /// パラメータのStreamに向けてXML文書を出力
+        /// </summary>
+        /// <param name="att">属性VO</param>
+        /// <param name="depth">現在のインデントの深さ</param>
+        /// <param name="sw">出力用に開かれたStreamWriter</param>
+        private static void outputAttribute(AttributeVO att, int depth, StreamWriter sw )
         {
 			sw.Write( indent(depth) + "<attribute " );
 			if( att.changed != ' ' ) {
@@ -185,13 +301,33 @@ namespace ArtifactFileAccessor.writer
 
             // 属性のタグ付き値の出力
             outputAttributeTags( att, depth+1, sw );
-				
-			sw.WriteLine( indent(depth) + "</attribute>" );
+
+            // 属性の変更フラグが 'U' かつ 変更元・変更先属性がそれぞれセットされている場合
+            if (att.changed == 'U' && att.srcAttribute != null && att.destAttribute != null)
+            {
+                // srcAttributeタグを出力
+                sw.WriteLine(indent(depth + 1) + "<srcAttribute>");
+                outputAttribute(att.srcAttribute, depth + 2, sw);
+                sw.WriteLine(indent(depth + 1) + "</srcAttribute>");
+
+                // destAttributeタグを出力
+                sw.WriteLine(indent(depth + 1) + "<destAttribute>");
+                outputAttribute(att.destAttribute, depth + 2, sw);
+                sw.WriteLine(indent(depth + 1) + "</destAttribute>");
+            }
+
+            sw.WriteLine( indent(depth) + "</attribute>" );
 		}
-		
-		
-		// 1.2.1 属性のタグ付き値を出力
-		private static void outputAttributeTags( AttributeVO attr, int depth, StreamWriter sw ) {
+
+
+        /// <summary>
+        /// 属性のタグ付き値を１件出力。
+        /// パラメータのStreamに向けてXML文書を出力
+        /// </summary>
+        /// <param name="att">属性VO</param>
+        /// <param name="depth">現在のインデントの深さ</param>
+        /// <param name="sw">出力用に開かれたStreamWriter</param>
+        private static void outputAttributeTags( AttributeVO attr, int depth, StreamWriter sw ) {
 	
 			if (attr.taggedValues == null || attr.taggedValues.Count <= 0 ) {
 				return ;
@@ -212,11 +348,17 @@ namespace ArtifactFileAccessor.writer
 	
 			sw.WriteLine( indent(depth) + "</taggedValues>" );
 		}
-		
-		
+#endregion
 
-		// 1.2.3 クラスの操作を出力
-		private static void outputClassMethods(ElementVO currentElement, int depth, StreamWriter sw) {
+        #region メソッドの出力処理
+        /// <summary>
+        /// クラスの操作を出力。
+        /// パラメータのStreamに向けてXML文書を出力
+        /// </summary>
+        /// <param name="currentElement">要素VO</param>
+        /// <param name="depth">現在のインデントの深さ</param>
+        /// <param name="sw">出力用に開かれたStreamWriter</param>
+        private static void outputClassMethods(ElementVO currentElement, int depth, StreamWriter sw) {
 	
 			if(currentElement.methods.Count <= 0 ) {
 				return ;
@@ -228,8 +370,15 @@ namespace ArtifactFileAccessor.writer
 			}
 		}
 
-		
-		private static void outputMethod(MethodVO mth, int depth, StreamWriter sw)
+
+        /// <summary>
+        /// 操作を１件出力。
+        /// パラメータのStreamに向けてXML文書を出力
+        /// </summary>
+        /// <param name="mth">操作VO</param>
+        /// <param name="depth">現在のインデントの深さ</param>
+        /// <param name="sw">出力用に開かれたStreamWriter</param>
+        private static void outputMethod(MethodVO mth, int depth, StreamWriter sw)
         {
 			sw.Write( indent(depth) + "<method ");
 
@@ -276,15 +425,70 @@ namespace ArtifactFileAccessor.writer
 			if (mth.behavior != null) {
 				sw.WriteLine(indent(depth) + "  <behavior>" + escapeXML( mth.behavior ) + "</behavior>");
 			}
-	
-	
-			sw.WriteLine(indent(depth) + "</method>");
+
+            // 操作の変更フラグが 'U' かつ 変更元・変更先操作がそれぞれセットされている場合
+            if (mth.changed == 'U' && mth.srcMethod != null && mth.destMethod != null)
+            {
+                // srcMethodタグを出力
+                sw.WriteLine(indent(depth + 1) + "<srcMethod>");
+                outputMethod(mth.srcMethod, depth + 2, sw);
+                sw.WriteLine(indent(depth + 1) + "</srcMethod>");
+
+                // destMethodタグを出力
+                sw.WriteLine(indent(depth + 1) + "<destMethod>");
+                outputMethod(mth.destMethod, depth + 2, sw);
+                sw.WriteLine(indent(depth + 1) + "</destMethod>");
+            }
+
+            sw.WriteLine(indent(depth) + "</method>");
 		}
 
 
-		
-		//  1.2.3.1.1 メソッドのパラメータ出力
-		private static void outputMethodParams(MethodVO mth, int depth, StreamWriter sw) {
+        /// <summary>
+        /// 操作のタグ付き値を出力。
+        /// パラメータのStreamに向けてXML文書を出力
+        /// </summary>
+        /// <param name="mth">操作VO</param>
+        /// <param name="depth">現在のインデントの深さ</param>
+        /// <param name="sw">出力用に開かれたStreamWriter</param>
+        private static void outputMethodTags(MethodVO mth, int depth, StreamWriter sw)
+        {
+
+            if (mth.taggedValues == null || mth.taggedValues.Count <= 0)
+            {
+                return;
+            }
+
+            sw.WriteLine(indent(depth) + "<taggedValues>");
+
+            // 　取得できたタグ付き値の情報をファイルに展開する
+            foreach (TaggedValueVO tagv in mth.taggedValues)
+            {
+                if ("<memo>".Equals(tagv.tagValue))
+                {
+                    if (tagv.notes != null)
+                    {
+                        sw.WriteLine(indent(depth) + "  <tv guid=\"" + escapeXML(tagv.guid) + "\" name=\"" + escapeXML(tagv.name) + "\" value=\"" + escapeXML(tagv.tagValue) + "\">" + escapeXML(tagv.notes) + "</tv>");
+                    }
+                }
+                else
+                {
+                    sw.WriteLine(indent(depth) + "  <tv guid=\"" + escapeXML(tagv.guid) + "\" name=\"" + escapeXML(tagv.name) + "\" value=\"" + escapeXML(tagv.tagValue) + "\"/>");
+                }
+            }
+
+            sw.WriteLine(indent(depth) + "</taggedValues>");
+        }
+
+
+        /// <summary>
+        /// 操作のパラメータを出力。
+        /// パラメータのStreamに向けてXML文書を出力
+        /// </summary>
+        /// <param name="mth">操作VO</param>
+        /// <param name="depth">現在のインデントの深さ</param>
+        /// <param name="sw">出力用に開かれたStreamWriter</param>
+        private static void outputMethodParams(MethodVO mth, int depth, StreamWriter sw) {
 			if (mth.parameters == null || mth.parameters.Count <= 0) {
 				return ;
 			}
@@ -325,31 +529,13 @@ namespace ArtifactFileAccessor.writer
         }
 
 
-        // メソッドのタグ付き値を出力
-        private static void outputMethodTags( MethodVO mth, int depth, StreamWriter sw ) {
-	
-			if (mth.taggedValues == null || mth.taggedValues.Count <= 0) {
-				return ;
-			}
-	
-			sw.WriteLine( indent(depth) + "<taggedValues>" );
-	
-			// 　取得できたタグ付き値の情報をファイルに展開する
-			foreach( TaggedValueVO tagv in mth.taggedValues ) {
-				if ("<memo>".Equals(tagv.tagValue)) {
-					if (tagv.notes != null) {
-						sw.WriteLine( indent(depth) + "  <tv guid=\"" + escapeXML(tagv.guid) + "\" name=\"" + escapeXML(tagv.name) + "\" value=\"" + escapeXML(tagv.tagValue) + "\">" + escapeXML(tagv.notes) + "</tv>" );
-					}
-				} else {
-					sw.WriteLine( indent(depth) + "  <tv guid=\"" + escapeXML(tagv.guid) + "\" name=\"" + escapeXML(tagv.name) + "\" value=\"" + escapeXML(tagv.tagValue) + "\"/>" );
-				}
-			}
-	
-			sw.WriteLine( indent(depth) + "</taggedValues>" );
-		}
-
-
-        // パラメータのタグ付き値を出力
+        /// <summary>
+        /// パラメータのタグ付き値を出力。
+        /// パラメータのStreamに向けてXML文書を出力
+        /// </summary>
+        /// <param name="prm">パラメータVO</param>
+        /// <param name="depth">現在のインデントの深さ</param>
+        /// <param name="sw">出力用に開かれたStreamWriter</param>
         private static void outputParameterTags(ParameterVO prm, int depth, StreamWriter sw)
         {
 
@@ -371,6 +557,7 @@ namespace ArtifactFileAccessor.writer
 
             sw.WriteLine(indent(depth) + "</paramTags>");
         }
+        #endregion
 
 
         private static string indent(int depth) {

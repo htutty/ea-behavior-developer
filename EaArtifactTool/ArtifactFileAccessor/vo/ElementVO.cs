@@ -92,14 +92,18 @@ namespace ArtifactFileAccessor.vo
         /// <summary> 要素の参照ファイル（このクラスに対応する実装コード）の情報 </summary>
         public ElementReferenceVO elementReferenceVO { get; set; }
 
-		// <summary>要素のプロパティ</summary>
-    	// public IList<PropertyVO> properties { get; set; }
+        /// <summary> 要素のプロパティ（名前など）に差異があった場合の前後保持用 </summary>
+        public ElementPropertyVO srcElementProperty { get; set; }
+        public ElementPropertyVO destElementProperty { get; set; }
 
-		// <summary>優先度（要求要素などだけがもつ特殊プロパティ）</summary>
-    	// public string Priority { get; set; }
+        // <summary>要素のプロパティ</summary>
+        // public IList<PropertyVO> properties { get; set; }
 
-		// <summary>親要素ID（親の場合は0）</summary>
-    	public int parentID { get; set; }
+        // <summary>優先度（要求要素などだけがもつ特殊プロパティ）</summary>
+        // public string Priority { get; set; }
+
+        // <summary>親要素ID（親の場合は0）</summary>
+        public int parentID { get; set; }
 
 
     	/// <summary>
@@ -107,9 +111,16 @@ namespace ArtifactFileAccessor.vo
         /// </summary>
         public char changed { get; set; }
 
-   		public ElementVO()
+        /// <summary>
+        /// プロパティ変更有りフラグ : ' '=変更無し U=変更(Update)
+        /// </summary>
+        public char propertyChanged { get; set; }
+
+
+        public ElementVO()
 		{
    			changed = ' ';
+            propertyChanged = ' ';
 		}
 
 		public int CompareTo( ElementVO o ) {
