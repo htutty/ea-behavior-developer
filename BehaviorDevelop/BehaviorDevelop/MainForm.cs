@@ -18,11 +18,11 @@ namespace BehaviorDevelop
 	/// </summary>
 	public partial class MainForm : Form
 	{
-		TreeNode rootNode = new TreeNode("ルート");
+		TreeNode rootNode;
 		
 		private IList<ArtifactVO> artifacts;
 		
-		public string projectPath { get; set; }
+		// public string projectPath { get; set; }
 		private ElementForm elemForm { get; set; }
 		private SearchElementListForm searchElemListForm { get; set; }
 
@@ -37,7 +37,7 @@ namespace BehaviorDevelop
 			
 			this.artifacts = new List<ArtifactVO>();
 			
-			projectPath = null;
+			// projectPath = null;
 		}
 
 
@@ -51,11 +51,11 @@ namespace BehaviorDevelop
 			this.artifacts = new List<ArtifactVO>();
 
 			if( ProjectSetting.load(prjfile) ) {
-				projectPath = Path.GetDirectoryName(prjfile);
+				// projectPath = Path.GetDirectoryName(prjfile);
 				this.Text = prjfile;
 			} else {
 				MessageBox.Show("プロジェクトファイル読み込みに失敗しました。　再度正しいファイルを選択して下さい。");
-				projectPath = null;
+				// projectPath = null;
 			}
 			
 		}
@@ -69,14 +69,16 @@ namespace BehaviorDevelop
 
 		
 		private void init() {
+
 			this.artifacts.Clear();
-			this.treeView1.Nodes.Clear();
+            this.rootNode = new TreeNode("ルート");
+            this.treeView1.Nodes.Clear();
 			this.treeNodeMap.Clear();
 			if( this.tabControl1.TabPages.Count > 1 ) {
 				this.tabControl1.TabPages.Clear();
 			}
 				
-			if ( this.projectPath != null) {
+			if (ProjectSetting.getVO() != null) {
 				initProject();
 				
 				// 使用するDBファイルの存在チェック
@@ -85,7 +87,7 @@ namespace BehaviorDevelop
 					SplashForm splashForm = new SplashForm();
 					
 					splashForm.Show();
-					splashForm.CloseOnLoadComplete(this.projectPath, ProjectSetting.getVO().dbName);
+					splashForm.CloseOnLoadComplete(ProjectSetting.getVO().projectPath, ProjectSetting.getVO().dbName);
 				}
 			}
 
@@ -95,7 +97,7 @@ namespace BehaviorDevelop
 		
 		private void initProject() {
 			string artifactsFileName = ProjectSetting.getVO().artifactsFile;
-            string artifactDir = this.projectPath + "\\" + ProjectSetting.getVO().artifactsPath;
+            string artifactDir = ProjectSetting.getVO().projectPath + "\\" + ProjectSetting.getVO().artifactsPath;
 
 			// artifactList.Items.Clear();
 			this.artifacts = ArtifactsXmlReader.readArtifactList(artifactDir, artifactsFileName);
@@ -196,7 +198,7 @@ namespace BehaviorDevelop
 				}
 			}
 
-            string artifactDir = this.projectPath + "\\" + ProjectSetting.getVO().artifactsPath;
+            string artifactDir = ProjectSetting.getVO().projectPath + "\\" + ProjectSetting.getVO().artifactsPath;
 
             ArtifactXmlReader atfReader = new ArtifactXmlReader(artifactDir, true);
 			// 成果物パッケージ別のXMLファイル読み込み
@@ -398,16 +400,15 @@ namespace BehaviorDevelop
 			    //OKボタンがクリックされたとき、選択されたファイル名を表示する
 			    Console.WriteLine(dialog.FileName);
 
-
 			    string prjfile = dialog.FileName;
 			    if (ProjectSetting.load(prjfile)) {
-				    this.projectPath = Path.GetDirectoryName(prjfile);
+                    // ProjectSetting.getVO().projectPath = Path.GetDirectoryName(prjfile);
 					this.Text = prjfile;
 
 					init();
 			    } else {
 					MessageBox.Show("プロジェクトファイル読み込みに失敗しました。　再度正しいファイルを選択して下さい。");
-					projectPath = null;
+					// projectPath = null;
 			    }
 			}
 			
@@ -566,11 +567,20 @@ namespace BehaviorDevelop
 
 		/// <summary>
 		/// タブの切り替え（SelectedIndexChanged）時のイベントハンドラ
+        /// タブは開いている成果物パッケージの中身を示しているため、タブを切り替えた時に
+        /// パッケージツリーの方もその成果物にフォーカスさせるために使用。
+        /// （タブをたくさん開いていると、パッケージツリー上のどこにある成果物なのかが分からなくなるため）
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
 		void TabControl1SelectedIndexChanged(object sender, EventArgs e)
 		{
+
+            if(tabControl1.SelectedIndex < 0)
+            {
+                return;
+            }
+
             string guid = (string)tabControl1.TabPages[tabControl1.SelectedIndex].Tag ;
             TreeNode tn = null;
             treeNodeMap.TryGetValue(guid, out tn);
@@ -595,7 +605,7 @@ namespace BehaviorDevelop
 				
 				// 標準に戻す
 				Cursor.Current = Cursors.Default;
-			}		
+			}
 		}
 
 

@@ -49,8 +49,12 @@ namespace ElementEditor
 			// TODO: Add constructor code after the InitializeComponent() call.
 			//
 		}
-		
-		public DiffElementForm(ElementVO element) {
+
+        /// <summary>
+        /// コンストラクタ(外部で比較した結果の要素ファイルがある時用)
+        /// </summary>
+        /// <param name="element"></param>
+        public DiffElementForm(ElementVO element) {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
@@ -67,8 +71,12 @@ namespace ElementEditor
 			setElementItems(myElement);
 		}
 
-		
-		public DiffElementForm(ElementVO lElem, ref ElementVO rElem) {
+        /// <summary>
+        /// コンストラクタ(ローカルファイルのorigとchangedの比較用)
+        /// </summary>
+        /// <param name="lElem">ローカルのorig要素ファイルの内容</param>
+        /// <param name="rElem">ローカルのchanged要素ファイルの内容</param>
+        public DiffElementForm(ElementVO lElem, ref ElementVO rElem) {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
@@ -89,135 +97,24 @@ namespace ElementEditor
 		}
 
 		
-		
+		/// <summary>
+        /// ProjectDiffMakerなどで作成された、マージ済みの要素を受け取ってSide-by-Side形式での差分表示を行う
+        /// </summary>
+        /// <param name="elem"></param>
 		private void setElementItems( ElementVO elem ) {
-			int rowIndex = 0;
-			string leftText, rightText ;
-			int longerLine;
-			AttributeVO leftAttr, rightAttr;
-			MethodVO leftMth, rightMth;
-			
-			ArtifactXmlReader reader = new ArtifactXmlReader(ProjectSetting.getVO().projectPath);
-			
-			tableLayoutPanel1.RowCount = elem.attributes.Count + elem.methods.Count;
-			
-			foreach( AttributeVO a in elem.attributes ) {
-				leftAttr = a;
-				rightAttr = a;
-				leftText = "";
-				rightText = "";
+            tableLayoutPanel1.RowCount = 1 + elem.attributes.Count + elem.methods.Count;
 
-				TextBox txtL = new TextBox();
-				txtL.BackColor = Color.LightCyan;
-				
-				TextBox txtR = new TextBox();
-				txtR.BackColor = Color.LightYellow;
-				
-				switch( a.changed ) {
-					case 'U':
-                        leftAttr = a.srcAttribute;
-                        rightAttr = a.destAttribute;
-                        getDisagreedAttributeDesc( leftAttr, rightAttr, ref leftText, ref rightText ) ;
-						break;
+            int rowIndex = 0;
 
-					case 'C':
-                        rightAttr = a;
-						getMonoAttributeDesc( rightAttr, ref rightText ) ;
-						break;
+            // 要素のプロパティの表示項目を設定
+            addItemElementProperty(elem, ref rowIndex);
 
-					case 'D':
-                        leftAttr = a;
-                        getMonoAttributeDesc( leftAttr, ref leftText ) ;
-						break;
+            // 属性の表示項目を設定
+            addItemAttributes(elem, ref rowIndex);
 
-					default:
-						break;
-				}
-
-				longerLine = getLongerLine(leftText, rightText);
-				
-				txtR.Text = rightText;
-				txtL.Text = leftText;
-				setTextBoxSize(txtL, leftText, longerLine);
-				setTextBoxSize(txtR, rightText, longerLine);
-
-
-				if ( a.changed == 'D' || a.changed == 'U' ) {
-					txtL.Tag = leftAttr;
-					txtL.ContextMenuStrip = contextMenuStrip1;
-				}
-
-				if ( a.changed == 'C' || a.changed == 'U' ) {
-					txtR.Tag = rightAttr;
-					txtR.ContextMenuStrip = contextMenuStrip1;
-				}
-				
-				tableLayoutPanel1.Controls.Add(txtL, 0, rowIndex);
-				tableLayoutPanel1.Controls.Add(txtR, 1, rowIndex);
-				
-				rowIndex++;
-			}
-
-			
-			foreach( MethodVO m in elem.methods ) {
-				leftMth = m;
-				rightMth = m;
-
-				leftText = "";
-				rightText = "";
-
-				TextBox txtL = new TextBox();
-				txtL.BackColor = Color.LightCyan;
-				
-				TextBox txtR = new TextBox();
-				txtR.BackColor = Color.LightYellow;
-				
-				switch( m.changed ) {
-					case 'U':
-                        leftMth = m.srcMethod;
-                        rightMth = m.destMethod;
-
-						getDisagreedMethodDesc( leftMth, rightMth, ref leftText, ref rightText ) ;
-						break;
-
-					case 'C':
-                        rightMth = m;
-						getMonoMethodDesc( rightMth, ref rightText ) ;
-						break;
-
-					case 'D':
-                        leftMth = m;
-						getMonoMethodDesc( leftMth, ref leftText ) ;
-						break;
-
-					default:
-						break;
-				}
-
-				longerLine = getLongerLine(leftText, rightText);
-				
-				txtL.Text = leftText;
-				txtR.Text = rightText;
-				setTextBoxSize(txtL, leftText, longerLine);
-				setTextBoxSize(txtR, rightText, longerLine);
-
-				if ( m.changed == 'D' || m.changed == 'U' ) {
-					txtL.Tag = leftMth;
-					txtL.ContextMenuStrip = contextMenuStrip1;
-				}
-
-				if ( m.changed == 'C' || m.changed == 'U' ) {
-					txtR.Tag = rightMth;
-					txtR.ContextMenuStrip = contextMenuStrip1;
-				}
-				
-				tableLayoutPanel1.Controls.Add(txtL, 0, rowIndex);
-				tableLayoutPanel1.Controls.Add(txtR, 1, rowIndex);
-
-				rowIndex++;
-			}
-			
-		}
+            // メソッドの表示項目を設定
+            addItemMethods(elem, ref rowIndex);
+        }
 
 		
 		/// <summary>
@@ -240,101 +137,173 @@ namespace ElementEditor
 			
 		}
 
-		
-		/// <summary>
-		/// 要素内の画面項目をセット（差分のあった項目のみ）
-		/// </summary>
-		/// <param name="lElem">左の要素</param>
-		/// <param name="rElem">右の要素</param>
-		private void setElementItems( ElementVO lElem, ElementVO rElem ) {
-			
-			// 引数の２つの要素を比較して差分の内容を表示
-			mergedElement = ElementDiffer.getMergedElement(lElem, rElem);
-			if ( mergedElement == null ) {
-				return ;
-			}
 
-			tableLayoutPanel1.RowCount = mergedElement.attributes.Count + mergedElement.methods.Count;
+        /// <summary>
+        /// 要素内の画面項目をセット（差分のあった項目のみ）
+        /// </summary>
+        /// <param name="lElem">左の要素</param>
+        /// <param name="rElem">右の要素</param>
+        private void setElementItems(ElementVO lElem, ElementVO rElem) {
 
-			int rowIndex = 0;
-			
-			// 属性の表示項目を設定
-			addItemAttributes(mergedElement, leftElement, rightElement, ref rowIndex);
+            // 引数の２つの要素を比較して差分の内容を表示
+            mergedElement = ElementDiffer.getMergedElement(lElem, rElem);
+            if (mergedElement == null) {
+                return;
+            }
 
-			// メソッドの表示項目を設定
-			addItemMethods(mergedElement, leftElement, rightElement, ref rowIndex);
-			
-		}
+            tableLayoutPanel1.RowCount = 1 + mergedElement.attributes.Count + mergedElement.methods.Count;
+
+            int rowIndex = 0;
+
+            // 要素プロパティの表示項目を設定
+            addItemElementProperty(mergedElement, ref rowIndex);
+
+            if (mergedElement.attributes != null)
+            {
+                // 属性の表示項目を設定
+                addItemAttributes(mergedElement, ref rowIndex);
+            }
+
+            if (mergedElement.methods != null)
+            {
+                // メソッドの表示項目を設定
+                addItemMethods(mergedElement, ref rowIndex);
+            }
+
+        }
 
 
-		/// <summary>
-		/// 属性の表示項目を追加する
-		/// </summary>
-		/// <param name="mergedElem"></param>
-		/// <param name="leftElem"></param>
-		/// <param name="rightElem"></param>
-		/// <param name="rowIndex"></param>
-		void addItemAttributes(ElementVO mergedElem, ElementVO leftElem, ElementVO rightElem, ref int rowIndex)
+        /// <summary>
+        /// 要素プロパティの表示項目を追加する
+        /// </summary>
+        /// <param name="mergedElem"></param>
+        /// <param name="leftElem"></param>
+        /// <param name="rightElem"></param>
+        /// <param name="rowIndex"></param>
+        void addItemElementProperty(ElementVO mergedElem, ref int rowIndex)
+        {
+            string leftText = "", rightText = "";
+
+            if( mergedElem.propertyChanged == 'U' )
+            {
+                // 要素プロパティから左右のテキストボックスに設定される内容を取得
+                getDisagreedElemPropertyDesc(mergedElem.srcElementProperty, mergedElem.destElementProperty, ref leftText, ref rightText);
+                int longerLine = getLongerLine(leftText, rightText);
+
+                // 左テキストボックスのプロパティセット
+                TextBox txtL = new TextBox();
+                txtL.BackColor = Color.LightCyan;
+                txtL.Text = leftText;
+                setTextBoxSize(txtL, leftText, longerLine);
+                txtL.Tag = mergedElem.srcElementProperty;
+
+                // 右テキストボックスのプロパティセット
+                TextBox txtR = new TextBox();
+                txtR.BackColor = Color.LightYellow;
+                txtR.Text = rightText;
+                txtR.Tag = mergedElem.destElementProperty;
+                setTextBoxSize(txtR, rightText, longerLine);
+
+                // 左右テキストボックスをレイアウトパネルに追加
+                tableLayoutPanel1.Controls.Add(txtL, 0, rowIndex);
+                tableLayoutPanel1.Controls.Add(txtR, 1, rowIndex);
+                rowIndex++;
+            }
+
+        }
+
+
+
+        /// <summary>
+        /// 属性の表示項目を追加する
+        /// </summary>
+        /// <param name="mergedElem"></param>
+        /// <param name="rowIndex"></param>
+        void addItemAttributes(ElementVO mergedElem, ref int rowIndex)
 		{
-			AttributeVO leftAttr, rightAttr;
-			string leftText, rightText ;
+            AttributeVO leftAttr, rightAttr;
+            string leftText, rightText;
 
-			// マージ済要素の属性（何か内容に差異のあった属性）分ループ
-			foreach (AttributeVO a in mergedElem.attributes) {
-				leftAttr = a;
-				rightAttr = a;
-				leftText = "";
-				rightText = "";
-				TextBox txtL = new TextBox();
-				txtL.BackColor = Color.LightCyan;
-				TextBox txtR = new TextBox();
-				txtR.BackColor = Color.LightYellow;
-				switch (a.changed) {
-					case 'U':
-						leftAttr = searchAttributeByGuid(leftElement.attributes, a.guid);
-						rightAttr = searchAttributeByGuid(rightElement.attributes, a.guid);
-						getDisagreedAttributeDesc(leftAttr, rightAttr, ref leftText, ref rightText);
-						break;
-					case 'C':
-						rightAttr = searchAttributeByGuid(rightElement.attributes, a.guid);
-						getMonoAttributeDesc(rightAttr, ref rightText);
-						break;
-					case 'D':
-						leftAttr = searchAttributeByGuid(leftElement.attributes, a.guid);
-						getMonoAttributeDesc(leftAttr, ref leftText);
-						break;
-					default:
-						break;
-				}
-				
-				int longerLine = getLongerLine(leftText, rightText);
-				txtR.Text = rightText;
-				txtL.Text = leftText;
-				setTextBoxSize(txtL, leftText, longerLine);
-				setTextBoxSize(txtR, rightText, longerLine);
-				
-				if (a.changed == 'D' || a.changed == 'U') {
-					txtL.Tag = leftAttr;
-					txtL.ContextMenuStrip = contextMenuStrip1;
-				}
-				if (a.changed == 'C' || a.changed == 'U') {
-					txtR.Tag = rightAttr;
-					txtR.ContextMenuStrip = contextMenuStrip1;
-				}
-				tableLayoutPanel1.Controls.Add(txtL, 0, rowIndex);
-				tableLayoutPanel1.Controls.Add(txtR, 1, rowIndex);
-				rowIndex++;
-			}
-		}
+            int longerLine;
 
-		/// <summary>
-		/// 操作の表示項目を追加する
-		/// </summary>
-		/// <param name="mergedElem"></param>
-		/// <param name="leftElem"></param>
-		/// <param name="rightElem"></param>
-		/// <param name="rowIndex"></param>
-		void addItemMethods(ElementVO mergedElem, ElementVO leftElem, ElementVO rightElem, ref int rowIndex)
+            // マージ済要素のメソッド（何か内容に差異のあったメソッド）分ループ
+            foreach (AttributeVO att in mergedElem.attributes)
+            {
+                leftAttr = att;
+                rightAttr = att;
+
+                ListBox listL = new ListBox();
+                listL.DrawMode = DrawMode.OwnerDrawFixed;
+                // EventHandlerの追加
+                listL.DrawItem += new DrawItemEventHandler(ListBox_DrawItem);
+
+                ListBox listR = new ListBox();
+                listR.DrawMode = DrawMode.OwnerDrawFixed;
+                // EventHandlerの追加
+                listR.DrawItem += new DrawItemEventHandler(ListBox_DrawItem);
+
+                // メソッドVOのchangedの値にしたがって左右のテキストの内容を設定する
+                leftText = "";
+                rightText = "";
+
+                switch (att.changed)
+                {
+                    case 'U':
+                        leftAttr = att.srcAttribute;
+                        rightAttr = att.destAttribute;
+                        getDisagreedAttributeDesc(leftAttr, rightAttr, ref leftText, ref rightText);
+
+                        leftDiffBuffer = new StringBuilder();
+                        rightDiffBuffer = new StringBuilder();
+                        var simpleDiff = new SimpleDiff<string>(leftText.Split('\n'), rightText.Split('\n'));
+                        simpleDiff.LineUpdate += new EventHandler<DiffEventArgs<string>>(ElementDiff_LineUpdate);
+                        simpleDiff.RunDiff();
+
+                        leftText = leftDiffBuffer.ToString();
+                        rightText = rightDiffBuffer.ToString();
+                        break;
+
+                    case 'C':
+                        getMonoAttributeDesc(rightAttr, ref rightText);
+                        break;
+                    case 'D':
+                        getMonoAttributeDesc(leftAttr, ref leftText);
+                        break;
+                    default:
+                        break;
+                }
+
+                longerLine = getLongerLine(leftText, rightText);
+
+                setListItems(listL, leftText);
+                setListItems(listR, rightText);
+                setListBoxSize(listL, leftText, longerLine);
+                setListBoxSize(listR, rightText, longerLine);
+
+                if (att.changed == 'D' || att.changed == 'U')
+                {
+                    listL.ContextMenuStrip = contextMenuStrip1;
+                }
+                if (att.changed == 'C' || att.changed == 'U')
+                {
+                    listR.ContextMenuStrip = contextMenuStrip1;
+                }
+
+                tableLayoutPanel1.Controls.Add(listL, 0, rowIndex);
+                tableLayoutPanel1.Controls.Add(listR, 1, rowIndex);
+                rowIndex++;
+            }
+
+        }
+
+        /// <summary>
+        /// 操作の表示項目を追加する
+        /// </summary>
+        /// <param name="mergedElem"></param>
+        /// <param name="leftElem"></param>
+        /// <param name="rightElem"></param>
+        /// <param name="rowIndex"></param>
+        void addItemMethods(ElementVO mergedElem, ref int rowIndex)
 		{
 			MethodVO leftMth, rightMth;
 			string leftText, rightText ;
@@ -346,11 +315,6 @@ namespace ElementEditor
 				leftMth = m;
 				rightMth = m;
 				
-//				TextBox txtL = new TextBox();
-//				txtL.BackColor = Color.LightCyan;
-//				TextBox txtR = new TextBox();
-//				txtR.BackColor = Color.LightYellow;
-
 				ListBox listL = new ListBox();
 				listL.DrawMode = DrawMode.OwnerDrawFixed;
 				// EventHandlerの追加
@@ -367,9 +331,6 @@ namespace ElementEditor
 
 				switch (m.changed) {
 					case 'U':
-                        //leftMth = searchMethodByGuid(leftElement.methods, m.guid);
-                        //rightMth = searchMethodByGuid(rightElement.methods, m.guid);
-
                         leftMth = m.srcMethod;
                         rightMth = m.destMethod;
 						getDisagreedMethodDesc(leftMth, rightMth, ref leftText, ref rightText);
@@ -382,17 +343,15 @@ namespace ElementEditor
 						
 						leftText = leftDiffBuffer.ToString();
 						rightText = rightDiffBuffer.ToString();
-//						leftDiffBuffer.Clear();
-//						rightDiffBuffer.Clear();
 						break;
 
 					case 'C':
-						rightMth = searchMethodByGuid(rightElement.methods, m.guid);
-						getMonoMethodDesc(rightMth, ref rightText);
+                        // rightMth = searchMethodByGuid(rightElement.methods, m.guid);
+                        getMonoMethodDesc(rightMth, ref rightText);
 						break;
 					case 'D':
-						leftMth = searchMethodByGuid(leftElement.methods, m.guid);
-						getMonoMethodDesc(leftMth, ref leftText);
+                        // leftMth = searchMethodByGuid(leftElement.methods, m.guid);
+                        getMonoMethodDesc(leftMth, ref leftText);
 						break;
 					default:
 						break;
@@ -405,22 +364,13 @@ namespace ElementEditor
 	            setListBoxSize(listL, leftText, longerLine);
 				setListBoxSize(listR, rightText, longerLine);
 
-//				txtL.Text = leftText;
-//				txtR.Text = rightText;
-
-//				int longerLine = getLongerLine(leftText, rightText);
-//				setTextBoxSize(txtL, leftText, longerLine);
-//				setTextBoxSize(txtR, rightText, longerLine);
-
 				if (m.changed == 'D' || m.changed == 'U') {
-					
-//	            	setListItems(listL, leftText);
 					listL.ContextMenuStrip = contextMenuStrip1;
 				}
 				if (m.changed == 'C' || m.changed == 'U') {
-//	            	setListItems(listR, rightText);
 					listR.ContextMenuStrip = contextMenuStrip1;
 				}
+
 				tableLayoutPanel1.Controls.Add(listL, 0, rowIndex);
 				tableLayoutPanel1.Controls.Add(listR, 1, rowIndex);
 				rowIndex++;
@@ -459,45 +409,86 @@ namespace ElementEditor
 			return new MethodVO();
 		}
 
-		
-		/// <summary>
-		/// 差異が検出された２つの属性の不一致な項目＝値をつなげた文字列を作成
-		/// </summary>
-		/// <param name="leftAttr">(in)左の属性VO</param>
-		/// <param name="rightAttr">(in)右の属性VO</param>
-		/// <param name="leftText">(out)左用の出力テキスト</param>
-		/// <param name="rightText">(out)右用の出力テキスト</param>
-		/// <returns></returns>
-		private void getDisagreedAttributeDesc(AttributeVO leftAttr, AttributeVO rightAttr, ref string leftText, ref string rightText) {
+        /// <summary>
+        /// 差異が検出された２つの属性の不一致な項目＝値をつなげた文字列を作成
+        /// </summary>
+        /// <param name="leftElemProp">(in)左の属性VO</param>
+        /// <param name="rightElemProp">(in)右の属性VO</param>
+        /// <param name="leftText">(out)左用の出力テキスト</param>
+        /// <param name="rightText">(out)右用の出力テキスト</param>
+        /// <returns></returns>
+        private void getDisagreedElemPropertyDesc(ElementPropertyVO leftElemProp, ElementPropertyVO rightElemProp, ref string leftText, ref string rightText)
+        {
+
+            System.Text.StringBuilder lsb = new System.Text.StringBuilder();
+            lsb.Append(leftElemProp.name + "[" + leftElemProp.alias + "]" + "\r\n");
+            lsb.Append(leftElemProp.getComparedString(rightElemProp));
+            leftText = lsb.ToString();
+
+            System.Text.StringBuilder rsb = new System.Text.StringBuilder();
+            rsb.Append(rightElemProp.name + "[" + rightElemProp.alias + "]" + "\r\n");
+            rsb.Append(rightElemProp.getComparedString(leftElemProp));
+            rightText = rsb.ToString();
+
+
+            //            if ( !compareNullable(leftAttr.stereoType, rightAttr.stereoType) ) {
+            //				lsb.Append("stereoType=" + leftAttr.stereoType + "\r\n");
+            //				rsb.Append("stereoType=" + rightAttr.stereoType + "\r\n");
+            //			}
+
+            ////			if( leftAtr.pos != rightAtr.pos ) {
+            ////				lsb.Append("pos=" + leftAtr.pos + "\n");
+            ////				rsb.Append("pos=" + rightAtr.pos + "\n");
+            ////			}
+
+            //			if( !compareNullable(leftAttr.notes, rightAttr.notes) ) {
+            //				lsb.Append("[notes]\r\n" + leftAttr.notes + "\r\n");
+            //				rsb.Append("[notes]\r\n" + rightAttr.notes + "\r\n");
+            //			}
+
+            return;
+        }
+
+
+        /// <summary>
+        /// 差異が検出された２つの属性の不一致な項目＝値をつなげた文字列を作成
+        /// </summary>
+        /// <param name="leftAttr">(in)左の属性VO</param>
+        /// <param name="rightAttr">(in)右の属性VO</param>
+        /// <param name="leftText">(out)左用の出力テキスト</param>
+        /// <param name="rightText">(out)右用の出力テキスト</param>
+        /// <returns></returns>
+        private void getDisagreedAttributeDesc(AttributeVO leftAttr, AttributeVO rightAttr, ref string leftText, ref string rightText) {
 			
 			System.Text.StringBuilder lsb = new System.Text.StringBuilder();
-			System.Text.StringBuilder rsb = new System.Text.StringBuilder();
-
 			lsb.Append(leftAttr.name + "[" + leftAttr.alias + "]" + "\r\n");
-			rsb.Append(rightAttr.name + "[" + rightAttr.alias + "]" + "\r\n");
-			
 			lsb.Append(leftAttr.guid + "\r\n");
-			rsb.Append(rightAttr.guid + "\r\n");
-			
-			if( !compareNullable(leftAttr.stereoType, rightAttr.stereoType) ) {
-				lsb.Append("stereoType=" + leftAttr.stereoType + "\r\n");
-				rsb.Append("stereoType=" + rightAttr.stereoType + "\r\n");
-			}
-			
-//			if( leftAtr.pos != rightAtr.pos ) {
-//				lsb.Append("pos=" + leftAtr.pos + "\n");
-//				rsb.Append("pos=" + rightAtr.pos + "\n");
-//			}
-			
-			if( !compareNullable(leftAttr.notes, rightAttr.notes) ) {
-				lsb.Append("[notes]\r\n" + leftAttr.notes + "\r\n");
-				rsb.Append("[notes]\r\n" + rightAttr.notes + "\r\n");
-			}
-			
-			leftText = lsb.ToString();
-			rightText = rsb.ToString();
+            lsb.Append(leftAttr.getComparedString(rightAttr));
+            leftText = lsb.ToString();
 
-			return;
+            System.Text.StringBuilder rsb = new System.Text.StringBuilder();
+            rsb.Append(rightAttr.name + "[" + rightAttr.alias + "]" + "\r\n");
+            rsb.Append(rightAttr.guid + "\r\n");
+            rsb.Append(rightAttr.getComparedString(leftAttr));
+            rightText = rsb.ToString();
+
+
+            //            if ( !compareNullable(leftAttr.stereoType, rightAttr.stereoType) ) {
+            //				lsb.Append("stereoType=" + leftAttr.stereoType + "\r\n");
+            //				rsb.Append("stereoType=" + rightAttr.stereoType + "\r\n");
+            //			}
+
+            ////			if( leftAtr.pos != rightAtr.pos ) {
+            ////				lsb.Append("pos=" + leftAtr.pos + "\n");
+            ////				rsb.Append("pos=" + rightAtr.pos + "\n");
+            ////			}
+
+            //			if( !compareNullable(leftAttr.notes, rightAttr.notes) ) {
+            //				lsb.Append("[notes]\r\n" + leftAttr.notes + "\r\n");
+            //				rsb.Append("[notes]\r\n" + rightAttr.notes + "\r\n");
+            //			}
+
+            return;
 		}
 
 		
