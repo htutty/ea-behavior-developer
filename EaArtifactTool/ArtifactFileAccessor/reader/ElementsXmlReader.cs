@@ -92,7 +92,6 @@ namespace ArtifactFileAccessor.reader
 					case "changed":
 						elem.changed = attr.Value[0];
 						break;
-
                     case "propChanged":
                         elem.propertyChanged = attr.Value[0];
                         break;
@@ -198,25 +197,36 @@ namespace ArtifactFileAccessor.reader
 
 			foreach (XmlNode eNode in elemNode.ChildNodes)
 			{
-				// ElementReferenceの読み込み
-				if ( "ref".Equals(eNode.Name) ) {
-					elemvo.elementReferenceVO = readElementReference(eNode);
-				}
+                switch(eNode.Name)
+                {
+                    case "srcElementProperty":
+                        // srcElementPropertyの読み込み
+                        elemvo.srcElementProperty = readElementProperty(eNode);
+                        break;
 
-				// attributesの読み込み
-				if ( "attribute".Equals(eNode.Name) ) {
-					retAttrList.Add(readAttribute(eNode));
-				}
+                    case "destElementProperty":
+                        // destElementPropertyの読み込み
+                        elemvo.destElementProperty = readElementProperty(eNode);
+                        break;
 
-				// methodsの読み込み
-				if ( "method".Equals(eNode.Name) ) {
-					retMethList.Add(readMethod(eNode));
-				}
+                    case "ref":
+                        // ElementReferenceの読み込み
+                        elemvo.elementReferenceVO = readElementReference(eNode);
+                        break;
 
-				// タグ付き値の読み込み
-				if ( "taggedValues".Equals(eNode.Name) ) {
-					retTagValList = readTaggedValues(eNode);
-				}
+                    case "attribute":
+                        // attributesの読み込み
+                        retAttrList.Add(readAttribute(eNode));
+                        break;
+
+                    case "method":
+                        // methodsの読み込み
+                        retMethList.Add(readMethod(eNode));
+                        break;
+                    case "taggedValues":
+                        retTagValList = readTaggedValues(eNode);
+                        break;
+                }
 
 				// クラス間接続情報の読み込み
 				//    this.connReader.readConnectorByGUID(convo, elemvo);
@@ -245,6 +255,52 @@ namespace ArtifactFileAccessor.reader
 			}
 
 		}
+
+
+
+        private static ElementPropertyVO readElementProperty(XmlNode elemPropNode)
+        {
+            int p;
+            ElementPropertyVO elemPropVo = null;
+            XmlNode propNode = elemPropNode.SelectSingleNode("elementProperty");
+
+            if (propNode != null)
+            {
+                elemPropVo = new ElementPropertyVO();
+
+                foreach (XmlAttribute attr in propNode.Attributes)
+                {
+                    switch (attr.Name)
+                    {
+                        case "tpos":
+                            if (!Int32.TryParse(attr.Value, out p))
+                            {
+                                p = 0;
+                            }
+                            elemPropVo.treePos = p;
+                            break;
+
+                        case "type":
+                            elemPropVo.eaType = attr.Value;
+                            break;
+
+                        case "name":
+                            elemPropVo.name = attr.Value;
+                            break;
+
+                        case "alias":
+                            elemPropVo.alias = attr.Value;
+                            break;
+
+                        case "stereotype":
+                            elemPropVo.stereoType = attr.Value;
+                            break;
+                    }
+                }
+            }
+
+            return elemPropVo;
+        }
 
 
         /// <summary>
