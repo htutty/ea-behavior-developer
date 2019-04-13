@@ -15,7 +15,7 @@ namespace ProjectDiffMaker
                 destProj = args[2];
                 diffOutputDir = args[3];
 
-                ArtifactsDiffer differ = new ArtifactsDiffer(srcProj, destProj);
+                ArtifactsDiffer differ = new ArtifactsDiffer(srcProj, destProj, true);
 
                 if ( "-skipnotes".Equals(modeStr) ) {
 					differ.skipElementTPosFlg = true;

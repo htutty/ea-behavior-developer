@@ -48,7 +48,7 @@ namespace ArtifactFileAccessor.reader
 
 			string target_file = artifactsfile;
 			if (target_file == null) {
-				target_file = "All_Artifacts.xml";
+				target_file = "AllArtifacts.xml";
 			}
 
 			string fileName = target_dir + "/" + target_file;

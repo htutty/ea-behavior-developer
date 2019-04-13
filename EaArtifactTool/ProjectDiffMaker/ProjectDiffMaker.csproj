@@ -46,8 +46,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ArtifactsDiffer.cs" />
+    <Compile Include="ChangedArtifactXmlWriter.cs" />
+    <Compile Include="DetailXmlWriter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="CsvReportWriter.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ArtifactFileAccessor\ArtifactFileAccessor.csproj">
