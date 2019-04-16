@@ -64,7 +64,9 @@ namespace ArtifactFileAccessor.reader
 		/// <returns></returns>
 		public static ElementVO readElement(XmlNode elementNode, bool sortByPosFlg)
 		{
-			ElementVO elem = new ElementVO();
+            Int32 p = 0;
+
+            ElementVO elem = new ElementVO();
 			foreach (XmlAttribute attr in elementNode.Attributes) {
 				switch (attr.Name) {
 					case "name":
@@ -83,13 +85,27 @@ namespace ArtifactFileAccessor.reader
 						elem.stereoType = attr.Value;
 						break;
 					case "tpos":
-						Int32 p;
 						if (!Int32.TryParse(attr.Value, out p)) {
 							p = 0;
 						}
 						elem.treePos = p;
 						break;
-					case "changed":
+                    case "elementId":
+                        if (!Int32.TryParse(attr.Value, out p))
+                        {
+                            p = 0;
+                        }
+                        elem.elementId = p;
+                        break;
+                    case "parentId":
+                        if (!Int32.TryParse(attr.Value, out p))
+                        {
+                            p = 0;
+                        }
+                        elem.parentID = p;
+                        break;
+
+                    case "changed":
 						elem.changed = attr.Value[0];
 						break;
                     case "propChanged":
@@ -226,6 +242,11 @@ namespace ArtifactFileAccessor.reader
                     case "taggedValues":
                         retTagValList = readTaggedValues(eNode);
                         break;
+
+                    case "notes":
+                        // notesタグの読み込み
+                        elemvo.notes = eNode.InnerText;
+                        break;
                 }
 
 				// クラス間接続情報の読み込み
@@ -358,7 +379,14 @@ namespace ArtifactFileAccessor.reader
                     case "guid":
 						attvo.guid = attr.Value;
 						break;
-					case "pos":
+                    case "attributeId":
+                        if (!Int32.TryParse(attr.Value, out p))
+                        {
+                            p = 0;
+                        }
+                        attvo.attributeId = p;
+                        break;
+                    case "pos":
 						if (!Int32.TryParse(attr.Value, out p)) {
 							p = 0;
 						}
@@ -496,6 +524,13 @@ namespace ArtifactFileAccessor.reader
                         break;
                     case "guid":
                         mthvo.guid = attr.Value;
+                        break;
+                    case "methodId":
+                        if (!Int32.TryParse(attr.Value, out p))
+                        {
+                            p = 0;
+                        }
+                        mthvo.methodId = p;
                         break;
                     case "pos":
                         if (!Int32.TryParse(attr.Value, out p))
