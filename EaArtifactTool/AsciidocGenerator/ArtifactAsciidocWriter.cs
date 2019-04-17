@@ -6,7 +6,7 @@ using IndexAccessor;
 
 namespace AsciidocGenerator
 {
-    class ArtifactAsciidocWriter
+    public class ArtifactAsciidocWriter
     {
         private ArtifactVO Artifact;
 
