@@ -10,6 +10,9 @@ using ArtifactFileAccessor.vo;
 using ArtifactFileAccessor.util;
 using ArtifactFileAccessor.reader;
 using ArtifactFileAccessor.writer;
+using Microsoft.VisualBasic;
+using AsciidocGenerator;
+using System.Diagnostics;
 
 namespace BehaviorDevelop
 {
@@ -22,8 +25,8 @@ namespace BehaviorDevelop
 		
 		private IList<ArtifactVO> artifacts;
 		
-		// public string projectPath { get; set; }
 		private ElementForm elemForm { get; set; }
+
 		private SearchElementListForm searchElemListForm { get; set; }
 
 		private Dictionary<string, TreeNode> treeNodeMap = new Dictionary<string, TreeNode>();
@@ -81,7 +84,7 @@ namespace BehaviorDevelop
 			if (ProjectSetting.getVO() != null) {
 				initProject();
 				
-				// 使用するDBファイルの存在チェック
+				// 使用するIndexDBファイルの存在チェック
 				if ( !System.IO.File.Exists(ProjectSetting.getVO().projectPath + "\\" + ProjectSetting.getVO().dbName) ) {
 					// 読み込みが終わるまでモーダルでスプラッシュ画面を開く
 					SplashForm splashForm = new SplashForm();
@@ -628,6 +631,9 @@ namespace BehaviorDevelop
 
 		}
 
+        
+
+
 		/// <summary>
 		/// ツリービューのコンテキストメニュー-「この成果物をEAから取得」のクリック時イベント
 		/// </summary>
@@ -740,7 +746,92 @@ namespace BehaviorDevelop
 
         private void artifactToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("このメニューはまだ実装が入ってません。すいません");
+            //MessageBox.Show("このメニューはまだ実装が入ってません。すいません");
+
+            string inputText;
+            bool foundFlg = false;
+            inputText = Interaction.InputBox( "パッケージ名（一部）", "成果物検索", "");
+
+            foreach (TreeNode tn in treeNodeMap.Values)
+            {
+                // 入力値がツリーノードの名前に一致したものが見つかったら
+                if( tn.Name.IndexOf(inputText) > 0 )
+                {
+                    // treeView上で、最初に見つかったノードにフォーカスする
+                    treeView1.SelectedNode = tn;
+                    treeView1.Focus();
+                    foundFlg = true;
+                    break;
+                }
+
+            }
+
+            if (!foundFlg)
+            {
+                MessageBox.Show("入力されたキーワードにヒットした成果物はありませんでした");
+            }
+
+        }
+
+        private void exportAsciidocToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TreeNode tn = treeView1.SelectedNode;
+            ArtifactVO atf = (ArtifactVO)tn.Tag;
+
+            // 出力フォルダの存在チェック＆無ければ作成
+            string asciidocDir = ProjectSetting.getVO().projectPath + "\\" + "asciidocs";
+            makeAsciidocDirIfNotExist(asciidocDir);
+
+            string partGuid = atf.guid.Substring(1, 8);
+            string adoctFileName = asciidocDir + "\\atf_" + filterSpecialChar(atf.name) + "_" + partGuid + ".adoc";
+
+            ArtifactAsciidocWriter adocgen = new ArtifactAsciidocWriter(atf);
+            adocgen.writeFile(adoctFileName);
+
+            // 出力が成功し、目的のAsciidocファイルが出力されていたら
+            if( File.Exists(adoctFileName) )
+            {
+                Process p = Process.Start(adoctFileName);
+                MessageBox.Show("Asciidocの出力が完了しました。\r\n" + adoctFileName);
+            }
+
+        }
+
+        /// <summary>
+        /// Asciidoc出力用フォルダを作る。
+        /// 先に存在チェックし、なかった場合だけフォルダ作成を行う。
+        /// </summary>
+        /// <param name="asciidocDir">出力先asciidocパス</param>
+        private static void makeAsciidocDirIfNotExist(string asciidocDir)
+        {
+            // 成果物出力先の artifacts フォルダが存在しない場合
+            if (!Directory.Exists(asciidocDir))
+            {
+                Directory.CreateDirectory(asciidocDir);
+                Console.WriteLine("出力ディレクトリを作成しました。 : " + asciidocDir);
+            }
+        }
+
+
+        /// <summary>
+        /// 引数の文字列から、ファイル名に使用できない文字をフィルタして返却する
+        /// </summary>
+        /// <param name="orig"></param>
+        /// <returns></returns>
+        private static string filterSpecialChar(string orig)
+        {
+            System.Text.StringBuilder sb = new System.Text.StringBuilder(orig);
+            sb.Replace("(", "（");
+            sb.Replace(")", "）");
+            sb.Replace(" ", "_");
+            sb.Replace("^", "＾");
+            sb.Replace("？", "");
+            sb.Replace("/", "_");
+            sb.Replace("\\", "_");
+            sb.Replace("\r", "");
+            sb.Replace("\n", "");
+
+            return sb.ToString();
         }
     }
 }

@@ -60,6 +60,7 @@ namespace BehaviorDevelop
             this.SearchClassToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.exportAsciidocToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip1.SuspendLayout();
             this.tabContextMenuStrip.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -92,9 +93,10 @@ namespace BehaviorDevelop
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.ViewGuidToolStripMenuItem,
             this.focusEAPackageToolStripMenuItem,
-            this.updateArtifactByEAToolStripMenuItem});
+            this.updateArtifactByEAToolStripMenuItem,
+            this.exportAsciidocToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(208, 70);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(208, 114);
             // 
             // ViewGuidToolStripMenuItem
             // 
@@ -222,14 +224,14 @@ namespace BehaviorDevelop
             // artifactToolStripMenuItem
             // 
             this.artifactToolStripMenuItem.Name = "artifactToolStripMenuItem";
-            this.artifactToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.artifactToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
             this.artifactToolStripMenuItem.Text = "成果物を検索";
             this.artifactToolStripMenuItem.Click += new System.EventHandler(this.artifactToolStripMenuItem_Click);
             // 
             // SearchClassToolStripMenuItem
             // 
             this.SearchClassToolStripMenuItem.Name = "SearchClassToolStripMenuItem";
-            this.SearchClassToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.SearchClassToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
             this.SearchClassToolStripMenuItem.Text = "クラスを検索";
             this.SearchClassToolStripMenuItem.Click += new System.EventHandler(this.SearchClassToolStripMenuItemClick);
             // 
@@ -248,6 +250,13 @@ namespace BehaviorDevelop
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
             this.toolStripStatusLabel1.Size = new System.Drawing.Size(118, 17);
             this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
+            // 
+            // exportAsciidocToolStripMenuItem
+            // 
+            this.exportAsciidocToolStripMenuItem.Name = "exportAsciidocToolStripMenuItem";
+            this.exportAsciidocToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
+            this.exportAsciidocToolStripMenuItem.Text = "この成果物のAsciidoc出力";
+            this.exportAsciidocToolStripMenuItem.Click += new System.EventHandler(this.exportAsciidocToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -296,5 +305,6 @@ namespace BehaviorDevelop
 		private System.Windows.Forms.TabControl tabControl1;
 		private System.Windows.Forms.ImageList imageList1;
 		private System.Windows.Forms.TreeView treeView1;
-	}
+        private System.Windows.Forms.ToolStripMenuItem exportAsciidocToolStripMenuItem;
+    }
 }
