@@ -18,7 +18,8 @@ namespace ArtifactFileExporter
         // 全パッケージVO のキャッシュ用Map
         public Dictionary<int, PackageVO> AllPackageMap = new Dictionary<int, PackageVO>();
 
-        List<PackageVO> rootPackages = new List<PackageVO>();
+        // パッケージのツリー構造を維持したPackageVOのリスト
+        public List<PackageVO> rootPackages = new List<PackageVO>();
 
         // ルートパッケージ名の保持
         private string rootName;

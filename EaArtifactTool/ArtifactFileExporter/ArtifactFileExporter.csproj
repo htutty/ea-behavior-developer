@@ -79,6 +79,7 @@
   <ItemGroup>
     <Compile Include="AllBehaviorsWriter.cs" />
     <Compile Include="AllElementsCsvWriter.cs" />
+    <Compile Include="AllPackagesExporter.cs" />
     <Compile Include="ArtifactDbReader.cs" />
     <Compile Include="ArtifactExporter.cs" />
     <Compile Include="AllXrefsCsvExporter.cs" />

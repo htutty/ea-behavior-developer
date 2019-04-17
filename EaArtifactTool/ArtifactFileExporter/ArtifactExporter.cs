@@ -44,8 +44,11 @@ namespace ArtifactFileExporter
                 ArtifactDbReader atfReader = new ArtifactDbReader(conn);
                 this.allArtifacts =  atfReader.getAllArtifacts(projectName);
 
+                // パッケージツリーXMLファイルを出力する
+                AllPackagesExporter packagesExporter = new AllPackagesExporter(outputDir);
+                packagesExporter.outputPackageXml(atfReader.rootPackages);
 
-                // 全接続情報リストXMLファイルを出力
+                // 全接続情報リストXMLファイルを出力する
                 AllConnectorsExporter expConn = new AllConnectorsExporter(conn, atfReader.AllPackageMap);
                 expConn.outputAllConnectors(outputDir);
                 this.allconnectors = expConn.allConnectorList;
