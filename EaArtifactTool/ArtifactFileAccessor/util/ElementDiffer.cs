@@ -64,6 +64,11 @@ namespace ArtifactFileAccessor.util
                 outElm.destElementProperty = rProp;
             }
 
+
+            leftElm.sortChildNodesGuid();
+            rightElm.sortChildNodesGuid();
+
+
             // 要素が保持する属性リストの比較
             Int16 lCnt, rCnt;
             AttributeVO lAtr, rAtr, oAtr;

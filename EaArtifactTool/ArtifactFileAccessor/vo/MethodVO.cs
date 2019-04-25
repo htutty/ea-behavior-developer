@@ -388,7 +388,7 @@ namespace ArtifactFileAccessor.vo
 	    // xがyより小さいときはマイナスの数、大きいときはプラスの数、同じときは0を返す
 	    public int Compare(MethodVO x, MethodVO y)
 	    {
-            return x.methodId.CompareTo(x.methodId);
+            return x.methodId.CompareTo(y.methodId);
 
 	    	// return x.guid.CompareTo(y.guid);
 	    }
@@ -406,7 +406,7 @@ namespace ArtifactFileAccessor.vo
         // xがyより小さいときはマイナスの数、大きいときはプラスの数、同じときは0を返す
         public int Compare(MethodVO x, MethodVO y)
         {
-            return x.guid.CompareTo(x.guid);
+            return x.guid.CompareTo(y.guid);
         }
     }
 

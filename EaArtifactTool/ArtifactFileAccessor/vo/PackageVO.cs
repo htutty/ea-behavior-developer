@@ -115,7 +115,7 @@ namespace ArtifactFileAccessor.vo
                 ElementVO elm = elements[i];
                 elm.sortChildNodesGuid();
             }
-            ElementComparer ecmp = new ElementComparer();
+            ElementGuidComparer ecmp = new ElementGuidComparer();
             elements.Sort(ecmp);
 
             foreach (PackageVO pkg in childPackageList)

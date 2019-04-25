@@ -197,8 +197,28 @@ namespace ArtifactFileAccessor.vo
 				sb.Append("  [TaggedValue] " + tagvo.name + " = " + tagvo.tagValue + " ;" + "\r\n");
 			}
 
-			foreach(AttributeVO attrvo in this.attributes) {
-				sb.Append("  [Attribute] " + attrvo.name + " ;" + "\r\n");
+
+            foreach (AttributeVO attrvo in this.attributes) {
+
+                string staticFinalStr = (attrvo.isStatic ? "static" : "");
+
+                string defaultStr = "";
+
+                if (attrvo.isConst)
+                {
+                    staticFinalStr = staticFinalStr + (staticFinalStr != "" ? " " : "");
+                    staticFinalStr = staticFinalStr + (staticFinalStr != "" ? " final" : "final"); ;
+                }
+                staticFinalStr = staticFinalStr + (staticFinalStr != "" ? " " : "");
+
+
+                if (attrvo.defaultValue != null && attrvo.defaultValue != "")
+                {
+                    defaultStr = " = " + attrvo.defaultValue;
+                }
+
+                sb.Append("  " + attrvo.visibility + " " + staticFinalStr + attrvo.eaType +
+                              " " + attrvo.name + defaultStr + " ;" + "\r\n");
 			}
 
 			foreach(ConnectorVO convo in this.connectors) {
@@ -207,7 +227,7 @@ namespace ArtifactFileAccessor.vo
 
 			foreach(MethodVO mthvo in this.methods) {
 				sb.Append("\r\n");
-				sb.Append("  [Method] " + mthvo.name + " {" + "\r\n");
+				sb.Append( "  " + mthvo.visibility + " " + mthvo.returnType + " " + mthvo.name + "(" + mthvo.getParamDesc() + ")" + " { " + "\r\n");
 
 				if (mthvo.behavior != null) {
 					string[] ary = mthvo.behavior.Split('\n');
@@ -294,9 +314,9 @@ namespace ArtifactFileAccessor.vo
 	/// <summary>
 	/// Description of ElementComparer.
 	/// </summary>
-	public class ElementComparer : IComparer<ElementVO>
+	public class ElementGuidComparer : IComparer<ElementVO>
 	{
-		public ElementComparer()
+		public ElementGuidComparer()
 		{
 		}
 
