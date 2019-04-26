@@ -73,7 +73,7 @@ namespace ArtifactFileAccessor.util
             Int16 lCnt, rCnt;
             AttributeVO lAtr, rAtr, oAtr;
 			List<AttributeVO> outAttributeList = new List<AttributeVO>();
-			for (lCnt=0, rCnt=0; lCnt < leftElm.attributes.Count && rCnt < rightElm.attributes.Count; ) {
+			for (lCnt=0, rCnt=0; lCnt < leftElm.attributes.Count || rCnt < rightElm.attributes.Count; ) {
 				// 左側が最終の属性に達した場合
 				if( lCnt >= leftElm.attributes.Count ) {
 					// 右側の属性が追加されたものとして出力パッケージリストに追加
@@ -130,7 +130,7 @@ namespace ArtifactFileAccessor.util
 			// 要素が保持するメソッドリストの比較
 			MethodVO lMth, rMth, oMth;
 			List<MethodVO> outMethods = new List<MethodVO>();
-			for (lCnt=0, rCnt=0; lCnt < leftElm.methods.Count && rCnt < rightElm.methods.Count; ) {
+			for (lCnt=0, rCnt=0; lCnt < leftElm.methods.Count || rCnt < rightElm.methods.Count; ) {
 				// 左側が最終の操作に達した場合
 				if( lCnt >= leftElm.methods.Count ) {
 					// 右側の操作が追加されたものとして出力パッケージリストに追加
