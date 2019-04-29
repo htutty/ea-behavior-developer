@@ -5,6 +5,7 @@ using System.Windows;
 using System.Xml;
 using ElementEditor.util;
 using ArtifactFileAccessor.vo;
+using ArtifactFileAccessor.util;
 using ICSharpCode.AvalonEdit.CodeCompletion;
 using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.Highlighting.Xshd;
@@ -17,6 +18,9 @@ namespace ElementEditor
 	/// </summary>
 	public partial class BehaviorEditor : Window
 	{
+
+        public ElementForm parentForm;
+
         // Element, Methodオブジェクト（ツールの内部型）
         private ElementVO element = null;
         private MethodVO method = null;
@@ -38,7 +42,7 @@ namespace ElementEditor
 			InitializeComponent();
 		}
 
-        public BehaviorEditor(ElementVO elementVO, MethodVO methodVO)
+        public BehaviorEditor(ElementVO elementVO, MethodVO methodVO, ElementForm elementForm)
         {
             InitializeComponent();
 
@@ -67,9 +71,11 @@ namespace ElementEditor
             method = methodVO;
             oldBehaviorValue = methodVO.behavior;
 
-            this.jpBehaviorEdit.Text = methodVO.behavior;
+            this.jpBehaviorEdit.Text = BehaviorPreparator.getParsedBehavior(methodVO.behavior);
 
+//            this.jpBehaviorEdit.Text = methodVO.behavior;
 
+            this.parentForm = elementForm;
         }
 
         /// <summary>
