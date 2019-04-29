@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -63,6 +64,10 @@ namespace ArtifactFileAccessor.vo
         /// <summary>振る舞いの１行分</summary>
         public string behavior { get; set; }
 
+        /// <summary>ふるまいをトークン化したもの（NULLの場合もある）</summary>
+        public BehaviorToken behaviorToken { get; set; }
+
+
         /// <summary>
         /// コンストラクタ
         /// </summary>
@@ -74,6 +79,34 @@ namespace ArtifactFileAccessor.vo
             behavior = "";
         }
 
+
+        public string getTokenRepresented()
+        {
+            if(behaviorToken != null)
+            {
+                BehaviorToken nowToken = behaviorToken;
+                StringWriter sw = new StringWriter();
+                while(nowToken.NextToken != null)
+                {
+                    if(nowToken != behaviorToken)
+                    {
+                        sw.Write(" ");
+                    }
+                    sw.Write(nowToken.token);
+                    nowToken = nowToken.NextToken;
+                }
+
+                sw.Write(" ");
+                sw.Write(nowToken.token);
+                nowToken = nowToken.NextToken;
+
+            return sw.ToString();
+            }
+            else
+            {
+                return "";
+            }
+        }
 
     }
 }

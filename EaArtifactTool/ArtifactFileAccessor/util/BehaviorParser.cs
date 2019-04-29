@@ -12,14 +12,30 @@ namespace ArtifactFileAccessor.util
 
         private int chunkCount;
 
-        private MethodVO parsingMethod;
-
+        private MethodVO parsingMethod = null;
+        
         /// <summary>
         /// コンストラクタ
         /// </summary>
         public BehaviorParser()
         {
             chunkCount = 1;
+        }
+
+
+        public List<BehaviorChunk> parseBehavior(string origBehavior)
+        {
+            string[] delimiter = { "\r\n" };
+            string[] lins = origBehavior.Split(delimiter, StringSplitOptions.None);
+
+            List<BehaviorChunk> retChunks = parseBehaviorLines(lins);
+
+            foreach (BehaviorChunk c in retChunks)
+            {
+                c.behaviorToken = tryTokenize(c); 
+            }
+
+            return retChunks;
         }
 
         /// <summary>
@@ -30,11 +46,276 @@ namespace ArtifactFileAccessor.util
         public List<BehaviorChunk> parseBehavior(MethodVO method)
         {
             this.parsingMethod = method;
+            return parseBehavior(method.behavior);
+        }
 
-            string[] delimiter = { "\r\n" };
-            string[] lins = method.behavior.Split(delimiter, StringSplitOptions.None);
 
-            return parseBehaviorLines(lins);
+        private BehaviorToken tryTokenize(BehaviorChunk c)
+        {
+
+            string origStr = c.behavior;
+            string trimmedStr = getTrimmed(origStr);
+
+            BehaviorToken tokenTop = new BehaviorToken();
+            Match matche;
+
+            // 変数とかインスタンスを生成しつつ初期値をセットする
+            matche = Regex.Match(trimmedStr, "(.*)を生成し、?(.*)を(セット|設定)する");
+            if (matche.Success)
+            {
+                tokenTop.token = "[define]";
+                var g1 = matche.Groups[1];
+                var g2 = matche.Groups[2];
+
+                addToken(tokenTop, "var", TokenType.TOKEN_DECLARE_LABEL);
+                addToken(tokenTop, g1.ToString(), TokenType.TOKEN_INSTANCE_LABEL);
+                addToken(tokenTop, "=", TokenType.TOKEN_EQUAL);
+                addToken(tokenTop, g2.ToString(), TokenType.TOKEN_INSTANCE_LABEL);
+                addToken(tokenTop, ";", TokenType.TOKEN_SEMICOLON);
+
+                return tokenTop;
+            }
+
+            // 型宣言と値代入を同時に行う場合
+            // 例: OPEN用フライト情報にフライト情報を生成してセットする
+            matche = Regex.Match(trimmedStr, "(.*)に、?(.*)を、?生成してセットする");
+            if (matche.Success)
+            {
+                tokenTop.token = "[define-with-type]";
+                var g1 = matche.Groups[1];
+                var g2 = matche.Groups[2];
+
+                addToken(tokenTop, g2.ToString(), TokenType.TOKEN_INSTANCE_TYPE);
+                addToken(tokenTop, g1.ToString(), TokenType.TOKEN_INSTANCE_LABEL);
+                addToken(tokenTop, "=", TokenType.TOKEN_EQUAL);
+                addToken(tokenTop, g2.ToString(), TokenType.TOKEN_ATTRIBUTE_NAME);
+                addToken(tokenTop, ";", TokenType.TOKEN_SEMICOLON);
+
+                return tokenTop;
+            }
+
+
+            // 変数とかインスタンスの生成（名前＝型のやつ）
+            matche = Regex.Match(trimmedStr, "(.*)を生成する");
+            if (matche.Success)
+            {
+                tokenTop.token = "[declare]";
+                var g1 = matche.Groups[1];
+
+                addToken(tokenTop, g1.ToString(), TokenType.TOKEN_ELEMENT_NAME);
+                addToken(tokenTop, g1.ToString(), TokenType.TOKEN_INSTANCE_LABEL);
+                addToken(tokenTop, ";", TokenType.TOKEN_SEMICOLON);
+
+                return tokenTop;
+            }
+
+
+            // メソッド呼び出しで戻り値を取らないパターン
+            matche = Regex.Match(trimmedStr, "(.*)を呼び出す");
+            if (matche.Success)
+            {
+                tokenTop.token = "[call]";
+                var g1 = matche.Groups[1];
+
+                addToken(tokenTop, g1.ToString(), TokenType.TOKEN_METHOD_NAME);
+                addToken(tokenTop, ";", TokenType.TOKEN_SEMICOLON);
+                return tokenTop;
+            }
+
+
+            // メソッド呼び出しで戻り値を取るパターン
+            matche = Regex.Match(trimmedStr, "(.*)を呼び?出し、?(.*)(に戻り値)?を(セット|取得)する");
+            if (matche.Success)
+            {
+                tokenTop.token = "[receive_response]";
+                var g1 = matche.Groups[1];
+                var g2 = matche.Groups[2];
+
+                addToken(tokenTop, g2.ToString(), TokenType.TOKEN_ATTRIBUTE_NAME);
+                addToken(tokenTop, "=", TokenType.TOKEN_EQUAL);
+                addToken(tokenTop, g1.ToString(), TokenType.TOKEN_ATTRIBUTE_NAME);
+
+                addToken(tokenTop, ";", TokenType.TOKEN_SEMICOLON);
+                return tokenTop;
+            }
+
+
+            // リターン文
+            // 例:　表示可能運賃存在フラグをリターンする。
+            matche = Regex.Match(trimmedStr, "(.*)をリターンする");
+            if (matche.Success)
+            {
+                tokenTop.token = "[return]";
+                var g1 = matche.Groups[1];
+
+                addToken(tokenTop, "return ", TokenType.TOKEN_RETURN);
+                addToken(tokenTop, g1.ToString(), TokenType.TOKEN_ATTRIBUTE_NAME);
+
+                addToken(tokenTop, ";", TokenType.TOKEN_SEMICOLON);
+                return tokenTop;
+            }
+
+            // 型変換を伴う代入式のパターン
+            matche = Regex.Match(trimmedStr, "(.*)に、?(.*)に変換した(.*)を(セット|設定)(する|し)");
+            if (matche.Success)
+            {
+                tokenTop.token = "[let_with_conv]";
+
+                var g1 = matche.Groups[1];
+                var g2 = matche.Groups[2];
+                var g3 = matche.Groups[3];
+
+                addToken(tokenTop, g1.ToString(), TokenType.TOKEN_ATTRIBUTE_NAME);
+                addToken(tokenTop, "=", TokenType.TOKEN_EQUAL);
+
+                addToken(tokenTop, "(", TokenType.TOKEN_PARENTHESIS_BEGIN);
+                addToken(tokenTop, g2.ToString(), TokenType.TOKEN_ATTRIBUTE_NAME);
+                addToken(tokenTop, ")", TokenType.TOKEN_PARENTHESIS_END);
+
+                addToken(tokenTop, g3.ToString(), TokenType.TOKEN_ATTRIBUTE_NAME);
+
+                addToken(tokenTop, ";", TokenType.TOKEN_SEMICOLON);
+                return tokenTop;
+            }
+
+
+            // 代入式のパターン
+            matche = Regex.Match(trimmedStr, "(.*)に、?(.*)を(セット|設定)(する|し)");
+            if (matche.Success)
+            {
+                tokenTop.token = "[let]";
+                var g1 = matche.Groups[1];
+                var g2 = matche.Groups[2];
+
+                addToken(tokenTop, g1.ToString(), TokenType.TOKEN_ATTRIBUTE_NAME);
+                addToken(tokenTop, "=", TokenType.TOKEN_EQUAL);
+                addToken(tokenTop, g2.ToString(), TokenType.TOKEN_ATTRIBUTE_NAME);
+
+                addToken(tokenTop, ";", TokenType.TOKEN_SEMICOLON);
+                return tokenTop;
+            }
+
+            // if文の条件式のパターン（「～の場合」で文が終わる）
+            matche = Regex.Match(trimmedStr, "(.*)の場合[。、]?\\s*$");
+            if (matche.Success)
+            {
+                tokenTop.token = "[if-cond]";
+                var g1 = matche.Groups[1];
+
+                addToken(tokenTop, "if", TokenType.TOKEN_ATTRIBUTE_NAME);
+                addToken(tokenTop, "(", TokenType.TOKEN_PARENTHESIS_BEGIN);
+                addToken(tokenTop, g1.ToString(), TokenType.TOKEN_ATTRIBUTE_NAME);
+                addToken(tokenTop, ")", TokenType.TOKEN_PARENTHESIS_END);
+
+                return tokenTop;
+            }
+
+            // ループ 
+            // 例： フライト情報リストの要素数分ループし、以下の処理を繰り返す(ループカウンタ:i)
+            matche = Regex.Match(trimmedStr, "(.*)の要素数分(ループし)?、*以下の処理を繰り?返え?す。?\\(ループカウンタ:(.*)\\)");
+            if (matche.Success)
+            {
+                tokenTop.token = "[foreach-collection]";
+                Group g1 = matche.Groups[1];
+
+                Group g2;
+                if ( matche.Groups[2].ToString() == "ループし")
+                {
+                    g2 = matche.Groups[3];
+                }
+                else
+                {
+                    g2 = matche.Groups[2];
+                }
+
+                addToken(tokenTop, "for", TokenType.TOKEN_FOREACH);
+                addToken(tokenTop, "(", TokenType.TOKEN_PARENTHESIS_BEGIN);
+                addToken(tokenTop, g1.ToString(), TokenType.TOKEN_COLLECTION_NAME);
+                addToken(tokenTop, ")", TokenType.TOKEN_PARENTHESIS_END);
+
+                return tokenTop;
+            }
+
+            // ループ 
+            // 例： フライト情報リストの要素数分ループし、以下の処理を繰り返す
+            matche = Regex.Match(trimmedStr, "(.*)の要素数分(ループし)?、*以下の処理を繰り?返え?す");
+            if (matche.Success)
+            {
+                tokenTop.token = "[foreach-collection]";
+                var g1 = matche.Groups[1];
+
+                addToken(tokenTop, "for", TokenType.TOKEN_FOREACH);
+                addToken(tokenTop, "(", TokenType.TOKEN_PARENTHESIS_BEGIN);
+                addToken(tokenTop, g1.ToString(), TokenType.TOKEN_COLLECTION_NAME);
+                addToken(tokenTop, ")", TokenType.TOKEN_PARENTHESIS_END);
+
+                return tokenTop;
+            }
+
+            // break(ループを抜ける)
+            // ループを抜ける。
+            matche = Regex.Match(trimmedStr, "ループを抜ける");
+            if (matche.Success)
+            {
+                tokenTop.token = "[loop-break]";
+
+                addToken(tokenTop, "break", TokenType.TOKEN_BREAK);
+                addToken(tokenTop, ";", TokenType.TOKEN_SEMICOLON);
+                return tokenTop;
+            }
+
+
+            // continue(ループの先頭に戻る)
+            // ループの先頭に戻る。
+            matche = Regex.Match(trimmedStr, "ループの先頭に戻る");
+            if (matche.Success)
+            {
+                tokenTop.token = "[loop-continue]";
+
+                addToken(tokenTop, "continue", TokenType.TOKEN_CONTINUE);
+                addToken(tokenTop, ";", TokenType.TOKEN_SEMICOLON);
+                return tokenTop;
+            }
+
+            return null;
+        }
+
+
+        private string getTrimmed(string origStr)
+        {
+            string retStr = origStr;
+
+            if( retStr != null && retStr != "")
+            {
+                //削除する文字の配列
+                string[] removeChars = new string[] { " ", "　", "\\n", "\n", "\r" };
+
+                //削除する文字を1文字ずつ削除する
+                foreach (string s in removeChars)
+                {
+                    retStr = retStr.Replace(s, "");
+                }
+            }
+
+            return retStr;
+        }
+
+
+        private BehaviorToken addToken(BehaviorToken token, string content, TokenType tokenTyp)
+        {
+            BehaviorToken targetToken = token;
+
+            while(targetToken.NextToken != null)
+            {
+                targetToken = targetToken.NextToken;
+            }
+
+            BehaviorToken appendToken = new BehaviorToken();
+            appendToken.token = content;
+            appendToken.tokenType = tokenTyp;
+            targetToken.NextToken = appendToken;
+
+            return targetToken;
         }
 
 
@@ -79,7 +360,10 @@ namespace ArtifactFileAccessor.util
                     chunk.behavior = bodyText.Trim(' ', '　');
                     chunk.dottedNum = matche.Value;
                     chunk.indent = "";
-                    chunk.methodId = parsingMethod.methodId;
+                    if(parsingMethod != null)
+                    {
+                        chunk.methodId = parsingMethod.methodId;
+                    }
 
                     chunkList.Add(chunk);
                 }
@@ -94,7 +378,11 @@ namespace ArtifactFileAccessor.util
                     chunk.behavior = trm;
                     chunk.dottedNum = "";
                     chunk.indent = matche.Value;
-                    chunk.methodId = parsingMethod.methodId;
+
+                    if (parsingMethod != null)
+                    {
+                        chunk.methodId = parsingMethod.methodId;
+                    }
 
                     chunkList.Add(chunk);
                 }
@@ -162,7 +450,7 @@ namespace ArtifactFileAccessor.util
                         {
                             // 続く処理でインデントレベルがぶつからないように後続チャンクには大きな数をセット
                             nextChunk.indLv = 999;
-                            chunk.behavior = chunk.behavior + "#\\n#" + nextChunk.behavior;
+                            chunk.behavior = chunk.behavior + "\\n" + nextChunk.behavior;
                         }
                         else
                         {
