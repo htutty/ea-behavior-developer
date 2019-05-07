@@ -48,7 +48,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Interop.EA">
-      <HintPath>..\..\..\..\Program Files (x86)\SparxSystems Japan\EA\Interop.EA.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\SparxSystems Japan\EA\Interop.EA.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
@@ -82,13 +82,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BDFileReader\BDFileReader.csproj">
-      <Project>{6070881C-93B6-402C-8539-8876A3F2A1D7}</Project>
-      <Name>BDFileReader</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\BehaviorDevelop\BehaviorDevelop.csproj">
-      <Project>{10138C21-64D0-405D-9831-865D34F65E5F}</Project>
-      <Name>BehaviorDevelop</Name>
+    <ProjectReference Include="..\..\EaArtifactTool\ArtifactFileAccessor\ArtifactFileAccessor.csproj">
+      <Project>{b0efd60e-7d58-4600-8e30-aeaeb4424690}</Project>
+      <Name>ArtifactFileAccessor</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
