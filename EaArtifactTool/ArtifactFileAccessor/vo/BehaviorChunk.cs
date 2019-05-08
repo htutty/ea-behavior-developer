@@ -84,11 +84,12 @@ namespace ArtifactFileAccessor.vo
         {
             if(behaviorToken != null)
             {
-                BehaviorToken nowToken = behaviorToken;
+                // トークンの最初のはラベルなので言語としては不要
+                BehaviorToken nowToken = behaviorToken.NextToken;
                 StringWriter sw = new StringWriter();
-                while(nowToken.NextToken != null)
+                while(nowToken != null)
                 {
-                    if(nowToken != behaviorToken)
+                    if(nowToken != behaviorToken.NextToken)
                     {
                         sw.Write(" ");
                     }
@@ -96,11 +97,7 @@ namespace ArtifactFileAccessor.vo
                     nowToken = nowToken.NextToken;
                 }
 
-                sw.Write(" ");
-                sw.Write(nowToken.token);
-                nowToken = nowToken.NextToken;
-
-            return sw.ToString();
+                return sw.ToString();
             }
             else
             {

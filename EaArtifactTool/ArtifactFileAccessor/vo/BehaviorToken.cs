@@ -25,7 +25,15 @@ namespace ArtifactFileAccessor.vo
         TOKEN_DECLARE, TOKEN_DECLARE_LABEL, TOKEN_FOREACH, TOKEN_COLLECTION_NAME,
         TOKEN_DOT, TOKEN_COMMA, TOKEN_EQUAL, TOKEN_BRACKET_BEGIN, TOKEN_BRACKET_END,
         TOKEN_PARENTHESIS_BEGIN, TOKEN_PARENTHESIS_END,
-        TOKEN_SEMICOLON
+        TOKEN_SEMICOLON,
+
+        // ざっくり識別子が入っている式（トークナイズが不完全な状態にある）
+        TOKEN_EXPR_IDENTIFIER,
+        // ざっくり条件式が入っている式
+        TOKEN_EXPR_CONDITIONAL,
+        // ざっくりメソッド呼び出しが入っている式
+        // （内部的に戻り値の取得も含むが、代入式の左辺値にはなれない）
+        TOKEN_EXPR_INVOKE_METHOD,
     }
 
 }

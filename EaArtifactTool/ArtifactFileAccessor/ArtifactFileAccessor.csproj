@@ -54,7 +54,7 @@
     <Compile Include="reader\ConnectorXmlReader.cs" />
     <Compile Include="reader\ElementsXmlReader.cs" />
     <Compile Include="util\BehaviorParser.cs" />
-    <Compile Include="util\BehaviorPreparator.cs" />
+    <Compile Include="util\BehaviorTranslator.cs" />
     <Compile Include="util\DbUtil.cs" />
     <Compile Include="util\ElementDiffer.cs" />
     <Compile Include="util\ObjectEAConverter.cs" />

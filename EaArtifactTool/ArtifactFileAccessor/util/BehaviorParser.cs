@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using ArtifactFileAccessor.vo;
 
@@ -187,12 +185,13 @@ namespace ArtifactFileAccessor.util
                 var g1 = matche.Groups[1];
                 var g2 = matche.Groups[2];
 
-                addToken(tokenTop, g1.ToString(), TokenType.TOKEN_ATTRIBUTE_NAME);
+                addToken(tokenTop, g1.ToString(), TokenType.TOKEN_EXPR_IDENTIFIER);
                 addToken(tokenTop, "=", TokenType.TOKEN_EQUAL);
                 addToken(tokenTop, g2.ToString(), TokenType.TOKEN_ATTRIBUTE_NAME);
 
                 addToken(tokenTop, ";", TokenType.TOKEN_SEMICOLON);
-                return tokenTop;
+
+                return evaluateAssignmentExpression(tokenTop);
             }
 
             // if文の条件式のパターン（「～の場合」で文が終わる）
@@ -280,6 +279,73 @@ namespace ArtifactFileAccessor.util
             return null;
         }
 
+        // 代入式の評価
+        private BehaviorToken evaluateAssignmentExpression(BehaviorToken origToken)
+        {
+            // 代入式の場合
+            if( origToken.token == "[let]" )
+            {
+                // left sideは Top の次
+                BehaviorToken lhsToken = origToken.NextToken;
+                // right side は lhs の次の次
+                BehaviorToken rhsToken = lhsToken.NextToken.NextToken;
+
+                // 変数名と思しき場所を、さらにパースする
+                // 　演算子 "." で区切られた文字列の場合は要素名と属性名に分ける
+                // 　なおどのような場合でもメソッドには非対応
+                BehaviorToken lhsParsed = parseIdentifier(lhsToken.token);
+                BehaviorToken rhsParsed = parseIdentifier(rhsToken.token);
+
+                BehaviorToken retToken = new BehaviorToken();
+                retToken.token = "[let]";
+
+                addAllTokens(retToken, lhsParsed);
+                addToken(retToken, "=", TokenType.TOKEN_EQUAL);
+                addAllTokens(retToken, rhsParsed);
+                addToken(retToken, ";", TokenType.TOKEN_SEMICOLON);
+            }
+
+            return null;
+
+        }
+
+
+        private BehaviorToken parseIdentifier(string origValue)
+        {
+            BehaviorToken retToken = new BehaviorToken();
+
+            // "." によって２つ以上に区切られた式の場合
+            Match matche = Regex.Match(origValue, @"[^\.]+\.[^\.]+");
+            if (matche.Success)
+            {
+                string[] splitted = origValue.Split( new string[] { "." }, StringSplitOptions.None);
+
+                retToken.tokenType = TokenType.TOKEN_ELEMENT_NAME;
+                retToken.token = splitted[0];
+                for(int i=1; i < splitted.Length; i++)
+                {
+                    addToken(retToken, ".", TokenType.TOKEN_DOT);
+                    addToken(retToken, splitted[i], TokenType.TOKEN_ATTRIBUTE_NAME);
+                }
+                return retToken;
+            }
+            else
+            {
+                retToken.tokenType = TokenType.TOKEN_ATTRIBUTE_NAME;
+                retToken.token = origValue;
+                return retToken;
+            }
+
+        }
+
+
+        private bool isMethod( string expr )
+        {
+            // ( ) を含んだ文字列が識別子中に有れば
+            Match matche = Regex.Match(expr, @"[^\.\(]+\((.*)\)$");
+            return matche.Success;
+        }
+
 
         private string getTrimmed(string origStr)
         {
@@ -318,6 +384,25 @@ namespace ArtifactFileAccessor.util
             return targetToken;
         }
 
+
+
+        private BehaviorToken addAllTokens(BehaviorToken origToken, BehaviorToken appendToken)
+        {
+            BehaviorToken targetToken = origToken;
+
+            while (targetToken.NextToken != null)
+            {
+                targetToken = targetToken.NextToken;
+            }
+
+            while (appendToken != null)
+            {
+                targetToken.NextToken = appendToken;
+                appendToken = appendToken.NextToken;
+            }
+
+            return targetToken;
+        }
 
         /// <summary>
         ///
@@ -390,12 +475,13 @@ namespace ArtifactFileAccessor.util
             }
 
             // 1パスで作成されたふるまいチャンクリストを再度解析（2パス）
-            bool dottedFlg = false;
             for (int i = 0; i < chunkList.Count; i++)
             {
+                bool dottedFlg = false;
+
                 // １．１のようなドットでつながれた番号を持つ行かを判断
                 var chunk = chunkList[i];
-                if (chunk.dottedNum != null)
+                if (chunk.dottedNum != null && chunk.dottedNum != "")
                 {
                     dottedFlg = true;
                 }
