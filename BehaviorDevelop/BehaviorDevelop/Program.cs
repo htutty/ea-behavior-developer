@@ -3,13 +3,13 @@
  * User: ctc0065
  * Date: 2017/10/26
  * Time: 10:06
- * 
+ *
  * To change this template use Tools | Options | Coding | Edit Standard Headers.
  */
 using System;
 using System.IO;
 using System.Windows.Forms;
-using BDFileReader.util;
+using ArtifactFileAccessor.util;
 
 namespace BehaviorDevelop
 {
@@ -30,7 +30,7 @@ namespace BehaviorDevelop
 			//コマンドライン引数を配列で取得する
 			string[] cmds = System.Environment.GetCommandLineArgs();
 			MainForm form = null;
-			
+
 			if (cmds != null && cmds.Length > 1) {
 //				string lin = "";
 //				//コマンドライン引数を列挙する
@@ -39,25 +39,25 @@ namespace BehaviorDevelop
 //					lin = lin + i + ":" + cmd + ", ";
 //				}
 //				MessageBox.Show("コマンドライン引数 = " + lin);
-				
+
 				form = new MainForm(cmds[1]);
 			} else {
 				form = new MainForm();
 			}
-			
+
 			// プロファイルディレクトリを参照し、無ければ作成
 			checkAndMakeProfileDir();
-			
+
 			Application.Run(form);
 		}
-		
-		
+
+
 		private static void checkAndMakeProfileDir() {
 			string pdir = ProjectSetting.GetAppProfileDir();
 			if (!Directory.Exists(pdir)) {
 				Directory.CreateDirectory(pdir);
 			}
 		}
-		
+
 	}
 }
