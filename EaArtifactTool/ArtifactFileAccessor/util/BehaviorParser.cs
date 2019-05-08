@@ -11,13 +11,25 @@ namespace ArtifactFileAccessor.util
         private int chunkCount;
 
         private MethodVO parsingMethod = null;
-        
+
         /// <summary>
         /// コンストラクタ
         /// </summary>
         public BehaviorParser()
         {
             chunkCount = 1;
+        }
+
+
+        /// <summary>
+        /// 受領した操作のふるまいを解析し、ふるまいのチャンクリストを返す
+        /// </summary>
+        /// <param name="method"></param>
+        /// <returns></returns>
+        public List<BehaviorChunk> parseBehavior(MethodVO method)
+        {
+            this.parsingMethod = method;
+            return parseBehavior(method.behavior);
         }
 
 
@@ -30,22 +42,12 @@ namespace ArtifactFileAccessor.util
 
             foreach (BehaviorChunk c in retChunks)
             {
-                c.behaviorToken = tryTokenize(c); 
+                c.behaviorToken = tryTokenize(c);
             }
 
             return retChunks;
         }
 
-        /// <summary>
-        /// 受領した操作のふるまいを解析し、ふるまいのチャンクリストを返す
-        /// </summary>
-        /// <param name="method"></param>
-        /// <returns></returns>
-        public List<BehaviorChunk> parseBehavior(MethodVO method)
-        {
-            this.parsingMethod = method;
-            return parseBehavior(method.behavior);
-        }
 
 
         private BehaviorToken tryTokenize(BehaviorChunk c)
@@ -67,7 +69,7 @@ namespace ArtifactFileAccessor.util
 
                 addToken(tokenTop, "var", TokenType.TOKEN_DECLARE_LABEL);
                 addToken(tokenTop, g1.ToString(), TokenType.TOKEN_INSTANCE_LABEL);
-                addToken(tokenTop, "=", TokenType.TOKEN_EQUAL);
+                addToken(tokenTop, "=", TokenType.TOKEN_OPER_EQUAL);
                 addToken(tokenTop, g2.ToString(), TokenType.TOKEN_INSTANCE_LABEL);
                 addToken(tokenTop, ";", TokenType.TOKEN_SEMICOLON);
 
@@ -85,7 +87,7 @@ namespace ArtifactFileAccessor.util
 
                 addToken(tokenTop, g2.ToString(), TokenType.TOKEN_INSTANCE_TYPE);
                 addToken(tokenTop, g1.ToString(), TokenType.TOKEN_INSTANCE_LABEL);
-                addToken(tokenTop, "=", TokenType.TOKEN_EQUAL);
+                addToken(tokenTop, "=", TokenType.TOKEN_OPER_EQUAL);
                 addToken(tokenTop, g2.ToString(), TokenType.TOKEN_ATTRIBUTE_NAME);
                 addToken(tokenTop, ";", TokenType.TOKEN_SEMICOLON);
 
@@ -120,7 +122,6 @@ namespace ArtifactFileAccessor.util
                 return tokenTop;
             }
 
-
             // メソッド呼び出しで戻り値を取るパターン
             matche = Regex.Match(trimmedStr, "(.*)を呼び?出し、?(.*)(に戻り値)?を(セット|取得)する");
             if (matche.Success)
@@ -130,7 +131,41 @@ namespace ArtifactFileAccessor.util
                 var g2 = matche.Groups[2];
 
                 addToken(tokenTop, g2.ToString(), TokenType.TOKEN_ATTRIBUTE_NAME);
-                addToken(tokenTop, "=", TokenType.TOKEN_EQUAL);
+                addToken(tokenTop, "=", TokenType.TOKEN_OPER_EQUAL);
+                addToken(tokenTop, g1.ToString(), TokenType.TOKEN_ATTRIBUTE_NAME);
+
+                addToken(tokenTop, ";", TokenType.TOKEN_SEMICOLON);
+                return tokenTop;
+            }
+
+            // メソッド呼び出しで戻り値を取るパターン（別バージョン）
+            matche = Regex.Match(trimmedStr, "(.*)を呼び?出し、?(.*)(に戻り値)?を(セット|取得)する");
+            if (matche.Success)
+            {
+                tokenTop.token = "[receive_response]";
+                var g1 = matche.Groups[1];
+                var g2 = matche.Groups[2];
+
+                addToken(tokenTop, g2.ToString(), TokenType.TOKEN_ATTRIBUTE_NAME);
+                addToken(tokenTop, "=", TokenType.TOKEN_OPER_EQUAL);
+                addToken(tokenTop, g1.ToString(), TokenType.TOKEN_ATTRIBUTE_NAME);
+
+                addToken(tokenTop, ";", TokenType.TOKEN_SEMICOLON);
+                return tokenTop;
+            }
+
+
+            // メソッド呼び出しで戻り値を取るパターン（別バージョン）
+            // 日付操作ユーティリティ.日付分割処理(空席照会条件入力・空席照会検索条件.往路搭乗日,\n定数クラス.日付セパレートキー（年）)を呼び出し、取得した分割搭乗年を(変数)搭乗年 にセットする。
+            matche = Regex.Match(trimmedStr, "(.*)を呼び?出し、?取得した(.*)を(.*)にセットする");
+            if (matche.Success)
+            {
+                tokenTop.token = "[receive_response]";
+                var g1 = matche.Groups[1];
+                var g3 = matche.Groups[3];
+
+                addToken(tokenTop, g3.ToString(), TokenType.TOKEN_ATTRIBUTE_NAME);
+                addToken(tokenTop, "=", TokenType.TOKEN_OPER_EQUAL);
                 addToken(tokenTop, g1.ToString(), TokenType.TOKEN_ATTRIBUTE_NAME);
 
                 addToken(tokenTop, ";", TokenType.TOKEN_SEMICOLON);
@@ -164,7 +199,7 @@ namespace ArtifactFileAccessor.util
                 var g3 = matche.Groups[3];
 
                 addToken(tokenTop, g1.ToString(), TokenType.TOKEN_ATTRIBUTE_NAME);
-                addToken(tokenTop, "=", TokenType.TOKEN_EQUAL);
+                addToken(tokenTop, "=", TokenType.TOKEN_OPER_EQUAL);
 
                 addToken(tokenTop, "(", TokenType.TOKEN_PARENTHESIS_BEGIN);
                 addToken(tokenTop, g2.ToString(), TokenType.TOKEN_ATTRIBUTE_NAME);
@@ -185,14 +220,32 @@ namespace ArtifactFileAccessor.util
                 var g1 = matche.Groups[1];
                 var g2 = matche.Groups[2];
 
+
                 addToken(tokenTop, g1.ToString(), TokenType.TOKEN_EXPR_IDENTIFIER);
-                addToken(tokenTop, "=", TokenType.TOKEN_EQUAL);
+                addToken(tokenTop, "=", TokenType.TOKEN_OPER_EQUAL);
                 addToken(tokenTop, g2.ToString(), TokenType.TOKEN_ATTRIBUTE_NAME);
+
+                addToken(tokenTop, ";", TokenType.TOKEN_SEMICOLON);
+                return tokenTop;
+            }
+
+            // 代入式のパターン（その２）　※ルール的にはダメなやつ
+            matche = Regex.Match(trimmedStr, "(.*)を、?(.*)に(セット|設定)(する|し)");
+            if (matche.Success)
+            {
+                tokenTop.token = "[let]";
+                var g1 = matche.Groups[1];
+                var g2 = matche.Groups[2];
+
+                addToken(tokenTop, g2.ToString(), TokenType.TOKEN_ATTRIBUTE_NAME);
+                addToken(tokenTop, "=", TokenType.TOKEN_OPER_EQUAL);
+                addToken(tokenTop, g1.ToString(), TokenType.TOKEN_ATTRIBUTE_NAME);
 
                 addToken(tokenTop, ";", TokenType.TOKEN_SEMICOLON);
 
                 return evaluateAssignmentExpression(tokenTop);
             }
+
 
             // if文の条件式のパターン（「～の場合」で文が終わる）
             matche = Regex.Match(trimmedStr, "(.*)の場合[。、]?\\s*$");
@@ -209,33 +262,39 @@ namespace ArtifactFileAccessor.util
                 return tokenTop;
             }
 
-            // ループ 
+            // ループ
             // 例： フライト情報リストの要素数分ループし、以下の処理を繰り返す(ループカウンタ:i)
-            matche = Regex.Match(trimmedStr, "(.*)の要素数分(ループし)?、*以下の処理を繰り?返え?す。?\\(ループカウンタ:(.*)\\)");
+            matche = Regex.Match(trimmedStr, "(.*)の要素数分(ループし)?、*以下(の処理)?を繰り?返え?す。?\\(ループカウンタ[:：](.*)\\)");
             if (matche.Success)
             {
-                tokenTop.token = "[foreach-collection]";
+                tokenTop.token = "[foreach-collection-index]";
                 Group g1 = matche.Groups[1];
-
-                Group g2;
-                if ( matche.Groups[2].ToString() == "ループし")
-                {
-                    g2 = matche.Groups[3];
-                }
-                else
-                {
-                    g2 = matche.Groups[2];
-                }
+                Group g2 = matche.Groups[4];
 
                 addToken(tokenTop, "for", TokenType.TOKEN_FOREACH);
                 addToken(tokenTop, "(", TokenType.TOKEN_PARENTHESIS_BEGIN);
+                addToken(tokenTop, "int", TokenType.TOKEN_INSTANCE_TYPE);
+                addToken(tokenTop, g2.ToString(), TokenType.TOKEN_INSTANCE_LABEL);
+                addToken(tokenTop, "=", TokenType.TOKEN_OPER_EQUAL);
+                addToken(tokenTop, "0", TokenType.TOKEN_LITERAL);
+                addToken(tokenTop, ";", TokenType.TOKEN_SEMICOLON);
+
+                addToken(tokenTop, g2.ToString(), TokenType.TOKEN_INSTANCE_LABEL);
+                addToken(tokenTop, "<", TokenType.TOKEN_OPER_LESSTHAN);
                 addToken(tokenTop, g1.ToString(), TokenType.TOKEN_COLLECTION_NAME);
+                addToken(tokenTop, ".", TokenType.TOKEN_OPER_DOT);
+                addToken(tokenTop, "Count", TokenType.TOKEN_ATTRIBUTE_NAME);
+                addToken(tokenTop, ";", TokenType.TOKEN_SEMICOLON);
+
+                addToken(tokenTop, g2.ToString(), TokenType.TOKEN_INSTANCE_LABEL);
+                addToken(tokenTop, "++", TokenType.TOKEN_OPER_INCREMENT);
+
                 addToken(tokenTop, ")", TokenType.TOKEN_PARENTHESIS_END);
 
                 return tokenTop;
             }
 
-            // ループ 
+            // ループ
             // 例： フライト情報リストの要素数分ループし、以下の処理を繰り返す
             matche = Regex.Match(trimmedStr, "(.*)の要素数分(ループし)?、*以下の処理を繰り?返え?す");
             if (matche.Success)
@@ -248,6 +307,28 @@ namespace ArtifactFileAccessor.util
                 addToken(tokenTop, g1.ToString(), TokenType.TOKEN_COLLECTION_NAME);
                 addToken(tokenTop, ")", TokenType.TOKEN_PARENTHESIS_END);
 
+                return tokenTop;
+            }
+
+            // ループ内の
+            // 例： フライト情報リスト(i)をフライト情報として取得する。
+            matche = Regex.Match(trimmedStr, "(.*)\\(([i-n])\\)を(.*)として取得する");
+            if (matche.Success)
+            {
+                tokenTop.token = "[foreach-pickup]";
+                var g1 = matche.Groups[1];
+                var g2 = matche.Groups[2];
+                var g3 = matche.Groups[3];
+
+                addToken(tokenTop, g3.ToString(), TokenType.TOKEN_COLLECTION_NAME);
+                addToken(tokenTop, "=", TokenType.TOKEN_OPER_EQUAL);
+
+                addToken(tokenTop, g1.ToString(), TokenType.TOKEN_COLLECTION_NAME);
+                addToken(tokenTop, "[", TokenType.TOKEN_PARENTHESIS_BEGIN);
+                addToken(tokenTop, g2.ToString(), TokenType.TOKEN_COLLECTION_NAME);
+                addToken(tokenTop, "]", TokenType.TOKEN_PARENTHESIS_END);
+
+                addToken(tokenTop, ";", TokenType.TOKEN_SEMICOLON);
                 return tokenTop;
             }
 
@@ -276,7 +357,29 @@ namespace ArtifactFileAccessor.util
                 return tokenTop;
             }
 
-            return null;
+            // メソッド呼び出しで戻り値を取らないパターン（別パターン）
+            matche = Regex.Match(trimmedStr, "(.*)\\((.*)\\)$");
+            if (matche.Success)
+            {
+                tokenTop.token = "[call]";
+                var g1 = matche.Groups[1];
+                var g2 = matche.Groups[2];
+
+                addToken(tokenTop, g1.ToString(), TokenType.TOKEN_ATTRIBUTE_NAME);
+                addToken(tokenTop, "(", TokenType.TOKEN_PARENTHESIS_BEGIN);
+                addToken(tokenTop, g2.ToString(), TokenType.TOKEN_ATTRIBUTE_NAME);
+                addToken(tokenTop, ")", TokenType.TOKEN_PARENTHESIS_END);
+                addToken(tokenTop, ";", TokenType.TOKEN_SEMICOLON);
+                return tokenTop;
+            }
+
+            // それ以外はコメント扱いとしてそのまま出力
+            tokenTop.token = "[comment]";
+
+            addToken(tokenTop, trimmedStr, TokenType.TOKEN_COMMENT);
+            return tokenTop;
+
+            // return null;
         }
 
         // 代入式の評価
@@ -300,7 +403,7 @@ namespace ArtifactFileAccessor.util
                 retToken.token = "[let]";
 
                 addAllTokens(retToken, lhsParsed);
-                addToken(retToken, "=", TokenType.TOKEN_EQUAL);
+                addToken(retToken, "=", TokenType.TOKEN_OPER_EQUAL);
                 addAllTokens(retToken, rhsParsed);
                 addToken(retToken, ";", TokenType.TOKEN_SEMICOLON);
             }
@@ -324,7 +427,7 @@ namespace ArtifactFileAccessor.util
                 retToken.token = splitted[0];
                 for(int i=1; i < splitted.Length; i++)
                 {
-                    addToken(retToken, ".", TokenType.TOKEN_DOT);
+                    addToken(retToken, ".", TokenType.TOKEN_OPER_DOT);
                     addToken(retToken, splitted[i], TokenType.TOKEN_ATTRIBUTE_NAME);
                 }
                 return retToken;
