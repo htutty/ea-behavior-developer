@@ -1,2 +1,9 @@
 **/obj
 **/bin
+**/.vs
+**/*.user
+/EaArtifactTool/packages
+/EaArtifactTool/.vs
+/BehaviorDevelop/packages
+/BehaviorDevelop/.vs
+/EaArtifactTool/UpgradeLog.htm
