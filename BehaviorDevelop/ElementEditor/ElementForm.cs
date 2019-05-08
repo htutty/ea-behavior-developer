@@ -440,7 +440,7 @@ namespace ElementEditor
             // Form f = new MethodBehaviorEditForm(myElement, method);
             // f.ShowDialog(this);
 
-            var window = new BehaviorEditor(myElement, method);
+            var window = new BehaviorEditor(myElement, method, this);
             // var window = new BehaviorWindow();
             ElementHost.EnableModelessKeyboardInterop(window);
             window.Show();
@@ -754,7 +754,7 @@ namespace ElementEditor
             {
                 // 呼出し元が BehaviorDevelop の場合を考慮し、あえて例外のコンソール出力のみ実行
                 Console.WriteLine("");
-                Console.WriteLine("※BehaviorDevelopから呼ばれた場合、毎回この例外が出力される");
+                Console.WriteLine("※BehaviorDevelopから呼ばれた場合、毎回この例外がコンソール出力される");
                 Console.WriteLine(ex.Message);
             }
 

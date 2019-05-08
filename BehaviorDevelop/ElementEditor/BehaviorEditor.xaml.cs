@@ -71,7 +71,7 @@ namespace ElementEditor
             method = methodVO;
             oldBehaviorValue = methodVO.behavior;
 
-            this.jpBehaviorEdit.Text = BehaviorPreparator.getParsedBehavior(methodVO.behavior);
+            this.jpBehaviorEdit.Text = BehaviorTranslator.translateBehavior(methodVO.behavior);
 
 //            this.jpBehaviorEdit.Text = methodVO.behavior;
 
