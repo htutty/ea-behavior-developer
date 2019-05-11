@@ -8,7 +8,7 @@ namespace ArtifactFileAccessor.vo
 	/// <summary>
 	/// Description of ElementVO.
 	/// </summary>
-	public class ElementVO : IComparable<ElementVO>
+	public class ElementVO : AbstractValueObject, IComparable<ElementVO>
 	{
 		/// <summary>名前</summary>
     	public string name { get; set; }
@@ -127,14 +127,14 @@ namespace ArtifactFileAccessor.vo
 			return ((this.treePos - o.treePos) == 0 ? this.name.CompareTo(o.name):(this.treePos - o.treePos));
 		}
 
-        public void sortChildNodes()
+        override public void sortChildNodes()
         {
             sortAttributes();
             sortMethods();
             sortTaggedValues();
         }
 
-        public void sortChildNodesGuid()
+        override public void sortChildNodesGuid()
         {
             sortAttributesGuid();
             sortMethodsGuid();
@@ -242,6 +242,90 @@ namespace ArtifactFileAccessor.vo
 			return sb.ToString();
    		}
 
+
+        override public string generateDeclareString(int indentLv)
+        {
+            StringWriter sw = new StringWriter();
+
+            sw.WriteLine(getIndentStr(1) + "public class " + this.name);
+            sw.WriteLine(getIndentStr(1) + "{");
+
+            foreach (AttributeVO att in this.attributes)
+            {
+                sw.WriteLine(att.generateDeclareString(2));
+            }
+
+            foreach (MethodVO mth in this.methods)
+            {
+                sw.WriteLine(mth.generateDeclareString(2));
+            }
+
+            sw.WriteLine(getIndentStr(1) + "}");
+
+            return sw.ToString();
+        }
+
+
+        public string toString()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append("Class " + this.name + " {" + "\r\n");
+
+            foreach (TaggedValueVO tagvo in this.taggedValues)
+            {
+                sb.Append("  [TaggedValue] " + tagvo.name + " = " + tagvo.tagValue + " ;" + "\r\n");
+            }
+
+
+            foreach (AttributeVO attrvo in this.attributes)
+            {
+
+                string staticFinalStr = (attrvo.isStatic ? "static" : "");
+
+                string defaultStr = "";
+
+                if (attrvo.isConst)
+                {
+                    staticFinalStr = staticFinalStr + (staticFinalStr != "" ? " " : "");
+                    staticFinalStr = staticFinalStr + (staticFinalStr != "" ? " final" : "final"); ;
+                }
+                staticFinalStr = staticFinalStr + (staticFinalStr != "" ? " " : "");
+
+
+                if (attrvo.defaultValue != null && attrvo.defaultValue != "")
+                {
+                    defaultStr = " = " + attrvo.defaultValue;
+                }
+
+                sb.Append("  " + attrvo.visibility + " " + staticFinalStr + attrvo.eaType +
+                              " " + attrvo.name + defaultStr + " ;" + "\r\n");
+            }
+
+            foreach (ConnectorVO convo in this.connectors)
+            {
+                sb.Append("  [Connector " + convo.connectorType + "] " + convo.targetObjName + ": " + convo.targetObjGuid + ";" + "\r\n");
+            }
+
+            foreach (MethodVO mthvo in this.methods)
+            {
+                sb.Append("\r\n");
+                sb.Append("  " + mthvo.visibility + " " + mthvo.returnType + " " + mthvo.name + "(" + mthvo.getParamDesc() + ")" + " { " + "\r\n");
+
+                if (mthvo.behavior != null)
+                {
+                    string[] ary = mthvo.behavior.Split('\n');
+                    for (Int16 i = 0; i < ary.Length; i++)
+                    {
+                        sb.Append("    " + ary[i] + "\n");
+                    }
+                }
+                sb.Append("  }\r\n");
+            }
+            sb.Append("}" + "\r\n");
+
+            return sb.ToString();
+        }
 
         public string getComparableString()
         {

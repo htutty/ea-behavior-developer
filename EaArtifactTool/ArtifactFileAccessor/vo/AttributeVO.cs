@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace ArtifactFileAccessor.vo
 {
 	/// <summary>
 	/// Description of AttributeVO.
 	/// </summary>
-	public class AttributeVO : IComparable<AttributeVO>
+	public class AttributeVO : AbstractValueObject, IComparable<AttributeVO>
 	{
 		/// <summary>名前</summary>
     	public string name { get; set; }
@@ -394,12 +395,60 @@ namespace ArtifactFileAccessor.vo
             return sw.ToString();
         }
 
-        public void sortChildNodes()
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        override public string generateDeclareString(int indentLv)
+        {
+            StringWriter sw = new StringWriter();
+            string staticFinalStr;
+            string defaultStr;
+            string stereotypeStr = "";
+            if (this.stereoType != null && this.stereoType != "")
+            {
+                stereotypeStr = this.stereoType;
+            }
+
+            staticFinalStr = (isStatic ? "static" : "");
+            if (this.isConst)
+            {
+                staticFinalStr = staticFinalStr + (staticFinalStr != "" ? " " : "");
+                staticFinalStr = staticFinalStr + "final";
+            }
+            staticFinalStr = staticFinalStr + (staticFinalStr != "" ? " " : "");
+
+            if (this.defaultValue != null && this.defaultValue != "")
+            {
+                defaultStr = " = " + this.defaultValue;
+            }
+            else
+            {
+                defaultStr = "";
+            }
+
+
+            sw.WriteLine(getIndentStr(indentLv) + "///<summary>");
+            genCommentized(notes, "///", indentLv);
+            sw.WriteLine(getIndentStr(indentLv) + "///</summary>");
+
+            if( stereotypeStr != "" )
+            {
+                sw.WriteLine("//@stereotype:" + stereotypeStr);
+            }
+            sw.WriteLine(getIndentStr(indentLv) + this.visibility + " " + staticFinalStr + this.eaType +
+                          " " + this.name + defaultStr + ";");
+
+            return sw.ToString();
+        }
+
+
+        override public void sortChildNodes()
         {
             taggedValues.Sort();
         }
 
-        public void sortChildNodeGuid()
+        override public void sortChildNodesGuid()
         {
             TaggedValueGuidComparer cmp = new TaggedValueGuidComparer();
             taggedValues.Sort(cmp);

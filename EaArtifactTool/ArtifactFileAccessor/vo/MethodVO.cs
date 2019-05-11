@@ -7,7 +7,7 @@ namespace ArtifactFileAccessor.vo
 	/// <summary>
 	/// Description of MethodVO.
 	/// </summary>
-	public class MethodVO : IComparable<MethodVO>
+	public class MethodVO : AbstractValueObject, IComparable<MethodVO>
 	{
 
 		/// <summary>名前</summary>
@@ -122,7 +122,7 @@ namespace ArtifactFileAccessor.vo
 			return ((this.pos - o.pos) == 0 ? this.name.CompareTo(o.name):(this.pos - o.pos));
 		}
 
-		// コピーを作成するメソッド
+		// インスタンスのコピーを作成する
 		public MethodVO Clone() {
 			return (MethodVO)MemberwiseClone();
 		}
@@ -320,7 +320,7 @@ namespace ArtifactFileAccessor.vo
         /// <summary>
         /// 
         /// </summary>
-        public void sortChildNodes()
+        override public void sortChildNodes()
         {
             // 子ノードを持つ項目は個別に子ノード内の子ノードソート処理を呼び出す
             for (int i = 0; i < parameters.Count; i++)
@@ -340,7 +340,7 @@ namespace ArtifactFileAccessor.vo
 
         }
 
-        public void sortChildNodesGuid()
+        override public void sortChildNodesGuid()
         {
             // 子ノードを持つ項目は個別に子ノード内の子ノードソート処理を呼び出す
             for (int i = 0; i < parameters.Count; i++)
@@ -354,6 +354,7 @@ namespace ArtifactFileAccessor.vo
             TaggedValueGuidComparer cmp = new TaggedValueGuidComparer();
             taggedValues.Sort(cmp);
         }
+
 
         public string getParamDesc()
         {
@@ -371,6 +372,40 @@ namespace ArtifactFileAccessor.vo
 
             return strw.ToString();
         }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        override public string generateDeclareString(int indentLv)
+        {
+            StringWriter sw = new StringWriter();
+
+            string stereotypeStr = "";
+            if (this.stereoType != null && this.stereoType != "")
+            {
+                stereotypeStr = this.stereoType ;
+            }
+
+            // ノートの出力（doc）
+            sw.WriteLine(getIndentStr(indentLv) + "///<summary>");
+            genCommentized(notes, "///", indentLv);
+            sw.WriteLine(getIndentStr(indentLv) + "///</summary>");
+
+            // ふるまい（オリジナル）の出力
+            genCommentized(behavior, "//", indentLv);
+
+            // メソッドの宣言とコード内容の出力
+            sw.WriteLine(getIndentStr(indentLv) + this.visibility + " " + this.returnType + " " + stereotypeStr + this.name + " (" + this.getParamDesc() + ")");
+            sw.WriteLine(getIndentStr(indentLv) + "{");
+            sw.WriteLine(this.code);
+            sw.WriteLine(getIndentStr(indentLv) + "}");
+
+            return sw.ToString();
+        }
+
+
 
 
     }

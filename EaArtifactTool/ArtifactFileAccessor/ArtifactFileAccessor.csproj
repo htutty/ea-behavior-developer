@@ -60,6 +60,7 @@
     <Compile Include="util\ObjectEAConverter.cs" />
     <Compile Include="util\ProjectSetting.cs" />
     <Compile Include="util\StringUtil.cs" />
+    <Compile Include="vo\AbstractValueObject.cs" />
     <Compile Include="vo\ArtifactsVO.cs" />
     <Compile Include="vo\ArtifactVO.cs" />
     <Compile Include="vo\AttributeTagVO.cs" />

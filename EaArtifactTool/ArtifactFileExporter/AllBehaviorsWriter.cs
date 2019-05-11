@@ -78,6 +78,7 @@ namespace ArtifactFileExporter
                         {
                             writeChunkLine(cnk, sw);
                         }
+
                     }
                 }
             }

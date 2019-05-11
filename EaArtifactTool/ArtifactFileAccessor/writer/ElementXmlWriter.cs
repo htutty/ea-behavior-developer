@@ -426,6 +426,11 @@ namespace ArtifactFileAccessor.writer
 				sw.WriteLine(indent(depth) + "  <behavior>" + escapeXML( mth.behavior ) + "</behavior>");
 			}
 
+            if (mth.code != null)
+            {
+                sw.WriteLine(indent(depth) + "  <code>" + escapeXML(mth.code) + "</code>");
+            }
+
             // 操作の変更フラグが 'U' かつ 変更元・変更先操作がそれぞれセットされている場合
             if (mth.changed == 'U' && mth.srcMethod != null && mth.destMethod != null)
             {
