@@ -390,22 +390,20 @@ namespace ArtifactFileAccessor.vo
 
             // ノートの出力（doc）
             sw.WriteLine(getIndentStr(indentLv) + "///<summary>");
-            genCommentized(notes, "///", indentLv);
+            sw.Write(genCommentized(notes, "///", indentLv));
             sw.WriteLine(getIndentStr(indentLv) + "///</summary>");
 
             // ふるまい（オリジナル）の出力
-            genCommentized(behavior, "//", indentLv);
+            sw.WriteLine(genCommentized(behavior, "//", indentLv));
 
             // メソッドの宣言とコード内容の出力
             sw.WriteLine(getIndentStr(indentLv) + this.visibility + " " + this.returnType + " " + stereotypeStr + this.name + " (" + this.getParamDesc() + ")");
             sw.WriteLine(getIndentStr(indentLv) + "{");
-            sw.WriteLine(this.code);
+            sw.WriteLine(indentMultiLine(this.code, 2));
             sw.WriteLine(getIndentStr(indentLv) + "}");
 
             return sw.ToString();
         }
-
-
 
 
     }

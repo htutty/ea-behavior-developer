@@ -13,11 +13,9 @@ namespace ArtifactFileAccessor.vo
         /// <returns></returns>
         public abstract string generateDeclareString(int indentLv);
 
-
         public abstract void sortChildNodes();
 
         public abstract void sortChildNodesGuid();
-
 
 
         /// <summary>
@@ -36,16 +34,16 @@ namespace ArtifactFileAccessor.vo
 
             foreach (string l in lins)
             {
-                sw.WriteLine(getIndentStr(indentLv) + commentStr + " " + lins);
+                sw.WriteLine(getIndentStr(indentLv) + commentStr + " " + l);
             }
 
             return sw.ToString();
         }
 
         /// <summary>
-        /// 
+        /// 指定されたレベルでインデントするための文字列を返却する
         /// </summary>
-        /// <param name="indentLv"></param>
+        /// <param name="indentLv">インデントレベル</param>
         /// <returns></returns>
         protected static string getIndentStr(int indentLv)
         {
@@ -57,6 +55,26 @@ namespace ArtifactFileAccessor.vo
             return sb.ToString();
         }
 
+
+        /// <summary>
+        /// 複数行の文字列を受け取り、各行ごとに指定のインデントを施した結果を返却する
+        /// </summary>
+        /// <param name="origStr">元の文字列</param>
+        /// <param name="indentLv">インデントレベル</param>
+        /// <returns></returns>
+        protected static string indentMultiLine(string origStr, int indentLv)
+        {
+            StringWriter sw = new StringWriter();
+
+            string[] delimiter = { "\r\n" };
+            string[] lins = origStr.Split(delimiter, StringSplitOptions.None);
+            foreach (string l in lins)
+            {
+                sw.WriteLine(getIndentStr(indentLv) + l);
+            }
+
+            return sw.ToString();
+        }
 
     }
 }
