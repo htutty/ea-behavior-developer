@@ -150,7 +150,6 @@ namespace ArtifactFileExporter
                     // ElementAsciidocWriter.doWrite(outputDir, elem);
                 }
 
-
             }
         }
 
@@ -225,17 +224,14 @@ namespace ArtifactFileExporter
                         foreach (BehaviorChunk cnk in chunks)
                         {
 
-                            // 
-                            if (cnk.dottedNum != null && cnk.dottedNum != "")
+                            if(cnk.behaviorToken == null || cnk.behaviorToken.token == "[comment]" )
                             {
                                 outsw.WriteLine(generateIndentStr(cnk.indLv) + "// " + cnk.dottedNum + "　" + cnk.behavior);
                             }
                             else
                             {
-                                outsw.WriteLine(generateIndentStr(cnk.indLv) + "// " + cnk.behavior);
+                                outsw.WriteLine(generateIndentStr(cnk.indLv) + cnk.getTokenRepresented());
                             }
-
-                            outsw.WriteLine(generateIndentStr(cnk.indLv) + cnk.getTokenRepresented());
                         }
 
                         mth.code = outsw.ToString();
