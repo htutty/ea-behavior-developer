@@ -54,7 +54,6 @@ namespace BehaviorDevelop
 			this.artifacts = new List<ArtifactVO>();
 
 			if( ProjectSetting.load(prjfile) ) {
-				// projectPath = Path.GetDirectoryName(prjfile);
 				this.Text = prjfile;
 			} else {
 				MessageBox.Show("プロジェクトファイル読み込みに失敗しました。　再度正しいファイルを選択して下さい。");
@@ -315,10 +314,6 @@ namespace BehaviorDevelop
 		}
 		
 		
-		private bool checkDisplayableType(string eaType) {
-			return ("Class".Equals(eaType) || "Interface".Equals(eaType) || "Enum".Equals(eaType)
-			        || "GUIElement".Equals(eaType) || "Screen".Equals(eaType) );
-		}
 		
 		/// <summary>
 		/// 成果物内の要素を、要素編集画面を開くリンク付きでパネルに表示する。
@@ -327,25 +322,48 @@ namespace BehaviorDevelop
 		/// <param name="elements">要素リスト</param>
 		/// <param name="depth">ネストの深さ</param>
 		private void addElementLabels(FlowLayoutPanel elemPanel, IList<ElementVO> elements, int depth ) {
-			
+            string nameLabel;
+            string stereotypeStr;
+
 			foreach( ElementVO elem in elements ) {
 
 				if ( checkDisplayableType(elem.eaType) ) {
 					LinkLabel labelElement = new LinkLabel();
-					
+
+                    if (elem.stereoType != null && elem.stereoType != "") {
+                        stereotypeStr = "<<" + elem.stereoType + ">> ";
+                    } else {
+                        stereotypeStr = "";
+                    }
+
+                    // ノート要素の場合、もしくはname属性の中身が空の場合
+                    if ("Notes".Equals(elem.eaType) || elem.name == null || elem.name == "" )
+                    {
+                        // ノートの始めの30文字分を出だしとして出力
+                        if(elem.notes.Length > 30)
+                        {
+                            nameLabel = "(" + elem.eaType + ") " + elem.notes.Substring(0, 30) + "..";
+                        } else {
+                            nameLabel = "(" + elem.eaType + ") " + elem.notes;
+                        }
+
+                    } else {
+                        nameLabel = "(" + elem.eaType + ") " + stereotypeStr + elem.name;
+                    }
+
 					switch(elem.changed) {
 						case ' ':
-							labelElement.Text = elem.name;
+							labelElement.Text = nameLabel;
 							labelElement.Click += new System.EventHandler(this.LblElemOpenClick);
 							break;
 						case 'C':
 						case 'D':
-							labelElement.Text = elem.name + " [" + elem.changed + "]";
+							labelElement.Text = nameLabel + " [" + elem.changed + "]";
 							labelElement.Click += new System.EventHandler(this.LblElemOpenClick);
 							break;
 
 						case 'U':
-							labelElement.Text = elem.name + " [" + elem.changed + "]";
+							labelElement.Text = nameLabel + " [" + elem.changed + "]";
 							labelElement.Click += new System.EventHandler(this.LblElemOpenClick);
 							break;
 					}
@@ -358,17 +376,35 @@ namespace BehaviorDevelop
 			}
 
 		}
-		
-		#endregion
 
-		#region "メニューバーのメニュー項目のイベントハンドラ"
+        /// <summary>
+        /// EA内の要素型から、成果物内の要素一覧に出力できるか
+        /// </summary>
+        /// <param name="eaType"></param>
+        /// <returns></returns>
+        private bool checkDisplayableType(string eaType)
+        {
+            string[] typeNames = { "Class", "Interface", "Enumeration", "GUIElement", "Screen",
+                "Note", "Artifact", "UseCase", "Actor", "Object", "Requirement", "Action", "Activity"};
 
-		/// <summary>
-		/// メニュー - ファイル - 開く のメニュー項目のクリックイベント
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		void OpenToolStripMenuItemClick(object sender, EventArgs e)
+            foreach ( string tname in typeNames)
+            {
+                if (tname.Equals(eaType)) return true;
+            }
+
+            return false;
+        }
+
+        #endregion
+
+        #region "メニューバーのメニュー項目のイベントハンドラ"
+
+        /// <summary>
+        /// メニュー - ファイル - 開く のメニュー項目のクリックイベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void OpenToolStripMenuItemClick(object sender, EventArgs e)
 		{
 			//OpenFileDialogクラスのインスタンスを作成
 			OpenFileDialog dialog = new OpenFileDialog();
@@ -748,9 +784,8 @@ namespace BehaviorDevelop
         {
             //MessageBox.Show("このメニューはまだ実装が入ってません。すいません");
 
-            string inputText;
             bool foundFlg = false;
-            inputText = Interaction.InputBox( "パッケージ名（一部）", "成果物検索", "");
+            string inputText = Interaction.InputBox( "パッケージ名（一部）", "成果物検索", "");
 
             foreach (TreeNode tn in treeNodeMap.Values)
             {
