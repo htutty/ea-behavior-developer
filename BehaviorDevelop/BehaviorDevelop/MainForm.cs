@@ -79,21 +79,28 @@ namespace BehaviorDevelop
 			if( this.tabControl1.TabPages.Count > 1 ) {
 				this.tabControl1.TabPages.Clear();
 			}
-				
+			
+            // プロジェクトファイル(.bdprj)が読み込み済みの場合
 			if (ProjectSetting.getVO() != null) {
 				initProject();
-				
-				// 使用するIndexDBファイルの存在チェック
-				if ( !System.IO.File.Exists(ProjectSetting.getVO().projectPath + "\\" + ProjectSetting.getVO().dbName) ) {
-					// 読み込みが終わるまでモーダルでスプラッシュ画面を開く
-					SplashForm splashForm = new SplashForm();
-					
-					splashForm.Show();
-					splashForm.CloseOnLoadComplete(ProjectSetting.getVO().projectPath, ProjectSetting.getVO().dbName);
-				}
-			}
 
-			AttachEA();			
+                // 使用するIndexDBファイルの存在チェック
+                //if ( !System.IO.File.Exists(ProjectSetting.getVO().projectPath + "\\" + ProjectSetting.getVO().dbName) ) {
+                //	// 読み込みが終わるまでモーダルでスプラッシュ画面を開く
+                //	SplashForm splashForm = new SplashForm();
+
+                //	splashForm.Show();
+                //	splashForm.CloseOnLoadComplete(ProjectSetting.getVO().projectPath, ProjectSetting.getVO().dbName);
+                //}
+
+                // 展開IndexDBが未作成の場合にここで作成する処理を、一旦、削除する。
+                // TODO: IndexDBと要素毎に展開される成果物ファイルの存在が無いと、データ更新処理などで色々とできないことが出てくるため、
+                // 　　　ProjectSettingなどでこのフラグを管理して、画面の動作モードを一元的に管理できるようにする。
+                // 　　　既に "EAと接続済みか否か" の情報を持っていたりするので、その延長で。
+
+            }
+
+            AttachEA();			
 		}
 		
 		
