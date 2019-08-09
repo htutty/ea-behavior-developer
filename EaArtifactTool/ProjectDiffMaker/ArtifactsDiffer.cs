@@ -109,7 +109,7 @@ namespace ProjectDiffMaker
 			ArtifactVO lAtf, rAtf, outAtf;
 			List<ArtifactVO> outList = new List<ArtifactVO>();
 
-			for (lCnt=0, rCnt=0; lCnt < fromArtifacts.Count || rCnt < toArtifacts.Count; ) {
+			for (lCnt=0, rCnt=0; lCnt < fromArtifacts.Count && rCnt < toArtifacts.Count; ) {
 				lAtf = fromArtifacts[lCnt];
 				rAtf = toArtifacts[rCnt];
 				
