@@ -111,7 +111,7 @@ namespace ArtifactFileExporter
             }
 
             // AllArtifacts.xml ファイルを出力
-            AllArtifactsFileWriter.outputAllArtifactsFile(artifactDir, this.allArtifacts);
+            AllArtifactsXmlWriter.outputAllArtifactsFile(artifactDir, this.allArtifacts);
         }
 
 

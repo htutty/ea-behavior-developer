@@ -874,7 +874,8 @@ namespace ArtifactFileExporter
 
             // WHERE文: DBに対しては主に パッケージID で検索（キー＝IDで結合する必要があるため）
             strWhere = " where  Package_ID = " + package.packageId + " " +
-                 " AND Object_Type IN ('GUIElement', 'Screen', 'Class', 'Interface', 'Enumeration', 'Note', 'Artifact', 'UseCase') ";
+                 " AND Object_Type IN ('GUIElement', 'Screen', 'Class', 'Interface', 'Enumeration', 'Note', 'Artifact', 'UseCase'," +
+                 " 'Object', 'Requirement', 'Action', 'Activity', 'Actor') ";
 
             // SQL文 を作成
             strSQL = "select " + strFields +
