@@ -132,7 +132,7 @@ namespace ArtifactFileAccessor.writer
 
             if (elemvo.stereoType != null)
             {
-                sw.Write(" stereotype=\"" + elemvo.stereoType + "\"");
+                sw.Write(" stereotype=\"" + escapeXML(elemvo.stereoType) + "\"");
             }
             sw.WriteLine(">");
 
@@ -149,6 +149,13 @@ namespace ArtifactFileAccessor.writer
             // ノートが入っていたら notes タグを出力
             if (elemvo.notes != null)
             {
+                //if( elemvo.notes.IndexOf("&lt;") >= 0)
+                //{
+                //    Console.WriteLine("XMLの多重エスケープが疑われるノート発見:");
+                //    Console.WriteLine("GUID:" + elemvo.guid);
+                //    Console.WriteLine("Notes:" + elemvo.notes);
+                //}
+
                 sw.WriteLine(indent(depth + 1) + "<notes>" + escapeXML(elemvo.notes) + "</notes>");
             }
 
@@ -182,7 +189,7 @@ namespace ArtifactFileAccessor.writer
 
             if (elemPropvo.stereoType != null)
             {
-                sw.Write(" stereotype=\"" + elemPropvo.stereoType + "\"");
+                sw.Write(" stereotype=\"" + escapeXML(elemPropvo.stereoType) + "\"");
             }
             sw.WriteLine(">");
 
@@ -273,7 +280,7 @@ namespace ArtifactFileAccessor.writer
             // sw.Write( "position=\"" + att.pos + "\" " );
 
             if (att.stereoType != null) {
-				sw.Write( "stereotype=\"" + att.stereoType + "\" " );
+				sw.Write( "stereotype=\"" + escapeXML(att.stereoType) + "\" " );
 			}
 			sw.Write( "length=\"" + att.length + "\" " );
 			sw.Write( "allowDuplicates=\"" + att.allowDuplicates + "\" " );
@@ -391,7 +398,7 @@ namespace ArtifactFileAccessor.writer
 			sw.Write("alias=\"" + escapeXML(mth.alias) + "\" ");
             sw.Write("methodId=\"" + mth.methodId + "\" ");
             if (mth.stereoType != null) {
-				sw.Write( "stereotype=\"" + mth.stereoType + "\" ");
+				sw.Write( "stereotype=\"" + escapeXML(mth.stereoType) + "\" ");
 			}
 			if (mth.classifierID != null) {
 				sw.Write( "classifierID=\"" + mth.classifierID + "\" ");
@@ -580,8 +587,21 @@ namespace ArtifactFileAccessor.writer
 			if (orig == null) {
 				return "";
 			}
-		
-			System.Text.StringBuilder sb = new System.Text.StringBuilder(orig);
+
+            // Notes項目など、EAに格納された文字列が既にXMLエスケープされている場合があるため、
+            // 既に "<", ">" が "&lt;" "&gt;" になっていればそれ以上の変換はしない。
+            if( orig.IndexOf("&lt;") >= 0 && orig.IndexOf("<") < 0)
+            {
+                return orig;
+            }
+
+            if (orig.IndexOf("&gt;") >= 0 && orig.IndexOf(">") < 0)
+            {
+                return orig;
+            }
+
+
+            System.Text.StringBuilder sb = new System.Text.StringBuilder(orig);
 			sb.Replace("&", "&amp;");
 			sb.Replace("<", "&lt;");
 			sb.Replace(">", "&gt;");

@@ -72,6 +72,12 @@ namespace ArtifactFileAccessor.reader
 
 
         #region "アーティファクトファイル読み込み"
+
+        /// <summary>
+        /// 指定された成果物ファイルを読み込み、読み取り結果のVOを返却する
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
         public ArtifactVO readArtifactFile(string fileName)
         {
             string target_dir = null;
@@ -116,6 +122,8 @@ namespace ArtifactFileAccessor.reader
 
             // 成果物ノードを読み込んで vo を１件作成
             ArtifactVO atf = new ArtifactVO();
+
+            // <artifact> ノードの属性から ArtifactVO のプロパティをセット
             foreach (XmlAttribute attr in atfNode.Attributes)
             {
                 switch (attr.Name)
@@ -137,6 +145,20 @@ namespace ArtifactFileAccessor.reader
                         break;
                     case "changed":
                         atf.changed = attr.Value[0];
+                        break;
+                }
+            }
+
+            // <artifact> の子ノードから ArtifactVO のプロパティをセット
+            foreach (XmlNode atfChildNode in atfNode.ChildNodes)
+            {
+                switch (atfChildNode.Name)
+                {
+                    case "pathName":
+                        atf.pathName = atfChildNode.InnerText;
+                        break;
+                    case "asciidocFilePath":
+                        atf.asciidocFilePath = atfChildNode.InnerText;
                         break;
                 }
             }

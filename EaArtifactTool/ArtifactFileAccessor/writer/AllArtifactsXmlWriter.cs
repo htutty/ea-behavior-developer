@@ -9,7 +9,7 @@ using System.Xml;
 
 namespace ArtifactFileAccessor.writer
 {
-    public class AllArtifactsFileWriter
+    public class AllArtifactsXmlWriter
     {
 
         public static void outputAllArtifactsFile(string outputDir, ArtifactsVO artifacts)
@@ -59,10 +59,12 @@ namespace ArtifactFileAccessor.writer
                 sw.Write("  <artifact ");
                 sw.Write(" guid='" + atf.guid + "' ");
                 sw.Write(" name='" + StringUtil.escapeXML(atf.name) + "' ");
-                sw.Write(" path='" + StringUtil.escapeXML(atf.pathName) + "' ");
                 sw.Write(" project='" + StringUtil.escapeXML(atf.projectName) + "' ");
-                sw.Write(" stereotype='" + atf.stereoType + "' ");
-                sw.WriteLine("/>");
+                sw.Write(" stereotype='" + StringUtil.escapeXML(atf.stereoType) + "' ");
+                sw.WriteLine(">");
+                sw.WriteLine("    <pathName>" + StringUtil.escapeXML(atf.pathName) + "</pathName>");
+                sw.WriteLine("    <asciidocFile> " + StringUtil.escapeXML(atf.asciidocFilePath) + "</asciidocFile>");
+                sw.WriteLine("  </artifact>");
             }
 
             sw.WriteLine("</artifacts>");

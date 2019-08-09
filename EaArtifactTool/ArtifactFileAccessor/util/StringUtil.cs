@@ -78,5 +78,20 @@ namespace ArtifactFileAccessor.util
         }
 
 
+        public static string removeQuoteChar(string orig)
+        {
+
+            // ダブルクォート文字を見つけたらそれを取り除いた文字を返却
+            if (orig.IndexOf("\"") >= 0)
+            {
+                return orig.Replace("\"", "");
+            }
+            else
+            {
+                // ダブルクォート文字を含んでいなければそのまま返却
+                return orig;
+            }
+        }
+
     }
 }

@@ -11,6 +11,71 @@ namespace ArtifactFileAccessor.reader
     /// </summary>
     public class ArtifactsXmlReader
     {
+
+        /// <summary>
+        /// AllArtficats.xml を読み、ArtifactsVO を返却する
+        /// ただし、この処理ではまだ成果物XMLファイルを読んでいないので、
+        /// ArtifactVO には package配下の情報は入っていない
+        /// </summary>
+        /// <param name="artifactDir"></param>
+        /// <returns>読み込まれた全成果物情報</returns>
+        public static ArtifactsVO readAllArtifacts(string artifactDir)
+        {
+            ArtifactsVO retArtifacts = new ArtifactsVO();
+            string allArtifactsFile = "AllArtifacts.xml";
+            string fileName = artifactDir + "\\" + allArtifactsFile;
+
+            // XMLテキストをロードする
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.Load(fileName);
+
+            // artifactsノードに移動する
+            XmlNode artifactsNode = xmlDoc.SelectSingleNode("artifacts");
+
+            foreach (XmlAttribute atfAttr in artifactsNode.Attributes)
+            {
+                switch (atfAttr.Name)
+                {
+                    case "targetProject":
+                        if (atfAttr.Value != null && atfAttr.Value != "")
+                        {
+                            retArtifacts.targetProject = atfAttr.Value;
+                        }
+                        break;
+
+                    case "lastUpdated":
+                        if (atfAttr.Value != null && atfAttr.Value != "")
+                        {
+                            retArtifacts.lastUpdated = atfAttr.Value;
+                        }
+                        break;
+
+                    case "targetModel":
+                        if (atfAttr.Value != null && atfAttr.Value != "")
+                        {
+                            retArtifacts.targetModel = atfAttr.Value;
+                        }
+                        break;
+                }
+
+            }
+
+            List<ArtifactVO> artifacts = new List<ArtifactVO>();
+
+            foreach (XmlNode atfNode in artifactsNode.ChildNodes)
+            {
+                if (atfNode.Name == "artifact")
+                {
+                    artifacts.Add(ArtifactXmlReader.readArtifactNode(atfNode));
+                }
+            }
+
+            retArtifacts.artifactList = artifacts;
+
+            return retArtifacts;
+        }
+
+
         /// <summary>
         /// All_Artifacts.xml を読み、リスト化する
         ///
@@ -20,9 +85,10 @@ namespace ArtifactFileAccessor.reader
         /// </artifacts>
         ///
         /// </summary>
-        public static List<ArtifactVO> readArtifactList(string project_dir)
+        public static List<ArtifactVO> readArtifactList(string artifactDir)
         {
-        	return readArtifactList(project_dir, null);
+            string allArtifactsFile = "AllArtifacts.xml";
+            return readArtifactList(artifactDir, allArtifactsFile);
         }
 
         /// <summary>
@@ -35,9 +101,10 @@ namespace ArtifactFileAccessor.reader
         ///
         /// </summary>
         /// <returns>ArtifactVOのリスト</returns>
-        public static List<ArtifactVO> readArtifactList(string artifactDir, string artifactsfile)
+        public static List<ArtifactVO> readArtifactList(string artifactDir, string allArtifactsFile)
         {
             List<ArtifactVO> artifactList = new List<ArtifactVO>();
+            
 
 			string target_dir = null;
 			if ( artifactDir != null ) {
@@ -46,7 +113,7 @@ namespace ArtifactFileAccessor.reader
 				throw new ArgumentException("project_dirを指定してください");
 			}
 
-			string target_file = artifactsfile;
+			string target_file = allArtifactsFile;
 			if (target_file == null) {
 				target_file = "AllArtifacts.xml";
 			}
