@@ -8,6 +8,8 @@ namespace IndexAccessor
 
     public class AttrMthSearchItem
     {
+        /// <summary>要素ID</summary>
+        public int elemId { get; set; }
 
         /// <summary>要素名</summary>
         public string elemName { get; set; }
@@ -26,6 +28,20 @@ namespace IndexAccessor
 
         /// <summary>属性操作フラグ(a=属性,m=操作)</summary>
         public string attrMethFlg { get; set; }
+
+        public bool isAttribute()
+        {
+            return (this.attrMethFlg == "a");
+        }
+
+        public bool isMethod()
+        {
+            return (this.attrMethFlg == "m");
+        }
+
+
+        /// <summary>属性操作ID（属性は負の数値、操作は正の数値）</summary>
+        public int attrMethId { get; set; }
 
         /// <summary>属性操作タイプ(属性なら属性型、操作なら戻り値型)</summary>
         public string attrMethType { get; set; }
@@ -47,7 +63,6 @@ namespace IndexAccessor
 
         /// <summary>成果物パッケージのパス（"/"区切り） </summary>
         public string elementPath { get; set; }
-
 
     }
 }

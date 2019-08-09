@@ -5,7 +5,7 @@ namespace IndexAccessor
     /// <summary>
     /// Description of ElementSearchItem.
     /// </summary>
-    public class ElementSearchItem
+    public class ElementSearchItem : IComparable<ElementSearchItem>
 	{
         /// <summary>名前</summary>
         public int elementId { get; set; }
@@ -38,5 +38,14 @@ namespace IndexAccessor
 		{
 		}
 
-	}
+        /// <summary>
+        /// ソートのための要素比較メソッド
+        /// </summary>
+        /// <param name="other">比較対象インスタンス</param>
+        /// <returns>this.elementId と other.elementId の差</returns>
+        public int CompareTo(ElementSearchItem other)
+        {
+            return this.elementId - other.elementId;
+        }
+    }
 }

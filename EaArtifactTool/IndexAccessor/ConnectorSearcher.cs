@@ -28,7 +28,7 @@ namespace IndexAccessor
 		    {
                 //クエリの実行
                 string sql =
-                    @"select connGuid, connName, connType, srcObjGuid, srcObjName, destObjGuid, destObjName
+                    @"select connGuid, connName, connType, srcObjId, srcObjGuid, srcObjName, destObjId, destObjGuid, destObjName
                       from t_connector where srcObjGuid = '" + objGuid + "' or destObjGuid = '" + objGuid + "'";
                 command.CommandText = sql;
 
@@ -42,10 +42,14 @@ namespace IndexAccessor
 	            		convo.guid = sdr.GetString(0);
 	            		convo.name = sdr.GetString(1);
 	            		convo.connectorType = sdr.GetString(2);
-	            		convo.srcObjGuid = sdr.GetString(3);
-		            	convo.srcObjName =  sdr.GetString(4);
-	            		convo.destObjGuid = sdr.GetString(5);
-	            		convo.destObjName = sdr.GetString(6);
+
+                        convo.srcObjId = sdr.GetInt32(3);
+                        convo.srcObjGuid = sdr.GetString(4);
+		            	convo.srcObjName =  sdr.GetString(5);
+
+                        convo.destObjId = sdr.GetInt32(6);
+                        convo.destObjGuid = sdr.GetString(7);
+	            		convo.destObjName = sdr.GetString(8);
 
 	            		if ( convo.srcObjGuid.Equals(objGuid) ) {
 	            			convo.targetObjGuid = convo.destObjGuid;
