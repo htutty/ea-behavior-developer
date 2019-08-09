@@ -1,5 +1,6 @@
 ﻿using System;
 using ArtifactFileAccessor.reader;
+using ArtifactFileAccessor.writer;
 using ArtifactFileAccessor.vo;
 using ArtifactFileAccessor.util;
 using System.IO;
@@ -24,26 +25,25 @@ namespace AsciidocGenerator
                 string asciidocDir = ProjectSetting.getVO().projectPath + "\\" + "asciidocs";
                 makeAsciidocDirIfNotExist(asciidocDir);
 
-                // 成果物パッケージXMLファイル読み込み
+                // 全成果物リストの読み込み
                 string artifactDir = ProjectSetting.getVO().projectPath + "\\" + ProjectSetting.getVO().artifactsPath;
+                ArtifactsVO allArtifacts = ArtifactsXmlReader.readAllArtifacts(artifactDir);
+
+                // 成果物パッケージXMLファイル読み込み
                 ArtifactXmlReader atfReader = new ArtifactXmlReader(artifactDir, true);
 
-                // 成果物読み込み先の artifacts フォルダが存在する場合
-                if (Directory.Exists(artifactDir))
+                for(int i=0; i < allArtifacts.artifactList.Count; i++)
                 {
-                    // その配下の成果物ファイルを取得
-                    string[] atfFiles = Directory.GetFiles(artifactDir, "atf_*.xml");
-                    Console.WriteLine("成果物Path=" + artifactDir);
+                    ArtifactVO atf = allArtifacts.artifactList[i];
+                    string artifactFileName = "atf_" + atf.guid.Substring(1, 36) + ".xml";
+                    string adocfile = outputArtifactAsciidoc(atfReader, artifactFileName, asciidocDir);
 
-                    for (var i=0; i < atfFiles.Length; i++)
-                    {
-                        string adocfile = outputArtifactAsciidoc(atfReader, Path.GetFileName(atfFiles[i]), asciidocDir);
-
-                        Console.WriteLine("({0}/{1})ドキュメント出力: {2}", i+1, atfFiles.Length, adocfile);
-                    }
-
+                    Console.WriteLine("{0}:ドキュメント出力 {1}", i + 1, adocfile);
+                    atf.asciidocFilePath = "asciidocs\\" + artifactFileName;
                 }
 
+                // asciidocFilePath をセットした結果を AllArtifacts.xml ファイルに記録
+                AllArtifactsXmlWriter.outputAllArtifactsFile(artifactDir, allArtifacts);
             }
             else
             {
@@ -53,19 +53,24 @@ namespace AsciidocGenerator
 
         }
 
+        /// <summary>
+        /// 成果物ごとのAsciiDocファイルを出力する
+        /// </summary>
+        /// <param name="atfReader"></param>
+        /// <param name="artifactFile"></param>
+        /// <param name="asciidocDir"></param>
+        /// <returns></returns>
         private static string outputArtifactAsciidoc(ArtifactXmlReader atfReader, string artifactFile, string asciidocDir)
         {
-            // 
+            // 成果物XMLファイルの読み込み
             ArtifactVO artifact = atfReader.readArtifactFile(artifactFile);
 
-            ArtifactAsciidocWriter aaWriter = new ArtifactAsciidocWriter(artifact);
-            string plainFileName = Path.GetFileNameWithoutExtension(artifactFile);
-
+            // string plainFileName = Path.GetFileNameWithoutExtension(artifactFile);
             string partGuid = artifact.guid.Substring(1, 8);
             string artifactFileName = "atf_" + filterSpecialChar(artifact.name) + "_" + partGuid + ".adoc";
-
-            aaWriter.writeFile(asciidocDir + "\\" + artifactFileName);
-
+            // ArtifactAsciidocWriter aaWriter = new ArtifactAsciidocWriter(artifact);
+            // aaWriter.writeFile(asciidocDir + "\\" + artifactFileName);
+            ArtifactAsciidocWriter.outputAsciidocFile(artifact, asciidocDir + "\\" + artifactFileName);
             return artifactFileName;
         }
 

@@ -15,6 +15,51 @@ namespace AsciidocGenerator
             this.Artifact = artifact;
         }
 
+        /// <summary>
+        /// AsciiDocファイルの出力
+        /// </summary>
+        /// <param name="artifact"></param>
+        /// <param name="filepath"></param>
+        public static void outputAsciidocFile(ArtifactVO artifact, string filepath)
+        {
+
+            try
+            {
+                //BOM無しのUTF8でテキストファイルを作成する
+                StreamWriter atfsw = new StreamWriter(filepath);
+                atfsw.WriteLine(@":sectnums:
+:chapter-label:
+:toc: left
+:toclevels: 2
+:table-caption: 表
+:stylesdir: stylesheets/
+:stylesheet: asciidoctor-custom.css
+// :pdf-fontsdir: fonts
+// :pdf-stylesdir: theme
+// :pdf-style: public
+
+");
+
+                atfsw.WriteLine("# モデル成果物詳細 " + artifact.name);
+                atfsw.WriteLine("");
+
+                // atfsw.WriteLine("## パッケージ: " + pathName);
+                // atfsw.WriteLine("// GUID: " + package.guid);
+                // atfsw.WriteLine("");
+
+                // 配下のパッケージを出力
+                writePackage(artifact.package, atfsw, "");
+
+                atfsw.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw ex;
+            }
+        }
+
+
         public void writeFile(string filepath)
         {
 
@@ -42,7 +87,6 @@ namespace AsciidocGenerator
                 // atfsw.WriteLine("// GUID: " + package.guid);
                 // atfsw.WriteLine("");
 
-
                 // 配下のパッケージを出力
                 writePackage(Artifact.package, atfsw, "");
 
@@ -62,7 +106,7 @@ namespace AsciidocGenerator
         /// <param name="package"></param>
         /// <param name="sw"></param>
         /// <param name="packagePath"></param>
-        private void writePackage(PackageVO package, StreamWriter sw, string packagePath)
+        private static void writePackage(PackageVO package, StreamWriter sw, string packagePath)
         {
             string pathName = "";
             if (packagePath != "")
@@ -107,7 +151,7 @@ namespace AsciidocGenerator
         /// </summary>
         /// <param name="package">対象パッケージ</param>
         /// <returns>パッケージ直下の要素数</returns>
-        private int countPrintableElement(PackageVO package)
+        private static int countPrintableElement(PackageVO package)
         {
             int elemCount = 0;
             if (package.elements != null && package.elements.Count > 0)
@@ -128,8 +172,12 @@ namespace AsciidocGenerator
 
         }
 
-
-        private string filterSpecialChar(string orig)
+        /// <summary>
+        /// ファイル名などに使えない特殊文字を別の文字に置き換える
+        /// </summary>
+        /// <param name="orig"></param>
+        /// <returns></returns>
+        private static string filterSpecialChar(string orig)
         {
             System.Text.StringBuilder sb = new System.Text.StringBuilder(orig);
             sb.Replace("(", "（");
@@ -144,8 +192,12 @@ namespace AsciidocGenerator
             return sb.ToString();
         }
 
-
-        private string getVisibilitySymbol(string visibility)
+        /// <summary>
+        /// visibilityの文字列からPlantUMLのvisibility指定 "+", "-", "#" に変換する
+        /// </summary>
+        /// <param name="visibility"></param>
+        /// <returns></returns>
+        private static string getUmlVisibilitySymbol(string visibility)
         {
             switch (visibility)
             {
@@ -157,7 +209,7 @@ namespace AsciidocGenerator
         }
 
 
-        private string getStereotypeStr(string stereoType)
+        private static string getStereotypeStr(string stereoType)
         {
             if (stereoType != null && stereoType != "")
             {
