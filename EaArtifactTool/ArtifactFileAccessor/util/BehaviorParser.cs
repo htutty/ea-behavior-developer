@@ -7,6 +7,22 @@ namespace ArtifactFileAccessor.util
 {
     public class BehaviorParser
     {
+        // パース結果で判断されたステートメントのタイプ指定
+        public const string STMT_TYPE_DEFINE = "[define]";
+        public const string STMT_TYPE_DEFINE_WITH_TYPE = "[define-with-type]";
+        public const string STMT_TYPE_DECLARE = "[declare]";
+        public const string STMT_TYPE_CALL_METHOD = "[call-method]";
+        public const string STMT_TYPE_CALL_METHOD_TAKE_RETURN = "[call-method-take-return]";
+        public const string STMT_TYPE_RETURN = "[return]";
+        public const string STMT_TYPE_LET_WITH_CAST = "[let-with-cast]";
+        public const string STMT_TYPE_LET = "[let]";
+        public const string STMT_TYPE_IF_COND = "[if-condition]";
+        public const string STMT_TYPE_FOREACH_COLLECTION_W_INDEX = "[foreach-collection-with-index]";
+        public const string STMT_TYPE_FOREACH_COLLECTION = "[foreach-collection]";
+        public const string STMT_TYPE_FOREACH_PICKUP = "[foreach-pickup]";
+        public const string STMT_TYPE_LOOP_BREAK = "[loop-break]";
+        public const string STMT_TYPE_LOOP_CONTINUE = "[loop-continue]";
+        public const string STMT_TYPE_COMMENT = "[comment]";
 
         private int chunkCount;
 
@@ -32,7 +48,11 @@ namespace ArtifactFileAccessor.util
             return parseBehavior(method.behavior);
         }
 
-
+        /// <summary>
+        /// ふるまいのパースを行う。チャンクに切り分けた上で、チャンク毎にトークンを抽出する
+        /// </summary>
+        /// <param name="origBehavior">ふるまい</param>
+        /// <returns>ふるまいチャンクのリスト</returns>
         public List<BehaviorChunk> parseBehavior(string origBehavior)
         {
             string[] delimiter = { "\r\n" };
@@ -48,8 +68,29 @@ namespace ArtifactFileAccessor.util
             return retChunks;
         }
 
+        /// <summary>
+        /// 既にチャンク化された
+        /// </summary>
+        /// <param name="chunks"></param>
+        /// <returns></returns>
+        public List<BehaviorChunk> tokenizeChunk(List<BehaviorChunk> chunks)
+        {
+
+            foreach (BehaviorChunk c in chunks)
+            {
+                c.behaviorToken = tryTokenize(c);
+            }
+
+            return chunks;
+        }
 
 
+        /// <summary>
+        /// トークナイズを試みる（tryを付けているのはインプットのふるまいの記述ルールに
+        /// 揺れがあり実効性が不明なため）
+        /// </summary>
+        /// <param name="c">ふるまいチャンク</param>
+        /// <returns>取得されたトークン</returns>
         private BehaviorToken tryTokenize(BehaviorChunk c)
         {
 
@@ -63,7 +104,7 @@ namespace ArtifactFileAccessor.util
             matche = Regex.Match(trimmedStr, "(.*)を生成し、?(.*)を(セット|設定)する");
             if (matche.Success)
             {
-                tokenTop.token = "[define]";
+                tokenTop.token = STMT_TYPE_DEFINE;
                 var g1 = matche.Groups[1];
                 var g2 = matche.Groups[2];
 
@@ -81,7 +122,7 @@ namespace ArtifactFileAccessor.util
             matche = Regex.Match(trimmedStr, "(.*)に、?(.*)を、?生成してセットする");
             if (matche.Success)
             {
-                tokenTop.token = "[define-with-type]";
+                tokenTop.token = STMT_TYPE_DEFINE_WITH_TYPE;
                 var g1 = matche.Groups[1];
                 var g2 = matche.Groups[2];
 
@@ -99,7 +140,7 @@ namespace ArtifactFileAccessor.util
             matche = Regex.Match(trimmedStr, "(.*)を生成する");
             if (matche.Success)
             {
-                tokenTop.token = "[declare]";
+                tokenTop.token = STMT_TYPE_DECLARE;
                 var g1 = matche.Groups[1];
 
                 addToken(tokenTop, g1.ToString(), TokenType.TOKEN_ELEMENT_NAME);
@@ -114,7 +155,7 @@ namespace ArtifactFileAccessor.util
             matche = Regex.Match(trimmedStr, "(.*)を呼び出す");
             if (matche.Success)
             {
-                tokenTop.token = "[call]";
+                tokenTop.token = STMT_TYPE_CALL_METHOD;
                 var g1 = matche.Groups[1];
 
                 addToken(tokenTop, g1.ToString(), TokenType.TOKEN_METHOD_NAME);
@@ -126,7 +167,7 @@ namespace ArtifactFileAccessor.util
             matche = Regex.Match(trimmedStr, "(.*)を呼び?出し、?(.*)(に戻り値)?を(セット|取得)する");
             if (matche.Success)
             {
-                tokenTop.token = "[receive_response]";
+                tokenTop.token = STMT_TYPE_CALL_METHOD_TAKE_RETURN;
                 var g1 = matche.Groups[1];
                 var g2 = matche.Groups[2];
 
@@ -137,30 +178,14 @@ namespace ArtifactFileAccessor.util
                 addToken(tokenTop, ";", TokenType.TOKEN_SEMICOLON);
                 return tokenTop;
             }
-
-            // メソッド呼び出しで戻り値を取るパターン（別バージョン）
-            matche = Regex.Match(trimmedStr, "(.*)を呼び?出し、?(.*)(に戻り値)?を(セット|取得)する");
-            if (matche.Success)
-            {
-                tokenTop.token = "[receive_response]";
-                var g1 = matche.Groups[1];
-                var g2 = matche.Groups[2];
-
-                addToken(tokenTop, g2.ToString(), TokenType.TOKEN_ATTRIBUTE_NAME);
-                addToken(tokenTop, "=", TokenType.TOKEN_OPER_EQUAL);
-                addToken(tokenTop, g1.ToString(), TokenType.TOKEN_ATTRIBUTE_NAME);
-
-                addToken(tokenTop, ";", TokenType.TOKEN_SEMICOLON);
-                return tokenTop;
-            }
-
 
             // メソッド呼び出しで戻り値を取るパターン（別バージョン）
             // 日付操作ユーティリティ.日付分割処理(空席照会条件入力・空席照会検索条件.往路搭乗日,\n定数クラス.日付セパレートキー（年）)を呼び出し、取得した分割搭乗年を(変数)搭乗年 にセットする。
             matche = Regex.Match(trimmedStr, "(.*)を呼び?出し、?取得した(.*)を(.*)にセットする");
             if (matche.Success)
             {
-                tokenTop.token = "[receive_response]";
+                tokenTop.token = tokenTop.token = STMT_TYPE_CALL_METHOD_TAKE_RETURN;
+
                 var g1 = matche.Groups[1];
                 var g3 = matche.Groups[3];
 
@@ -178,7 +203,7 @@ namespace ArtifactFileAccessor.util
             matche = Regex.Match(trimmedStr, "(.*)をリターンする");
             if (matche.Success)
             {
-                tokenTop.token = "[return]";
+                tokenTop.token = STMT_TYPE_RETURN;
                 var g1 = matche.Groups[1];
 
                 addToken(tokenTop, "return ", TokenType.TOKEN_RETURN);
@@ -188,11 +213,11 @@ namespace ArtifactFileAccessor.util
                 return tokenTop;
             }
 
-            // 型変換を伴う代入式のパターン
+            // 型変換(Class Cast)を伴う代入式のパターン
             matche = Regex.Match(trimmedStr, "(.*)に、?(.*)に変換した(.*)を(セット|設定)(する|し)");
             if (matche.Success)
             {
-                tokenTop.token = "[let_with_conv]";
+                tokenTop.token = STMT_TYPE_LET_WITH_CAST;
 
                 var g1 = matche.Groups[1];
                 var g2 = matche.Groups[2];
@@ -202,7 +227,7 @@ namespace ArtifactFileAccessor.util
                 addToken(tokenTop, "=", TokenType.TOKEN_OPER_EQUAL);
 
                 addToken(tokenTop, "(", TokenType.TOKEN_PARENTHESIS_BEGIN);
-                addToken(tokenTop, g2.ToString(), TokenType.TOKEN_ATTRIBUTE_NAME);
+                addToken(tokenTop, g2.ToString(), TokenType.TOKEN_ELEMENT_NAME);
                 addToken(tokenTop, ")", TokenType.TOKEN_PARENTHESIS_END);
 
                 addToken(tokenTop, g3.ToString(), TokenType.TOKEN_ATTRIBUTE_NAME);
@@ -216,10 +241,9 @@ namespace ArtifactFileAccessor.util
             matche = Regex.Match(trimmedStr, "(.*)に、?(.*)を(セット|設定)(する|し)");
             if (matche.Success)
             {
-                tokenTop.token = "[let]";
+                tokenTop.token = STMT_TYPE_LET; 
                 var g1 = matche.Groups[1];
                 var g2 = matche.Groups[2];
-
 
                 addToken(tokenTop, g1.ToString(), TokenType.TOKEN_EXPR_IDENTIFIER);
                 addToken(tokenTop, "=", TokenType.TOKEN_OPER_EQUAL);
@@ -233,7 +257,7 @@ namespace ArtifactFileAccessor.util
             matche = Regex.Match(trimmedStr, "(.*)を、?(.*)に(セット|設定)(する|し)");
             if (matche.Success)
             {
-                tokenTop.token = "[let]";
+                tokenTop.token = STMT_TYPE_LET;
                 var g1 = matche.Groups[1];
                 var g2 = matche.Groups[2];
 
@@ -251,7 +275,7 @@ namespace ArtifactFileAccessor.util
             matche = Regex.Match(trimmedStr, "(.*)の場合[。、]?\\s*$");
             if (matche.Success)
             {
-                tokenTop.token = "[if-cond]";
+                tokenTop.token = STMT_TYPE_IF_COND;
                 var g1 = matche.Groups[1];
 
                 addToken(tokenTop, "if", TokenType.TOKEN_ATTRIBUTE_NAME);
@@ -267,7 +291,7 @@ namespace ArtifactFileAccessor.util
             matche = Regex.Match(trimmedStr, "(.*)の要素数分(ループし)?、*以下(の処理)?を繰り?返え?す。?\\(ループカウンタ[:：](.*)\\)");
             if (matche.Success)
             {
-                tokenTop.token = "[foreach-collection-index]";
+                tokenTop.token = STMT_TYPE_FOREACH_COLLECTION_W_INDEX;
                 Group g1 = matche.Groups[1];
                 Group g2 = matche.Groups[4];
 
@@ -299,7 +323,7 @@ namespace ArtifactFileAccessor.util
             matche = Regex.Match(trimmedStr, "(.*)の要素数分(ループし)?、*以下の処理を繰り?返え?す");
             if (matche.Success)
             {
-                tokenTop.token = "[foreach-collection]";
+                tokenTop.token = STMT_TYPE_FOREACH_COLLECTION;
                 var g1 = matche.Groups[1];
 
                 addToken(tokenTop, "for", TokenType.TOKEN_FOREACH);
@@ -310,12 +334,14 @@ namespace ArtifactFileAccessor.util
                 return tokenTop;
             }
 
-            // ループ内の
+            // コレクションをなめるループをしている中で、コレクションから１要素を取り出す記述
+            // 合わせて、変数名などに「〇〇リスト」と名付けておくだけで
+            // 「〇〇」という型のコレクションであるという宣言をしていることになるらしい。
             // 例： フライト情報リスト(i)をフライト情報として取得する。
             matche = Regex.Match(trimmedStr, "(.*)\\(([i-n])\\)を(.*)として取得する");
             if (matche.Success)
             {
-                tokenTop.token = "[foreach-pickup]";
+                tokenTop.token = STMT_TYPE_FOREACH_PICKUP;
                 var g1 = matche.Groups[1];
                 var g2 = matche.Groups[2];
                 var g3 = matche.Groups[3];
@@ -337,7 +363,7 @@ namespace ArtifactFileAccessor.util
             matche = Regex.Match(trimmedStr, "ループを抜ける");
             if (matche.Success)
             {
-                tokenTop.token = "[loop-break]";
+                tokenTop.token = STMT_TYPE_LOOP_BREAK;
 
                 addToken(tokenTop, "break", TokenType.TOKEN_BREAK);
                 addToken(tokenTop, ";", TokenType.TOKEN_SEMICOLON);
@@ -350,7 +376,7 @@ namespace ArtifactFileAccessor.util
             matche = Regex.Match(trimmedStr, "ループの先頭に戻る");
             if (matche.Success)
             {
-                tokenTop.token = "[loop-continue]";
+                tokenTop.token = STMT_TYPE_LOOP_CONTINUE;
 
                 addToken(tokenTop, "continue", TokenType.TOKEN_CONTINUE);
                 addToken(tokenTop, ";", TokenType.TOKEN_SEMICOLON);
@@ -358,10 +384,11 @@ namespace ArtifactFileAccessor.util
             }
 
             // メソッド呼び出しで戻り値を取らないパターン（別パターン）
+            // 単にメソッド名だけを書いた文章は、そのメソッドを呼び出し戻り値は無視する、という意味になるらしい。
             matche = Regex.Match(trimmedStr, "(.*)\\((.*)\\)$");
             if (matche.Success)
             {
-                tokenTop.token = "[call]";
+                tokenTop.token = STMT_TYPE_CALL_METHOD;
                 var g1 = matche.Groups[1];
                 var g2 = matche.Groups[2];
 
@@ -374,7 +401,7 @@ namespace ArtifactFileAccessor.util
             }
 
             // それ以外はコメント扱いとしてそのまま出力
-            tokenTop.token = "[comment]";
+            tokenTop.token = STMT_TYPE_COMMENT;
 
             addToken(tokenTop, trimmedStr, TokenType.TOKEN_COMMENT);
             return tokenTop;
@@ -382,11 +409,15 @@ namespace ArtifactFileAccessor.util
             // return null;
         }
 
-        // 代入式の評価
+        /// <summary>
+        /// 代入式の評価
+        /// </summary>
+        /// <param name="origToken">材料のトークン</param>
+        /// <returns></returns>
         private BehaviorToken evaluateAssignmentExpression(BehaviorToken origToken)
         {
             // 代入式の場合
-            if( origToken.token == "[let]" )
+            if( origToken.token == STMT_TYPE_LET )
             {
                 // left sideは Top の次
                 BehaviorToken lhsToken = origToken.NextToken;
@@ -413,6 +444,11 @@ namespace ArtifactFileAccessor.util
         }
 
 
+        /// <summary>
+        /// 識別子を取り出す（要素名.属性名 もしくは 属性名のみ）
+        /// </summary>
+        /// <param name="origValue">取得元の文字列</param>
+        /// <returns>トークン</returns>
         private BehaviorToken parseIdentifier(string origValue)
         {
             BehaviorToken retToken = new BehaviorToken();
@@ -442,6 +478,11 @@ namespace ArtifactFileAccessor.util
         }
 
 
+        /// <summary>
+        /// 引数の文字列が操作かどうかを判断する。
+        /// </summary>
+        /// <param name="expr">識別したい文字列</param>
+        /// <returns>true:操作、false:操作でない</returns>
         private bool isMethod( string expr )
         {
             // ( ) を含んだ文字列が識別子中に有れば
@@ -449,7 +490,11 @@ namespace ArtifactFileAccessor.util
             return matche.Success;
         }
 
-
+        /// <summary>
+        /// 空白、改行を取り除いた文字列を返却する
+        /// </summary>
+        /// <param name="origStr">元の文字列</param>
+        /// <returns>空白改行を取り除いた文字列</returns>
         private string getTrimmed(string origStr)
         {
             string retStr = origStr;
@@ -469,7 +514,13 @@ namespace ArtifactFileAccessor.util
             return retStr;
         }
 
-
+        /// <summary>
+        /// 引数からトークンを作成し、渡されたトークンの末尾に付与して返却する
+        /// </summary>
+        /// <param name="token"></param>
+        /// <param name="content"></param>
+        /// <param name="tokenTyp"></param>
+        /// <returns></returns>
         private BehaviorToken addToken(BehaviorToken token, string content, TokenType tokenTyp)
         {
             BehaviorToken targetToken = token;
@@ -508,7 +559,8 @@ namespace ArtifactFileAccessor.util
         }
 
         /// <summary>
-        ///
+        /// ふるまいの各行を解析し、各行の処理内容を評価する前段階として１行ないし複数行の
+        /// 命令に分ける。
         /// </summary>
         /// <param name="tlin"></param>
         /// <param name="idx"></param>
@@ -784,7 +836,12 @@ namespace ArtifactFileAccessor.util
 
         }
 
-        // 文字の出現回数をカウント
+        /// <summary>
+        /// 引数で指定された文字が文字列の中に何回出てくるかを数えて返却する
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="c"></param>
+        /// <returns></returns>
         private int countChar(string s, string c)
         {
             return s.Length - s.Replace(c.ToString(), "").Length;

@@ -59,6 +59,11 @@ namespace ArtifactFileAccessor.vo
         public string updateDate { get; set; }
 
         /// <summary>
+        /// この成果物のAsciiDocファイルのパス
+        /// </summary>
+        public string asciidocFilePath { get; set; }
+
+        /// <summary>
         /// 成果物パッケージ
         /// </summary>
         public PackageVO package { get; set; }
