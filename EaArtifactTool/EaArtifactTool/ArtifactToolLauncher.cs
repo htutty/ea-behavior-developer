@@ -94,7 +94,13 @@ namespace EaArtifactTool
                 return;
             }
 
-            string arguments = TxtEapFile.Text + " " + TxtProjectName.Text + " " + TxtOutputFolder.Text;
+            string idxOption = "";
+            if ( CheckIsMakeIndex.Checked )
+            {
+                idxOption = "-index";
+            }
+            
+            string arguments = idxOption + " " + TxtEapFile.Text + " " + TxtProjectName.Text + " " + TxtOutputFolder.Text;
             string appPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
             System.Diagnostics.Process.Start(appPath + "\\ArtifactFileExporter.exe", arguments);
@@ -229,5 +235,6 @@ namespace EaArtifactTool
 
             System.Diagnostics.Process.Start(appPath + "\\ProjectDiffMaker.exe", arguments);
         }
+
     }
 }

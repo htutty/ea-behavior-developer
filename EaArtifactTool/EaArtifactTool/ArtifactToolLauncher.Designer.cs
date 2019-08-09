@@ -52,6 +52,7 @@
             this.BtnSelectSrcProject = new System.Windows.Forms.Button();
             this.BtnSelectDestProject = new System.Windows.Forms.Button();
             this.BtnSelectResultDir = new System.Windows.Forms.Button();
+            this.CheckIsMakeIndex = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // TxtEapFile
@@ -113,7 +114,7 @@
             // 
             // BtnExecOutput
             // 
-            this.BtnExecOutput.Location = new System.Drawing.Point(421, 161);
+            this.BtnExecOutput.Location = new System.Drawing.Point(428, 184);
             this.BtnExecOutput.Name = "BtnExecOutput";
             this.BtnExecOutput.Size = new System.Drawing.Size(75, 23);
             this.BtnExecOutput.TabIndex = 7;
@@ -148,7 +149,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(12, 212);
+            this.label5.Location = new System.Drawing.Point(19, 235);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(145, 12);
             this.label5.TabIndex = 12;
@@ -157,7 +158,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(18, 248);
+            this.label6.Location = new System.Drawing.Point(25, 271);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(110, 12);
             this.label6.TabIndex = 11;
@@ -165,7 +166,7 @@
             // 
             // TxtCmpSrcProject
             // 
-            this.TxtCmpSrcProject.Location = new System.Drawing.Point(134, 245);
+            this.TxtCmpSrcProject.Location = new System.Drawing.Point(141, 268);
             this.TxtCmpSrcProject.Name = "TxtCmpSrcProject";
             this.TxtCmpSrcProject.Size = new System.Drawing.Size(327, 19);
             this.TxtCmpSrcProject.TabIndex = 10;
@@ -173,7 +174,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(18, 285);
+            this.label7.Location = new System.Drawing.Point(25, 308);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(110, 12);
             this.label7.TabIndex = 14;
@@ -181,14 +182,14 @@
             // 
             // TxtCmpDestProject
             // 
-            this.TxtCmpDestProject.Location = new System.Drawing.Point(134, 282);
+            this.TxtCmpDestProject.Location = new System.Drawing.Point(141, 305);
             this.TxtCmpDestProject.Name = "TxtCmpDestProject";
             this.TxtCmpDestProject.Size = new System.Drawing.Size(327, 19);
             this.TxtCmpDestProject.TabIndex = 13;
             // 
             // BtnCompareStart
             // 
-            this.BtnCompareStart.Location = new System.Drawing.Point(421, 375);
+            this.BtnCompareStart.Location = new System.Drawing.Point(428, 398);
             this.BtnCompareStart.Name = "BtnCompareStart";
             this.BtnCompareStart.Size = new System.Drawing.Size(75, 23);
             this.BtnCompareStart.TabIndex = 15;
@@ -198,7 +199,7 @@
             // 
             // TxtCmpResultFolder
             // 
-            this.TxtCmpResultFolder.Location = new System.Drawing.Point(134, 317);
+            this.TxtCmpResultFolder.Location = new System.Drawing.Point(141, 340);
             this.TxtCmpResultFolder.Name = "TxtCmpResultFolder";
             this.TxtCmpResultFolder.Size = new System.Drawing.Size(327, 19);
             this.TxtCmpResultFolder.TabIndex = 16;
@@ -206,7 +207,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(18, 324);
+            this.label8.Location = new System.Drawing.Point(25, 347);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(89, 12);
             this.label8.TabIndex = 17;
@@ -215,7 +216,7 @@
             // CheckSkipNotes
             // 
             this.CheckSkipNotes.AutoSize = true;
-            this.CheckSkipNotes.Location = new System.Drawing.Point(152, 351);
+            this.CheckSkipNotes.Location = new System.Drawing.Point(159, 374);
             this.CheckSkipNotes.Name = "CheckSkipNotes";
             this.CheckSkipNotes.Size = new System.Drawing.Size(168, 16);
             this.CheckSkipNotes.TabIndex = 18;
@@ -224,7 +225,7 @@
             // 
             // BtnSelectSrcProject
             // 
-            this.BtnSelectSrcProject.Location = new System.Drawing.Point(467, 243);
+            this.BtnSelectSrcProject.Location = new System.Drawing.Point(474, 266);
             this.BtnSelectSrcProject.Name = "BtnSelectSrcProject";
             this.BtnSelectSrcProject.Size = new System.Drawing.Size(29, 23);
             this.BtnSelectSrcProject.TabIndex = 19;
@@ -234,7 +235,7 @@
             // 
             // BtnSelectDestProject
             // 
-            this.BtnSelectDestProject.Location = new System.Drawing.Point(467, 282);
+            this.BtnSelectDestProject.Location = new System.Drawing.Point(474, 305);
             this.BtnSelectDestProject.Name = "BtnSelectDestProject";
             this.BtnSelectDestProject.Size = new System.Drawing.Size(29, 23);
             this.BtnSelectDestProject.TabIndex = 20;
@@ -244,7 +245,7 @@
             // 
             // BtnSelectResultDir
             // 
-            this.BtnSelectResultDir.Location = new System.Drawing.Point(467, 319);
+            this.BtnSelectResultDir.Location = new System.Drawing.Point(474, 342);
             this.BtnSelectResultDir.Name = "BtnSelectResultDir";
             this.BtnSelectResultDir.Size = new System.Drawing.Size(29, 23);
             this.BtnSelectResultDir.TabIndex = 21;
@@ -252,11 +253,22 @@
             this.BtnSelectResultDir.UseVisualStyleBackColor = true;
             this.BtnSelectResultDir.Click += new System.EventHandler(this.BtnSelectResultDir_Click);
             // 
+            // CheckIsMakeIndex
+            // 
+            this.CheckIsMakeIndex.AutoSize = true;
+            this.CheckIsMakeIndex.Location = new System.Drawing.Point(111, 160);
+            this.CheckIsMakeIndex.Name = "CheckIsMakeIndex";
+            this.CheckIsMakeIndex.Size = new System.Drawing.Size(152, 16);
+            this.CheckIsMakeIndex.TabIndex = 22;
+            this.CheckIsMakeIndex.Text = "インデックス作成も実行する";
+            this.CheckIsMakeIndex.UseVisualStyleBackColor = true;
+            // 
             // ArtifactToolStartForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(532, 444);
+            this.Controls.Add(this.CheckIsMakeIndex);
             this.Controls.Add(this.BtnSelectResultDir);
             this.Controls.Add(this.BtnSelectDestProject);
             this.Controls.Add(this.BtnSelectSrcProject);
@@ -312,6 +324,7 @@
         private System.Windows.Forms.Button BtnSelectSrcProject;
         private System.Windows.Forms.Button BtnSelectDestProject;
         private System.Windows.Forms.Button BtnSelectResultDir;
+        private System.Windows.Forms.CheckBox CheckIsMakeIndex;
     }
 }
 
