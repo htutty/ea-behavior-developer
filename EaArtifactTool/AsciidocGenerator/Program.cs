@@ -65,9 +65,9 @@ namespace AsciidocGenerator
             // 成果物XMLファイルの読み込み
             ArtifactVO artifact = atfReader.readArtifactFile(artifactFile);
 
-            // string plainFileName = Path.GetFileNameWithoutExtension(artifactFile);
             string partGuid = artifact.guid.Substring(1, 8);
             string artifactFileName = "atf_" + filterSpecialChar(artifact.name) + "_" + partGuid + ".adoc";
+
             // ArtifactAsciidocWriter aaWriter = new ArtifactAsciidocWriter(artifact);
             // aaWriter.writeFile(asciidocDir + "\\" + artifactFileName);
             ArtifactAsciidocWriter.outputAsciidocFile(artifact, asciidocDir + "\\" + artifactFileName);

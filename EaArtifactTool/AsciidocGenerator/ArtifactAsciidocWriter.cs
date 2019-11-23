@@ -6,46 +6,49 @@ using IndexAccessor;
 
 namespace AsciidocGenerator
 {
+    /// <summary>
+    /// AsciiDocの出力モード
+    /// </summary>
+    public enum OutputMode
+    {
+        MODE_PDF,
+        MODE_HTML,
+        MODE_PREVIEW
+    }
+
+
     public class ArtifactAsciidocWriter
     {
-        private ArtifactVO Artifact;
 
-        public ArtifactAsciidocWriter(ArtifactVO artifact)
+        /// <summary>
+        /// デフォルトモード（PREVIEW）でのAsciiDoc出力
+        /// </summary>
+        /// <param name="artifact"></param>
+        /// <param name="filepath"></param>
+        public static void outputAsciidocFile(ArtifactVO artifact, string filepath)
         {
-            this.Artifact = artifact;
+            outputAsciidocFile(artifact, filepath, OutputMode.MODE_PREVIEW);
         }
+
 
         /// <summary>
         /// AsciiDocファイルの出力
         /// </summary>
         /// <param name="artifact"></param>
         /// <param name="filepath"></param>
-        public static void outputAsciidocFile(ArtifactVO artifact, string filepath)
+        public static void outputAsciidocFile(ArtifactVO artifact, string filepath, OutputMode mode)
         {
 
             try
             {
                 //BOM無しのUTF8でテキストファイルを作成する
                 StreamWriter atfsw = new StreamWriter(filepath);
-                atfsw.WriteLine(@":sectnums:
-:chapter-label:
-:toc: left
-:toclevels: 2
-:table-caption: 表
-:stylesdir: stylesheets/
-:stylesheet: asciidoctor-custom.css
-// :pdf-fontsdir: fonts
-// :pdf-stylesdir: theme
-// :pdf-style: public
 
-");
+                // 出力モードによって異なるAsciiDocのヘッダーを出力する
+                atfsw.WriteLine(getAsciiDocHeader(mode));
 
                 atfsw.WriteLine("# モデル成果物詳細 " + artifact.name);
                 atfsw.WriteLine("");
-
-                // atfsw.WriteLine("## パッケージ: " + pathName);
-                // atfsw.WriteLine("// GUID: " + package.guid);
-                // atfsw.WriteLine("");
 
                 // 配下のパッケージを出力
                 writePackage(artifact.package, atfsw, "");
@@ -59,46 +62,31 @@ namespace AsciidocGenerator
             }
         }
 
-
-        public void writeFile(string filepath)
+        /// <summary>
+        /// 出力モードに応じて適切なAsciiDocのヘッダー文字列を返却する
+        /// </summary>
+        /// <param name="mode">OutputMode.MODE_PREVIEW/MODE_HTML/MODE_PDFから選択</param>
+        /// <returns>ヘッダー文字列</returns>
+        private static string getAsciiDocHeader(OutputMode mode)
         {
+            string defaultHeader = ":sectnums: \r\n:chapter-label: \r\n:toc: left\r\n:toclevels: 2\r\n:table - caption: 表\r\n";
+            string pdfHeader = ":pdf-fontsdir: fonts\r\n:pdf-stylesdir: theme\r\n:pdf-style: public\r\n";
+            string htmlHeader = ":stylesdir: stylesheets/\r\n:stylesheet: asciidoctor-custom.css\r\n";
 
-            try
+            switch (mode)
             {
-                //BOM無しのUTF8でテキストファイルを作成する
-                StreamWriter atfsw = new StreamWriter(filepath);
-                atfsw.WriteLine(@":sectnums:
-:chapter-label:
-:toc: left
-:toclevels: 2
-:table-caption: 表
-:stylesdir: stylesheets/
-:stylesheet: asciidoctor-custom.css
-// :pdf-fontsdir: fonts
-// :pdf-stylesdir: theme
-// :pdf-style: public
-
-");
-
-                atfsw.WriteLine("# モデル成果物詳細 " + Artifact.name);
-                atfsw.WriteLine("");
-
-                // atfsw.WriteLine("## パッケージ: " + pathName);
-                // atfsw.WriteLine("// GUID: " + package.guid);
-                // atfsw.WriteLine("");
-
-                // 配下のパッケージを出力
-                writePackage(Artifact.package, atfsw, "");
-
-                atfsw.Close();
+                case OutputMode.MODE_PREVIEW:
+                    return defaultHeader + "\r\n" ;
+                case OutputMode.MODE_HTML:
+                    return defaultHeader + htmlHeader + "\r\n";
+                case OutputMode.MODE_PDF:
+                    return defaultHeader + pdfHeader + "\r\n";
+                default:
+                    return "";
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                throw ex;
-            }
-
+         
         }
+
 
         /// <summary>
         /// 

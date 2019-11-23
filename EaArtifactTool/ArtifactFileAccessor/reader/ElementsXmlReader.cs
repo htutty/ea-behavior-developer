@@ -162,6 +162,13 @@ namespace ArtifactFileAccessor.reader
 			return readElement(elementNode, true);
 		}
 
+        /// <summary>
+        /// 指定されたGUIDの要素ファイルを読み込み、中身をVOで返却する。
+        /// ※読み込みするelementsフォルダまでのパスはProjectSettingから取得するため、
+        /// 　事前に ProjectSetting.load()メソッドによって .bdprj を読み込んでおく必要がある。
+        /// </summary>
+        /// <param name="guid"></param>
+        /// <returns></returns>
 		public static ElementVO readElementFile(string guid) {
 			// XMLテキストをロードする
 			XmlDocument xmlDoc = new XmlDocument();
@@ -173,13 +180,36 @@ namespace ArtifactFileAccessor.reader
 			return readElement(elementNode, true);
         }
 
+        /// <summary>
+        /// 指定されたGUIDの要素ファイルを読み込み、中身をVOで返却する。
+        /// 読み込みするelementsフォルダまでのパスは別途パラメータで渡す。
+        /// </summary>
+        /// <param name="elementFilePath"></param>
+        /// <param name="guid"></param>
+        /// <returns></returns>
+        public static ElementVO readElementFile(string elementFilePath, string guid)
+        {   
+            // 要素ファイルの場所をパラメータで指定
+            string elementFile = elementFilePath + @"\" + guid.Substring(1, 1) + @"\" + guid.Substring(2, 1) 
+                    + @"\" + guid.Substring(1, 36) + ".xml";
 
-		/// <summary>
-		/// 変更済み要素ファイルのフルパスを取得する
-		/// </summary>
-		/// <param name="guid">対象要素のGUID</param>
-		/// <returns>変更済み要素ファイルのフルパス</returns>
-		private static string getChangedElementFilePath(string guid) {
+            // XMLテキストをロードする
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.Load(elementFile);
+
+            // elementノードに移動する
+            XmlNode elementNode = xmlDoc.SelectSingleNode("element");
+
+            return readElement(elementNode, true);
+        }
+
+
+        /// <summary>
+        /// 変更済み要素ファイルのフルパスを取得する
+        /// </summary>
+        /// <param name="guid">対象要素のGUID</param>
+        /// <returns>変更済み要素ファイルのフルパス</returns>
+        private static string getChangedElementFilePath(string guid) {
 			string outputDir = ProjectSetting.getVO().projectPath + @"\elements" ;
             //	string changedFile = outputDir + @"\" + guid.Substring(1,1) + @"\" + guid.Substring(2,1) + @"\" + guid.Substring(1,36) + "_changed.xml";
             string changedFile = outputDir + @"\" + guid.Substring(1,36) + "_changed.xml";
