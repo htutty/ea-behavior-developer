@@ -45,7 +45,12 @@ namespace ElementEditor
             }
 		}
 
-
+        /// <summary>
+        /// EAに接続しない、ローカルファイルを操作するモードで起動する。
+        /// 前提条件として $projectDir/elements 配下に要素単位のXMLが配置されていることが必要。
+        /// </summary>
+        /// <param name="projectFile">プロジェクトファイル（project.bdprj）</param>
+        /// <param name="elemGuid">開く要素のGUID</param>
         private static void runOnLocalFileMode( string projectFile, string elemGuid)
         {
             // プロジェクトファイルの存在チェック

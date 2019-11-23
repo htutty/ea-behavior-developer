@@ -161,10 +161,6 @@
       <Project>{647f1691-ec36-47f1-9f21-f86d4b562974}</Project>
       <Name>IndexAccessor</Name>
     </ProjectReference>
-    <ProjectReference Include="..\BDFileReader\BDFileReader.csproj">
-      <Project>{6070881C-93B6-402C-8539-8876A3F2A1D7}</Project>
-      <Name>BDFileReader</Name>
-    </ProjectReference>
     <ProjectReference Include="..\ElementEditor\ElementEditor.csproj">
       <Project>{13a29357-9ff8-44a8-b028-e7f4d12ed1c4}</Project>
       <Name>ElementEditor</Name>

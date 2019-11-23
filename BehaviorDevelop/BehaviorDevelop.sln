@@ -21,6 +21,8 @@ Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "BehaviorDevelopSetup", "Beh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsciidocGenerator", "..\EaArtifactTool\AsciidocGenerator\AsciidocGenerator.csproj", "{B2A7EC0B-097A-4915-858D-9D500A3BF324}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApiAccessor", "WebApiAccessor\WebApiAccessor.csproj", "{EF7980F1-5AAB-4F1C-AC07-98DA10A367CE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -96,6 +98,14 @@ Global
 		{B2A7EC0B-097A-4915-858D-9D500A3BF324}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B2A7EC0B-097A-4915-858D-9D500A3BF324}.Release|x86.ActiveCfg = Release|Any CPU
 		{B2A7EC0B-097A-4915-858D-9D500A3BF324}.Release|x86.Build.0 = Release|Any CPU
+		{EF7980F1-5AAB-4F1C-AC07-98DA10A367CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF7980F1-5AAB-4F1C-AC07-98DA10A367CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF7980F1-5AAB-4F1C-AC07-98DA10A367CE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{EF7980F1-5AAB-4F1C-AC07-98DA10A367CE}.Debug|x86.Build.0 = Debug|Any CPU
+		{EF7980F1-5AAB-4F1C-AC07-98DA10A367CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF7980F1-5AAB-4F1C-AC07-98DA10A367CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF7980F1-5AAB-4F1C-AC07-98DA10A367CE}.Release|x86.ActiveCfg = Release|Any CPU
+		{EF7980F1-5AAB-4F1C-AC07-98DA10A367CE}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

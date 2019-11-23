@@ -44,6 +44,7 @@ namespace BehaviorDevelop
             this.ViewGuidToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.focusEAPackageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.updateArtifactByEAToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exportAsciidocToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.closeTabToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -60,7 +61,8 @@ namespace BehaviorDevelop
             this.SearchClassToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.exportAsciidocToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.DocumentOutputToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.AllAsciiDocOutputToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip1.SuspendLayout();
             this.tabContextMenuStrip.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -96,7 +98,7 @@ namespace BehaviorDevelop
             this.updateArtifactByEAToolStripMenuItem,
             this.exportAsciidocToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(208, 114);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(208, 92);
             // 
             // ViewGuidToolStripMenuItem
             // 
@@ -118,6 +120,13 @@ namespace BehaviorDevelop
             this.updateArtifactByEAToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
             this.updateArtifactByEAToolStripMenuItem.Text = "この成果物をEAから取得";
             this.updateArtifactByEAToolStripMenuItem.Click += new System.EventHandler(this.UpdateArtifactByEAToolStripMenuItemClick);
+            // 
+            // exportAsciidocToolStripMenuItem
+            // 
+            this.exportAsciidocToolStripMenuItem.Name = "exportAsciidocToolStripMenuItem";
+            this.exportAsciidocToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
+            this.exportAsciidocToolStripMenuItem.Text = "この成果物のAsciidoc出力";
+            this.exportAsciidocToolStripMenuItem.Click += new System.EventHandler(this.exportAsciidocToolStripMenuItem_Click);
             // 
             // tabControl1
             // 
@@ -151,7 +160,8 @@ namespace BehaviorDevelop
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.editToolStripMenuItem,
-            this.searchToolStripMenuItem});
+            this.searchToolStripMenuItem,
+            this.DocumentOutputToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(1041, 24);
@@ -171,21 +181,21 @@ namespace BehaviorDevelop
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(132, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.openToolStripMenuItem.Text = "開く(&O)";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.OpenToolStripMenuItemClick);
             // 
             // AttachEAToolStripMenuItem
             // 
             this.AttachEAToolStripMenuItem.Name = "AttachEAToolStripMenuItem";
-            this.AttachEAToolStripMenuItem.Size = new System.Drawing.Size(132, 22);
-            this.AttachEAToolStripMenuItem.Text = "EAにアタッチ";
+            this.AttachEAToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.AttachEAToolStripMenuItem.Text = "EAにアタッチ(&A)";
             this.AttachEAToolStripMenuItem.Click += new System.EventHandler(this.AttachEAToolStripMenuItemClick);
             // 
             // ExitAppToolStripMenuItem
             // 
             this.ExitAppToolStripMenuItem.Name = "ExitAppToolStripMenuItem";
-            this.ExitAppToolStripMenuItem.Size = new System.Drawing.Size(132, 22);
+            this.ExitAppToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.ExitAppToolStripMenuItem.Text = "終了(&X)";
             this.ExitAppToolStripMenuItem.Click += new System.EventHandler(this.ExitAppToolStripMenuItemClick);
             // 
@@ -201,14 +211,14 @@ namespace BehaviorDevelop
             // editCopyTextToolStripMenuItem
             // 
             this.editCopyTextToolStripMenuItem.Name = "editCopyTextToolStripMenuItem";
-            this.editCopyTextToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+            this.editCopyTextToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.editCopyTextToolStripMenuItem.Text = "テキストとしてコピー";
             this.editCopyTextToolStripMenuItem.Click += new System.EventHandler(this.EditCopyTextToolStripMenuItemClick);
             // 
             // EditRefreshArtifactToolStripMenuItem
             // 
             this.EditRefreshArtifactToolStripMenuItem.Name = "EditRefreshArtifactToolStripMenuItem";
-            this.EditRefreshArtifactToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+            this.EditRefreshArtifactToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.EditRefreshArtifactToolStripMenuItem.Text = "成果物情報更新";
             this.EditRefreshArtifactToolStripMenuItem.Click += new System.EventHandler(this.EditRefreshArtifactToolStripMenuItemClick);
             // 
@@ -224,14 +234,14 @@ namespace BehaviorDevelop
             // artifactToolStripMenuItem
             // 
             this.artifactToolStripMenuItem.Name = "artifactToolStripMenuItem";
-            this.artifactToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
+            this.artifactToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.artifactToolStripMenuItem.Text = "成果物を検索";
             this.artifactToolStripMenuItem.Click += new System.EventHandler(this.artifactToolStripMenuItem_Click);
             // 
             // SearchClassToolStripMenuItem
             // 
             this.SearchClassToolStripMenuItem.Name = "SearchClassToolStripMenuItem";
-            this.SearchClassToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
+            this.SearchClassToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.SearchClassToolStripMenuItem.Text = "クラスを検索";
             this.SearchClassToolStripMenuItem.Click += new System.EventHandler(this.SearchClassToolStripMenuItemClick);
             // 
@@ -251,12 +261,20 @@ namespace BehaviorDevelop
             this.toolStripStatusLabel1.Size = new System.Drawing.Size(118, 17);
             this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
             // 
-            // exportAsciidocToolStripMenuItem
+            // DocumentOutputToolStripMenuItem
             // 
-            this.exportAsciidocToolStripMenuItem.Name = "exportAsciidocToolStripMenuItem";
-            this.exportAsciidocToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
-            this.exportAsciidocToolStripMenuItem.Text = "この成果物のAsciidoc出力";
-            this.exportAsciidocToolStripMenuItem.Click += new System.EventHandler(this.exportAsciidocToolStripMenuItem_Click);
+            this.DocumentOutputToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.AllAsciiDocOutputToolStripMenuItem});
+            this.DocumentOutputToolStripMenuItem.Name = "DocumentOutputToolStripMenuItem";
+            this.DocumentOutputToolStripMenuItem.Size = new System.Drawing.Size(110, 20);
+            this.DocumentOutputToolStripMenuItem.Text = "ドキュメント出力(&O)";
+            // 
+            // AllAsciiDocOutputToolStripMenuItem
+            // 
+            this.AllAsciiDocOutputToolStripMenuItem.Name = "AllAsciiDocOutputToolStripMenuItem";
+            this.AllAsciiDocOutputToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.AllAsciiDocOutputToolStripMenuItem.Text = "全てのAsciiDoc出力";
+            this.AllAsciiDocOutputToolStripMenuItem.Click += new System.EventHandler(this.AllAsciiDocOutputToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -306,5 +324,7 @@ namespace BehaviorDevelop
 		private System.Windows.Forms.ImageList imageList1;
 		private System.Windows.Forms.TreeView treeView1;
         private System.Windows.Forms.ToolStripMenuItem exportAsciidocToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem DocumentOutputToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem AllAsciiDocOutputToolStripMenuItem;
     }
 }

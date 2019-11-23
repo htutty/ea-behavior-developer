@@ -12,7 +12,7 @@ using System.Text;
 using Microsoft.Office.Interop.Word;
 using Word = Microsoft.Office.Interop.Word;
 using VoidNish.Diff;
-using BDFileReader.vo;
+using ArtifactFileAccessor.vo;
 
 namespace BehaviorDevelop.util
 {
@@ -217,7 +217,7 @@ namespace BehaviorDevelop.util
         
         
         /// <summary>
-        /// 文書の末尾に属性の情報を出力する.
+        /// 文書の末尾に操作の情報を出力する.
         /// </summary>
         private void outputMethod(ref Document document, MethodVO changedMethod)
         {

@@ -606,20 +606,66 @@ namespace BehaviorDevelop
 			} 
 			
 		}
-		
-		#endregion
 
-		#region "メニュー以外のイベントハンドラ"
+        #endregion
 
-		/// <summary>
-		/// タブの切り替え（SelectedIndexChanged）時のイベントハンドラ
+        /// <summary>
+        /// ドキュメント出力 - 全AsciiDoc出力メニューのClickイベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void AllAsciiDocOutputToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach(ArtifactVO atf in artifacts)
+            {
+
+            }
+
+        }
+
+        /// <summary>
+        /// 検索 - 成果物 メニューの Click イベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void artifactToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            bool foundFlg = false;
+            string inputText = Interaction.InputBox("パッケージ名（一部）", "成果物検索", "");
+
+            foreach (TreeNode tn in treeNodeMap.Values)
+            {
+                // 入力値がツリーノードの名前に一致したものが見つかったら
+                if (tn.Name.IndexOf(inputText) > 0)
+                {
+                    // treeView上で、最初に見つかったノードにフォーカスする
+                    treeView1.SelectedNode = tn;
+                    treeView1.Focus();
+                    foundFlg = true;
+                    break;
+                }
+
+            }
+
+            if (!foundFlg)
+            {
+                MessageBox.Show("入力されたキーワードにヒットした成果物はありませんでした");
+            }
+
+        }
+
+
+        #region "メニュー以外のイベントハンドラ"
+
+        /// <summary>
+        /// タブの切り替え（SelectedIndexChanged）時のイベントハンドラ
         /// タブは開いている成果物パッケージの中身を示しているため、タブを切り替えた時に
         /// パッケージツリーの方もその成果物にフォーカスさせるために使用。
         /// （タブをたくさん開いていると、パッケージツリー上のどこにある成果物なのかが分からなくなるため）
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		void TabControl1SelectedIndexChanged(object sender, EventArgs e)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void TabControl1SelectedIndexChanged(object sender, EventArgs e)
 		{
 
             if(tabControl1.SelectedIndex < 0)
@@ -787,34 +833,6 @@ namespace BehaviorDevelop
         #endregion
 
 
-        private void artifactToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            //MessageBox.Show("このメニューはまだ実装が入ってません。すいません");
-
-            bool foundFlg = false;
-            string inputText = Interaction.InputBox( "パッケージ名（一部）", "成果物検索", "");
-
-            foreach (TreeNode tn in treeNodeMap.Values)
-            {
-                // 入力値がツリーノードの名前に一致したものが見つかったら
-                if( tn.Name.IndexOf(inputText) > 0 )
-                {
-                    // treeView上で、最初に見つかったノードにフォーカスする
-                    treeView1.SelectedNode = tn;
-                    treeView1.Focus();
-                    foundFlg = true;
-                    break;
-                }
-
-            }
-
-            if (!foundFlg)
-            {
-                MessageBox.Show("入力されたキーワードにヒットした成果物はありませんでした");
-            }
-
-        }
-
         private void exportAsciidocToolStripMenuItem_Click(object sender, EventArgs e)
         {
             TreeNode tn = treeView1.SelectedNode;
@@ -827,14 +845,15 @@ namespace BehaviorDevelop
             string partGuid = atf.guid.Substring(1, 8);
             string adoctFileName = asciidocDir + "\\atf_" + filterSpecialChar(atf.name) + "_" + partGuid + ".adoc";
 
-            ArtifactAsciidocWriter adocgen = new ArtifactAsciidocWriter(atf);
-            adocgen.writeFile(adoctFileName);
+            ArtifactAsciidocWriter.outputAsciidocFile(atf, adoctFileName);
 
             // 出力が成功し、目的のAsciidocファイルが出力されていたら
             if( File.Exists(adoctFileName) )
             {
                 Process p = Process.Start(adoctFileName);
                 MessageBox.Show("Asciidocの出力が完了しました。\r\n" + adoctFileName);
+
+
             }
 
         }
@@ -875,5 +894,6 @@ namespace BehaviorDevelop
 
             return sb.ToString();
         }
+
     }
 }
