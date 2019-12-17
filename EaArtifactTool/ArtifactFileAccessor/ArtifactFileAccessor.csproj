@@ -58,6 +58,7 @@
     <Compile Include="util\DbUtil.cs" />
     <Compile Include="util\ElementDiffer.cs" />
     <Compile Include="util\ObjectEAConverter.cs" />
+    <Compile Include="reader\RepositorySetting.cs" />
     <Compile Include="util\ProjectSetting.cs" />
     <Compile Include="util\StringUtil.cs" />
     <Compile Include="vo\AbstractValueObject.cs" />
@@ -82,6 +83,7 @@
     <Compile Include="vo\ParameterVO.cs" />
     <Compile Include="vo\ProjectSettingVO.cs" />
     <Compile Include="vo\ParamTagVO.cs" />
+    <Compile Include="vo\RepositorySettingVO.cs" />
     <Compile Include="vo\TaggedValueVO.cs" />
     <Compile Include="writer\AllArtifactsXmlWriter.cs" />
     <Compile Include="writer\ArtifactXmlWriter.cs" />
