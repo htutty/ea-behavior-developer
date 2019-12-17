@@ -60,7 +60,8 @@ namespace ArtifactFileAccessor.writer
 				sw.Write("stereoType=\"" + pkg.stereoType + "\" ");
 			}
 			sw.Write("changed=\"" + pkg.changed + "\" ");
-			sw.WriteLine(" >");
+            sw.Write("TPos=\"" + pkg.treePos + "\" ");
+            sw.WriteLine(">");
 
             if (pkg.elements != null && pkg.elements.Count > 0)
             {
