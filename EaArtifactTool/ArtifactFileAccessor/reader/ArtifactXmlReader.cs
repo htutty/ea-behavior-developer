@@ -216,8 +216,25 @@ namespace ArtifactFileAccessor.reader
 					};
 
 					try {
+                        // 成果物のルートパッケージから再帰的に子パッケージを読み込み
 						readPackages(pkgvo, pkgNode);
-					} catch(Exception ex) {
+
+                        // ソート順指定フラグにより、ソート処理が分かれる
+                        if (this.sortByPosFlg)
+                        {
+                            pkgvo.sortChildNodes();
+                            //pkgvo.sortChildPackages();
+                            //pkgvo.sortElements();
+                        }
+                        else
+                        {
+                            pkgvo.sortChildNodesGuid();
+                            //pkgvo.sortChildPackagesGUID();
+                            //pkgvo.sortElementsGUID();
+                        }
+
+                    }
+                    catch (Exception ex) {
 						Console.WriteLine(ex.Message);
                         Console.WriteLine(ex.StackTrace);
                         throw ex;
@@ -299,17 +316,6 @@ namespace ArtifactFileAccessor.reader
 			pkgvo.childPackageList = retList;
 			pkgvo.elements = retElementList;
             pkgvo.diagrams = retDiagramList;
-
-			// ソート順指定フラグにより、ソート処理が分かれる
-			if (sortByPosFlg) {
-                pkgvo.sortChildNodes();
-				//pkgvo.sortChildPackages();
-				//pkgvo.sortElements();
-			} else {
-                pkgvo.sortChildNodesGuid();
-				//pkgvo.sortChildPackagesGUID();
-				//pkgvo.sortElementsGUID();
-			}
 
 		}
 
