@@ -36,7 +36,7 @@ namespace IndexAccessor
             List<AttrMthSearchItem> retList = new List<AttrMthSearchItem>();
 
             string fields = @"t_element.elemName, t_element.elemAlias, t_element.elemType, t_element.elemStereotype,
-                t_attr_mth.elemGuid, t_attr_mth.attrMthFlg, t_attr_mth.elemId, t_attr_mth.attrMthType,
+                t_attr_mth.elemGuid, t_attr_mth.attrMthFlg, t_attr_mth.attrMthType,
                 t_attr_mth.attrMthGuid, t_attr_mth.attrMthName, t_attr_mth.attrMthAlias, t_attr_mth.attrMthNotes,
                 ifnull(t_attr_mth.mthParamDesc, ''), t_element.elementPath";
 
