@@ -18,34 +18,39 @@ namespace ArtifactFileAccessor.util
 		{
 		}
 
-		/// <summary>
-        /// project.bdprj ファイルを読み、その内容をProjectSettingVOにセットする
+        /// <summary>
+        /// project.bdprjファイルを読み、その内容をProjectSettingVOにセットして返却する
         /// </summary>
-        /// <returns>bool: 読み込み成功ならtrue</returns>
-		public static Boolean load(string project_file) {
+        /// <param name="project_file">プロジェクトファイルのパス（カレントが特定できない場合はフルパスで）</param>
+        /// <returns>取得されたProjectSettingVOのインスタンス</returns>
+        public static ProjectSettingVO readProjectSetting(string project_file)
+        {
             // XMLテキストをロードする
             XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.Load( project_file );
+            xmlDoc.Load(project_file);
 
             // projectノードに移動する
             XmlNode projectNode = xmlDoc.SelectSingleNode("/project");
 
             ProjectSettingVO settingvo = new ProjectSettingVO();
 
-            if ( projectNode != null ) {
-	            foreach (XmlNode settingNode in projectNode.ChildNodes) {
-	            	switch( settingNode.Name ) {
-	            		case "projectName":
-            				settingvo.projectName = settingNode.InnerText;
-	            			break;
+            if (projectNode != null)
+            {
+                foreach (XmlNode settingNode in projectNode.ChildNodes)
+                {
+                    switch (settingNode.Name)
+                    {
+                        case "projectName":
+                            settingvo.projectName = settingNode.InnerText;
+                            break;
 
-	            		case "dbName":
-            				settingvo.dbName = settingNode.InnerText;
-            				break;
+                        case "dbName":
+                            settingvo.dbName = settingNode.InnerText;
+                            break;
 
-	            		case "artifactsFile":
+                        case "artifactsFile":
                             settingvo.artifactsFile = settingNode.InnerText;
-            				break;
+                            break;
 
                         case "artifactFile":
                             readArtifactFileNode(settingvo, settingNode);
@@ -60,22 +65,39 @@ namespace ArtifactFileAccessor.util
                             break;
 
                         default:
-	            			// do nothing
-            				break;
-	            	}
-	            }
+                            // do nothing
+                            break;
+                    }
+                }
             }
 
             settingvo.projectPath = Path.GetDirectoryName(Path.GetFullPath(project_file));
 
+            return settingvo;
+        }
+
+        /// <summary>
+        /// project.bdprj ファイルを読み、その内容をProjectSettingVOにセットする
+        /// </summary>
+        /// <returns>bool: 読み込み成功ならtrue</returns>
+        public static Boolean load(string project_file) {
             // dbファイル名が取得できたら、プロファイルディレクトリを追加
             //if (settingvo.dbName != null) {
             //	settingvo.dbName = GetAppProfileDir() + settingvo.dbName ;
             //}
 
-            vo = settingvo;
-            isLoaded = true;
-            return true;
+            try
+            {
+                vo = readProjectSetting(project_file);
+                isLoaded = true;
+            }
+            catch ( Exception ex )
+            {
+                vo = null;
+                isLoaded = false;
+            }
+
+            return isLoaded;
 		}
 
 
