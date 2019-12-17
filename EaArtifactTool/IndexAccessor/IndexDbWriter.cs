@@ -614,6 +614,49 @@ namespace IndexAccessor
         }
         #endregion
 
+        #region t_change_log テーブルの存在チェック、再作成の処理
+        /// <summary>
+        /// t_parsed_behavior テーブルの存在チェック、再作成の処理
+        /// </summary>
+        private void recreateChangeLogTable()
+        {
+            string tableName = "t_change_log";
+
+            if (existTargetTable(tableName))
+            {
+                dropTargetTable(tableName);
+            }
+
+            createChangeLogTable();
+        }
+
+
+        /// <summary>
+        /// t_change_log テーブルのCREATE
+        /// </summary>
+        private void createChangeLogTable()
+        {
+
+            using (SQLiteCommand command = conn.CreateCommand())
+            {
+                command.CommandText =
+                    @"create table t_change_log (
+                      ChangeLogId INTEGER PRIMARY KEY AUTOINCREMENT,
+                      SnapshotID TEXT,
+                      SeriesID TEXT,
+                      Notes TEXT,
+                      ElementGuid TEXT,
+                      ChangeUser TEXT,
+                      ChangeDateTime TEXT,
+                      ChangeItemType TEXT,
+                      Metadata TEXT,
+                      LogItem TEXT
+				    )";
+                command.ExecuteNonQuery();
+            }
+
+        }
+        #endregion
 
         #region 各テーブルの存在チェックとDROP共通処理
 
