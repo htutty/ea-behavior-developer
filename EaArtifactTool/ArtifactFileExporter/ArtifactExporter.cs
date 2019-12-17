@@ -28,9 +28,7 @@ namespace ArtifactFileExporter
 
         public void readDataBase(string eapfile, string projectName)
         {
-
             OleDbConnection conn = new OleDbConnection();
-            OleDbCommand comm = new OleDbCommand();
 
             try
             {
@@ -161,10 +159,12 @@ namespace ArtifactFileExporter
         {
             StreamWriter srcsw = null;
 
-            if (elem.eaType != "Class")
+            if (elem.eaType != "Class" && elem.eaType != "Interface" && elem.eaType != "Enumeration" )
             {
                 return;
             }
+
+
 
             try
             {
@@ -174,8 +174,15 @@ namespace ArtifactFileExporter
 
                 srcsw = new StreamWriter(outputDir + @"\" + elem.name + ".cs", false, System.Text.Encoding.GetEncoding("utf-8"));
 
-                // 1行目に列タイトルをつける
-                srcsw.WriteLine("namespace " + elem.elementPath.Replace('/', '.'));
+                // namespaceは要素のフルパスの "/" を "." に置き換え、
+                // かつ先頭の "." を取った文字列にする
+                string namespaceStr = elem.elementPath.Replace('/', '.');
+                if (namespaceStr.Length > 1 && namespaceStr.StartsWith("."))
+                {
+                    namespaceStr = namespaceStr.Substring(1, namespaceStr.Length - 1);
+                }
+
+                srcsw.WriteLine("namespace " + namespaceStr);
                 srcsw.WriteLine("{");
                 srcsw.WriteLine(elem.generateDeclareString(1));
                 srcsw.WriteLine("}");
