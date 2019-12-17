@@ -18,7 +18,14 @@ namespace IndexAccessor
             this.conn = new SQLiteConnection("Data Source=" + dbFileName);
         }
 
-		public List<ElementSearchItem> findByKeyword( string keyword ) {
+        public ElementSearcher(string dbFileName)
+        {
+//            string dbFileName = ProjectSetting.getVO().projectPath + "\\" + ProjectSetting.getVO().dbName;
+            this.conn = new SQLiteConnection("Data Source=" + dbFileName);
+        }
+
+
+        public List<ElementSearchItem> findByKeyword( string keyword ) {
 			return find( "elemType = 'Class' and elemName like '%" + keyword + "%'" );
 		}
 
