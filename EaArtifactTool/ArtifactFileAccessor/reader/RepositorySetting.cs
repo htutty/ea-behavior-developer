@@ -15,13 +15,36 @@ namespace ArtifactFileAccessor.reader
 		{
 		}
 
-		/// <summary>
+
+        /// <summary>
+        /// リポジトリ設定ファイルから読み込んだリポジトリリストから引数の名前と一致したリポジトリ情報を返却
+        /// </summary>
+        /// <param name="repositoryFile"></param>
+        /// <param name="repoName"></param>
+        /// <returns></returns>
+        public static RepositorySettingVO readRepositoryAndSelect(string repositoryFile, string repoName)
+        {
+            List<RepositorySettingVO> repoList = load(repositoryFile);
+
+            foreach (RepositorySettingVO repo in repoList)
+            {
+                if (repo.name == repoName)
+                {
+                    return repo;
+                }
+            }
+
+            return null;
+        }
+
+
+        /// <summary>
         /// repositories.xml ファイルを読み、その内容をRepositorySettingVOのリストにセットして返却する
         /// </summary>
         /// <returns>bool: 読み込み成功ならtrue</returns>
-		public static List<RepositorySettingVO> load(string basePath) {
-            string repositoriesFilename = "repositories.xml";
-            string repositoryFile = basePath + "\\" + repositoriesFilename;
+        public static List<RepositorySettingVO> load(string repositoryFile) {
+            //string repositoriesFilename = "repositories.xml";
+            //string repositoryFile = basePath + "\\" + repositoriesFilename;
 
             // XMLテキストをロードする
             XmlDocument xmlDoc = new XmlDocument();
@@ -34,7 +57,7 @@ namespace ArtifactFileAccessor.reader
             XmlNode repositoriesNode = xmlDoc.SelectSingleNode("/repositories");
             if ( repositoriesNode != null ) {
 	            foreach (XmlNode repoNode in repositoriesNode.ChildNodes) {
-                    if( repoNode.Name == "Repository" )
+                    if( repoNode.Name == "repository" )
                     {
                         RepositorySettingVO settingvo = readRepositoryNode(repoNode);
                         settingvo.projectSettingVO = ProjectSetting.readProjectSetting(settingvo.projectPath);
@@ -45,6 +68,7 @@ namespace ArtifactFileAccessor.reader
 
             return repositorySettings;
         }
+
 
 
         private static RepositorySettingVO readRepositoryNode(XmlNode repoNode)
