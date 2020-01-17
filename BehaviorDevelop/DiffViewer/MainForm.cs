@@ -415,25 +415,29 @@ namespace DiffViewer
 			lsb.Append(leftMth.guid + "\r\n");
 			rsb.Append(rightMth.guid + "\r\n");
 
-			if( !compareNullable(leftMth.stereoType, rightMth.stereoType) ) {
+			if( !compareNullable(leftMth.stereoType, rightMth.stereoType) )
+            {
 				lsb.Append("stereoType=" + leftMth.stereoType + "\r\n");
 				rsb.Append("stereoType=" + rightMth.stereoType + "\r\n");
 			}
 
-			if( !compareNullable(leftMth.returnType, rightMth.returnType) ) {
+			if( !compareNullable(leftMth.returnType, rightMth.returnType) )
+            {
 				lsb.Append("returnType=" + leftMth.returnType + "\r\n");
 				rsb.Append("returnType=" + rightMth.returnType + "\r\n");
 			}
 
-			if( !compareNullable(leftMth.visibility, rightMth.visibility) ) {
+			if( !compareNullable(leftMth.visibility, rightMth.visibility) )
+            {
 				lsb.Append("visibility=" + leftMth.visibility + "\r\n");
 				rsb.Append("visibility=" + rightMth.visibility + "\r\n");
 			}
 
-//			if( !compareNullable(leftMth.pos, rightMth.pos) ) {
-//				lsb.Append("pos=" + leftMth.pos + "\r\n");
-//				rsb.Append("pos=" + rightMth.pos + "\r\n");
-//			}
+			if( leftMth.pos != rightMth.pos )
+            {
+				lsb.Append("pos=" + leftMth.pos + "\r\n");
+				rsb.Append("pos=" + rightMth.pos + "\r\n");
+			}
 
 			if( !compareNullable(leftMth.notes, rightMth.notes) ) {
 				lsb.Append("[notes]\r\n" + leftMth.notes + "\r\n");
@@ -475,6 +479,8 @@ namespace DiffViewer
 			if ( mth.behavior != null || !"".Equals(mth.behavior) ) {
 				sb.Append("[behavior]\r\n" + mth.behavior + "\r\n");
 			}
+
+            
 
 			text = sb.ToString();
 
@@ -543,36 +549,36 @@ namespace DiffViewer
 
 		}
 
-		void AttributeTextClick(object sender, EventArgs e)
-		{
+//		void AttributeTextClick(object sender, EventArgs e)
+//		{
 
-			TextBox touchedText =  (TextBox)sender;
-			if ( selectedTextBox != null && selectedTextBox != touchedText ) {
-				selectedTextBox.BackColor = Color.LightYellow;
-			}
-			touchedText.BackColor = Color.LightPink;
-			selectedTextBox = touchedText;
-
-			selectedAttribute = (AttributeVO)touchedText.Tag;
-
-			selectedMethod = null;
-		}
-
-		void MethodTextClick(object sender, EventArgs e)
-		{
-			TextBox touchedText =  (TextBox)sender;
-			if ( selectedTextBox != null && selectedTextBox != touchedText ) {
-				selectedTextBox.BackColor = Color.LightYellow;
-			}
-			touchedText.BackColor = Color.LightPink;
-			selectedTextBox = touchedText;
-
-			selectedMethod = (MethodVO)touchedText.Tag;
-//			if( selectedMethod != null ) {
-//				MessageBox.Show("操作が選択されました: " + selectedMethod.guid);
+//			TextBox touchedText =  (TextBox)sender;
+//			if ( selectedTextBox != null && selectedTextBox != touchedText ) {
+//				selectedTextBox.BackColor = Color.LightYellow;
 //			}
-			selectedAttribute = null;
-		}
+//			touchedText.BackColor = Color.LightPink;
+//			selectedTextBox = touchedText;
+
+//			selectedAttribute = (AttributeVO)touchedText.Tag;
+
+//			selectedMethod = null;
+//		}
+
+//		void MethodTextClick(object sender, EventArgs e)
+//		{
+//			TextBox touchedText =  (TextBox)sender;
+//			if ( selectedTextBox != null && selectedTextBox != touchedText ) {
+//				selectedTextBox.BackColor = Color.LightYellow;
+//			}
+//			touchedText.BackColor = Color.LightPink;
+//			selectedTextBox = touchedText;
+
+//			selectedMethod = (MethodVO)touchedText.Tag;
+////			if( selectedMethod != null ) {
+////				MessageBox.Show("操作が選択されました: " + selectedMethod.guid);
+////			}
+//			selectedAttribute = null;
+//		}
 
 
 		void AttributeListClick(object sender, EventArgs e)
@@ -593,9 +599,6 @@ namespace DiffViewer
 
 		void ReflectToEAToolStripMenuItemClick(object sender, EventArgs e)
 		{
-			EA.Repository repo = ProjectSetting.getVO().eaRepo;
-			EA.Element elem = null;
-			int tmp=-1;
 
 			if( repo != null ) {
 
@@ -611,54 +614,7 @@ namespace DiffViewer
 					//何が選択されたか調べる
 					if (result == DialogResult.Yes)
 					{
-
-						EA.Attribute attr = (EA.Attribute)repo.GetAttributeByGuid(selectedAttribute.guid);
-						if( attr == null ) {
-							elem = (EA.Element)repo.GetElementByGuid(myElement.guid);
-							if ( elem == null ) {
-								return ;
-							}
-							attr = (EA.Attribute)elem.Attributes.AddNew( selectedAttribute.name, "String");
-						}
-
-						attr.Name = selectedAttribute.name;
-						attr.AttributeGUID = selectedAttribute.guid;
-						attr.Alias = selectedAttribute.alias;
-						attr.StereotypeEx = selectedAttribute.stereoType;
-						attr.Notes = selectedAttribute.notes;
-
-						attr.AllowDuplicates = selectedAttribute.allowDuplicates;
-						if ( "".Equals(selectedAttribute.classifierID) || !Int32.TryParse( selectedAttribute.classifierID, out tmp ) ) {
-							selectedAttribute.classifierID = "0";
-						} else {
-							attr.ClassifierID = tmp;
-						}
-//						attr.ClassifierID =  Int32.Parse( selectedAttribute.classifierID );
-
-						attr.Container = selectedAttribute.container;
-						attr.Containment = selectedAttribute.containment;
-						attr.Default = selectedAttribute.defaultValue;
-						attr.IsCollection = selectedAttribute.isCollection;
-						attr.IsConst = selectedAttribute.isConst;
-						attr.IsDerived = selectedAttribute.isDerived;
-						// attr.IsID = selectedAttribute.;
-						attr.IsOrdered = selectedAttribute.isOrdered;
-						attr.IsStatic = selectedAttribute.isStatic;
-						attr.Length =  selectedAttribute.length.ToString();
-						attr.LowerBound = selectedAttribute.lowerBound.ToString();
-						attr.Precision = selectedAttribute.precision.ToString();
-						// attr.RedefinedProperty = selectedAttribute.;
-						attr.Scale = selectedAttribute.scale.ToString();
-						// attr.Stereotype = ;
-						// attr.Style = selectedAttribute.;
-						// attr.SubsettedProperty = selectedAttribute.;
-						// attr.StyleEx = selectedAttribute.;
-						attr.Type = selectedAttribute.eaType;
-						attr.UpperBound = selectedAttribute.upperBound.ToString();
-						attr.Visibility = selectedAttribute.visibility;
-
-						attr.Update();
-//						elem.Update();
+                        updateEaAttributeObject();
 					} else {
 					    return;
 					}
@@ -678,69 +634,7 @@ namespace DiffViewer
 					//何が選択されたか調べる
 					if (result == DialogResult.Yes)
 					{
-						EA.Method mth = getMethodByGuid( selectedMethod.guid ) ;
-
-						if( mth == null ) {
-							elem = (EA.Element)repo.GetElementByGuid(myElement.guid);
-							if ( elem == null ) {
-								return ;
-							}
-
-							mth = (EA.Method)elem.Methods.AddNew( selectedMethod.name, selectedMethod.returnType);
-						}
-
-						mth.Name = selectedMethod.name;
-						mth.MethodGUID = selectedMethod.guid;
-						mth.Alias = selectedMethod.alias;
-						mth.StereotypeEx = selectedMethod.stereoType;
-						mth.Notes = selectedMethod.notes;
-						mth.Behavior = selectedMethod.behavior;
-
-						mth.Abstract = selectedMethod.isAbstract;
-						mth.ClassifierID = selectedMethod.classifierID;
-						mth.Code = selectedMethod.code;
-						mth.Concurrency = selectedMethod.concurrency;
-						mth.IsConst = selectedMethod.isConst;
-						mth.IsLeaf = selectedMethod.isLeaf;
-						mth.IsPure = selectedMethod.isPure;
-						mth.IsQuery = selectedMethod.isQuery;
-						mth.IsRoot = selectedMethod.isRoot;
-						mth.IsStatic = selectedMethod.isStatic;
-						// mth.IsSynchronized = selectedMethod.s isSynchronized;
-						mth.Pos = selectedMethod.pos;
-						mth.ReturnIsArray = selectedMethod.returnIsArray;
-						mth.ReturnType = selectedMethod.returnType;
-						mth.StateFlags = selectedMethod.stateFlags;
-						// mth.StyleEx = selectedMethod.StyleEx;
-						mth.Throws = selectedMethod.throws;
-						mth.Visibility = selectedMethod.visibility;
-						mth.Update();
-
-						// 既にパラメータが設定されている場合は一旦削除
-						for( short i=0; i < mth.Parameters.Count; i++ ) {
-							mth.Parameters.Delete(i);
-						}
-
-						// XMLから読み込まれたパラメータの値を設定する
-						foreach( ParameterVO prm in selectedMethod.parameters ) {
-							EA.Parameter paramObj = (EA.Parameter)mth.Parameters.AddNew(prm.name, prm.eaType);
-							paramObj.Alias = prm.alias ;
-							paramObj.ClassifierID = prm.classifierID ;
-							paramObj.Default = prm.defaultValue ;
-							paramObj.IsConst = prm.isConst ;
-							paramObj.Kind = prm.kind ;
-							paramObj.Name = prm.name ;
-							paramObj.Notes = prm.notes ;
-							paramObj.ParameterGUID = prm.guid ;
-							paramObj.Position = prm.pos ;
-							paramObj.StereotypeEx = prm.stereoType ;
-							// paramObj.Style = prm.Style ;
-							// paramObj.StyleEx = prm.StyleEx ;
-							paramObj.Type = prm.eaType ;
-							paramObj.Update();
-						}
-
-//						elem.Update();
+                        updateEaMethodObject();
 					} else {
 					    return;
 					}
@@ -754,28 +648,186 @@ namespace DiffViewer
 		}
 
 
-		private EA.Attribute getAttributeByGuid( string attributeGuid ) {
-			EA.Repository repo = ProjectSetting.getVO().eaRepo;
-			EA.Attribute attrObj = (EA.Attribute)repo.GetAttributeByGuid(attributeGuid) ;
-			if( attrObj != null ) {
-				return attrObj ;
-			} else {
-				return null;
-			}
-		}
+        /// <summary>
+        /// EAのAttributeを上書きもしくは追加する
+        /// </summary>
+        private void updateEaAttributeObject()
+        {
+            EA.Repository repo = ProjectSetting.getVO().eaRepo;
+            EA.Element elem = null;
+            int tmp = -1;
+
+            EA.Attribute attr = (EA.Attribute)repo.GetAttributeByGuid(selectedAttribute.guid);
+            if (attr == null)
+            {
+                elem = (EA.Element)repo.GetElementByGuid(myElement.guid);
+                if (elem == null)
+                {
+                    return;
+                }
+                attr = (EA.Attribute)elem.Attributes.AddNew(selectedAttribute.name, selectedAttribute.eaType);
+            }
+
+            attr.Name = selectedAttribute.name;
+            attr.AttributeGUID = selectedAttribute.guid;
+            attr.Alias = selectedAttribute.alias;
+            attr.StereotypeEx = selectedAttribute.stereoType;
+            attr.Notes = selectedAttribute.notes;
+
+            attr.AllowDuplicates = selectedAttribute.allowDuplicates;
+            if ("".Equals(selectedAttribute.classifierID) || !Int32.TryParse(selectedAttribute.classifierID, out tmp))
+            {
+                selectedAttribute.classifierID = "0";
+            }
+            else
+            {
+                attr.ClassifierID = tmp;
+            }
+
+            attr.Container = selectedAttribute.container;
+            attr.Containment = selectedAttribute.containment;
+            attr.Default = selectedAttribute.defaultValue;
+            attr.IsCollection = selectedAttribute.isCollection;
+            attr.IsConst = selectedAttribute.isConst;
+            attr.IsDerived = selectedAttribute.isDerived;
+            // attr.IsID = selectedAttribute.;
+            attr.IsOrdered = selectedAttribute.isOrdered;
+            attr.IsStatic = selectedAttribute.isStatic;
+            attr.Length = selectedAttribute.length.ToString();
+            attr.LowerBound = selectedAttribute.lowerBound.ToString();
+            attr.Precision = selectedAttribute.precision.ToString();
+            // attr.RedefinedProperty = selectedAttribute.;
+            attr.Scale = selectedAttribute.scale.ToString();
+            attr.Stereotype = selectedAttribute.stereoType;
+            // attr.Style = selectedAttribute.;
+            // attr.SubsettedProperty = selectedAttribute.;
+            attr.StyleEx = selectedAttribute.styleEx;
+            attr.Type = selectedAttribute.eaType;
+            attr.UpperBound = selectedAttribute.upperBound.ToString();
+            attr.Visibility = selectedAttribute.visibility;
+
+            attr.Update();
+            //						elem.Update();
+
+        }
 
 
-		private EA.Method getMethodByGuid( string methodGuid ) {
-			EA.Repository repo = ProjectSetting.getVO().eaRepo;
-			EA.Method mthObj = (EA.Method)repo.GetMethodByGuid(methodGuid) ;
-			if( mthObj != null ) {
-				return mthObj ;
-			} else {
-				return null;
-			}
-		}
+        /// <summary>
+        /// GUIDを指定してEA上の属性オブジェクトを取得する
+        /// </summary>
+        /// <param name="attributeGuid">検索対象属性のGUID</param>
+        /// <returns>合致するGUIDでヒットした属性オブジェクト。ヒットしなかったらnull</returns>
+        private EA.Attribute getAttributeByGuid(string attributeGuid)
+        {
+            EA.Repository repo = ProjectSetting.getVO().eaRepo;
+            EA.Attribute attrObj = (EA.Attribute)repo.GetAttributeByGuid(attributeGuid);
+            if (attrObj != null)
+            {
+                return attrObj;
+            }
+            else
+            {
+                return null;
+            }
+        }
 
-		void EASelectObjectToolStripMenuItemClick(object sender, EventArgs e)
+
+
+        /// <summary>
+        /// EAのMethod（operator）を上書きもしくは追加する
+        /// </summary>
+        private void updateEaMethodObject()
+        {
+            EA.Repository repo = ProjectSetting.getVO().eaRepo;
+            EA.Element elem = null;
+            int tmp = -1;
+
+            // EA.Repository の GetMethodByGuid を呼んでEA上の該当メソッドオブジェクトを取得する
+            EA.Method mth = getMethodByGuid(selectedMethod.guid);
+
+            if (mth == null)
+            {
+                elem = (EA.Element)repo.GetElementByGuid(myElement.guid);
+                if (elem == null)
+                {
+                    return;
+                }
+
+                mth = (EA.Method)elem.Methods.AddNew(selectedMethod.name, selectedMethod.returnType);
+            }
+
+            mth.Name = selectedMethod.name;
+            mth.MethodGUID = selectedMethod.guid;
+            mth.Alias = selectedMethod.alias;
+            mth.StereotypeEx = selectedMethod.stereoType;
+            mth.Notes = selectedMethod.notes;
+            mth.Behavior = selectedMethod.behavior;
+
+            mth.Abstract = selectedMethod.isAbstract;
+            mth.ClassifierID = selectedMethod.classifierID;
+            mth.Code = selectedMethod.code;
+            mth.Concurrency = selectedMethod.concurrency;
+            mth.IsConst = selectedMethod.isConst;
+            mth.IsLeaf = selectedMethod.isLeaf;
+            mth.IsPure = selectedMethod.isPure;
+            mth.IsQuery = selectedMethod.isQuery;
+            mth.IsRoot = selectedMethod.isRoot;
+            mth.IsStatic = selectedMethod.isStatic;
+            // mth.IsSynchronized = selectedMethod;
+            mth.Pos = selectedMethod.pos;
+            mth.ReturnIsArray = selectedMethod.returnIsArray;
+            mth.ReturnType = selectedMethod.returnType;
+            mth.StateFlags = selectedMethod.stateFlags;
+            mth.StyleEx = selectedMethod.styleEx;
+            mth.Throws = selectedMethod.throws;
+            mth.Visibility = selectedMethod.visibility;
+            mth.Update();
+
+            // 既にパラメータが設定されている場合は一旦削除
+            for (short i = 0; i < mth.Parameters.Count; i++)
+            {
+                mth.Parameters.Delete(i);
+            }
+
+            // XMLから読み込まれたパラメータの値を設定する
+            foreach (ParameterVO prm in selectedMethod.parameters)
+            {
+                EA.Parameter paramObj = (EA.Parameter)mth.Parameters.AddNew(prm.name, prm.eaType);
+                paramObj.Alias = prm.alias;
+                paramObj.ClassifierID = prm.classifierID;
+                paramObj.Default = prm.defaultValue;
+                paramObj.IsConst = prm.isConst;
+                paramObj.Kind = prm.kind;
+                paramObj.Name = prm.name;
+                paramObj.Notes = prm.notes;
+                paramObj.ParameterGUID = prm.guid;
+                paramObj.Position = prm.pos;
+                paramObj.StereotypeEx = prm.stereoType;
+                // paramObj.Style = prm.Style ;
+                // paramObj.StyleEx = prm.StyleEx ;
+                paramObj.Type = prm.eaType;
+                paramObj.Update();
+            }
+
+            mth.Update();
+        }
+
+
+        /// <summary>
+        /// GUIDを指定してEA上のメソッドオブジェクトを取得する
+        /// </summary>
+        /// <param name="methodGuid">検索対象メソッドのGUID</param>
+        /// <returns>合致するGUIDでヒットしたメソッドオブジェクト。ヒットしなかったらnull</returns>
+        private EA.Method getMethodByGuid(string methodGuid)
+        {
+            EA.Repository repo = ProjectSetting.getVO().eaRepo;
+            EA.Method mthObj = (EA.Method)repo.GetMethodByGuid(methodGuid);
+            return mthObj;
+        }
+
+        #region ボタンクリック、ストリップメニュー選択時のイベントハンドラ
+
+        void EASelectObjectToolStripMenuItemClick(object sender, EventArgs e)
 		{
 			EA.Repository repo = ProjectSetting.getVO().eaRepo;
 			if (repo != null ) {
@@ -835,8 +887,8 @@ namespace DiffViewer
 		            break;
             }
 
-//            StringBuilder diffSb = (StringBuilder)sender ;
-//            Console.WriteLine("{0}{1}", indicator, e.LineValue);
+//  StringBuilder diffSb = (StringBuilder)sender ;
+//  Console.WriteLine("{0}{1}", indicator, e.LineValue);
         }
 
 		void ContextMenuStrip1Opening(object sender, System.ComponentModel.CancelEventArgs e)
@@ -848,6 +900,6 @@ namespace DiffViewer
 				contextMenuStrip1.Enabled = false ;
 			}
 		}
-
-	}
+        #endregion
+    }
 }
