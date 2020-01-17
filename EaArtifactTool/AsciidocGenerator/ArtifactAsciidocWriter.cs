@@ -115,7 +115,7 @@ namespace AsciidocGenerator
 
                 foreach (ElementVO elem in package.elements)
                 {
-                    if (elem.eaType == "Class" || elem.eaType == "Interface" || elem.eaType == "Enumeration")
+                    if (elem.eaType == "Class" || elem.eaType == "Interface" || elem.eaType == "Enumeration" || elem.eaType == "UseCase" || elem.eaType == "Actor")
                     {
                         ElementAsciidocWriter.writeElement(elem, sw);
                     }
@@ -146,7 +146,7 @@ namespace AsciidocGenerator
             {
                 foreach (ElementVO elem in package.elements)
                 {
-                    if (elem.eaType == "Class" || elem.eaType == "Interface" || elem.eaType == "Enumeration")
+                    if (elem.eaType == "Class" || elem.eaType == "Interface" || elem.eaType == "Enumeration" || elem.eaType == "UseCase" || elem.eaType == "Actor")
                     {
                         elemCount++;
                     }
