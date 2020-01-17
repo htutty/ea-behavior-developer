@@ -68,11 +68,13 @@
     <Compile Include="vo\AttributeVO.cs" />
     <Compile Include="vo\BehaviorChunk.cs" />
     <Compile Include="vo\BehaviorToken.cs" />
+    <Compile Include="vo\ChangeLogItem.cs" />
     <Compile Include="vo\ConnectorVO.cs" />
     <Compile Include="vo\CrossRefVO.cs" />
     <Compile Include="vo\DiagramLinkVO.cs" />
     <Compile Include="vo\DiagramObjectVO.cs" />
     <Compile Include="vo\DiagramVO.cs" />
+    <Compile Include="vo\ElementChangeItem.cs" />
     <Compile Include="vo\ElementReferenceVO.cs" />
     <Compile Include="vo\ElementSearchVO.cs" />
     <Compile Include="vo\ElementPropertyVO.cs" />

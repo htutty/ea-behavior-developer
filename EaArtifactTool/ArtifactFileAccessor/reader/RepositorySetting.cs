@@ -61,6 +61,7 @@ namespace ArtifactFileAccessor.reader
                     {
                         RepositorySettingVO settingvo = readRepositoryNode(repoNode);
                         settingvo.projectSettingVO = ProjectSetting.readProjectSetting(settingvo.projectPath);
+                        settingvo.indexDbPath = settingvo.projectPath + "\\" + settingvo.projectSettingVO.dbName;
                         repositorySettings.Add(settingvo);
                     }
 	            }

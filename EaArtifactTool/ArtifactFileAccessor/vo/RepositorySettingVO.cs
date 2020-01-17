@@ -12,6 +12,7 @@ namespace ArtifactFileAccessor.vo
         public string localPath { get; set; }
         public string projectPath { get; set; }
         public string connectionString { get; set; }
+        public string indexDbPath { get; set; }
         public ProjectSettingVO projectSettingVO { get; set; }
     }
 }
