@@ -2,6 +2,7 @@
 using System.Xml;
 using System.Collections.Generic;
 using ArtifactFileAccessor.vo;
+using ArtifactFileAccessor.util;
 
 namespace ArtifactFileAccessor.reader
 {
@@ -600,12 +601,7 @@ namespace ArtifactFileAccessor.reader
         /// <returns>AttributeVO</returns>
         public AttributeVO readAttributeDiffDetail(string attributeGuid, string leftRight)
 		{
-			string target_dir = null;
-			if ( this.artifactsPath != null ) {
-				target_dir = this.artifactsPath;
-			} else {
-				throw new ArgumentException();
-			}
+			string target_dir = ProjectSetting.getVO().projectPath;
 
 			string fileName = target_dir + "/detail/" + "#attribute_" + attributeGuid.Substring(1, 36) + "_" + leftRight + ".xml"  ;
 
@@ -637,13 +633,7 @@ namespace ArtifactFileAccessor.reader
 		/// <returns>MethodVO</returns>
 		public MethodVO readMethodDiffDetail(string methodGuid, string leftRight)
 		{
-			string target_dir = null;
-			if ( this.artifactsPath != null ) {
-				target_dir = this.artifactsPath;
-			} else {
-				throw new ArgumentException();
-			}
-
+            string target_dir = ProjectSetting.getVO().projectPath;
 			string fileName = target_dir + "/detail/" + "#method_" + methodGuid.Substring(1, 36) + "_" + leftRight + ".xml"  ;
 
 			// 指定されたfileNameでファイルが存在しなかったらnullを返す
