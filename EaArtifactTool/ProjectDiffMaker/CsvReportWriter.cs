@@ -77,11 +77,11 @@ namespace ProjectDiffMaker
 
             sw.Write("\"" + atf.changed + "\"");
             sw.Write(",\"" + atf.guid + "\"");
-            sw.Write(",\"" + atf.name + "\"");
-            sw.Write(",\"" + atf.pathName + "\"");
+            sw.Write(",\"" + filterDoubleQuote(atf.name) + "\"");
+            sw.Write(",\"" + filterDoubleQuote(atf.pathName) + "\"");
             sw.Write(",\"" + elem.changed + "\"");
             sw.Write(",\"" + elem.guid + "\"");
-            sw.Write(",\"" + elem.name + "\"");
+            sw.Write(",\"" + filterDoubleQuote(elem.name) + "\"");
             sw.Write(",\"" + chdesc + "\"");
             sw.WriteLine("");
         }
@@ -178,15 +178,15 @@ namespace ProjectDiffMaker
         {
             sw.Write("\"" + atf.changed + "\"");
             sw.Write(",\"" + atf.guid + "\"");
-            sw.Write(",\"" + atf.name + "\"");
-            sw.Write(",\"" + atf.pathName + "\"");
+            sw.Write(",\"" + filterDoubleQuote(atf.name) + "\"");
+            sw.Write(",\"" + filterDoubleQuote(atf.pathName) + "\"");
             sw.Write(",\"" + elem.changed + "\"");
             sw.Write(",\"" + elem.guid + "\"");
-            sw.Write(",\"" + elem.name + "\"");
+            sw.Write(",\"" + filterDoubleQuote(elem.name) + "\"");
             sw.Write(",\"タグ\"");
             sw.Write(",\"" + tv.changed + "\"");
             sw.Write(",\"" + tv.guid + "\"");
-            sw.Write(",\"" + tv.name + "\"");
+            sw.Write(",\"" + filterDoubleQuote(tv.name) + "\"");
 
             if (tv.changed == 'D' || tv.changed == 'U')
             {
@@ -220,15 +220,15 @@ namespace ProjectDiffMaker
         {
             sw.Write("\"" + atf.changed + "\"");
             sw.Write(",\"" + atf.guid + "\"");
-            sw.Write(",\"" + atf.name + "\"");
-            sw.Write(",\"" + atf.pathName + "\"");
+            sw.Write(",\"" + filterDoubleQuote(atf.name) + "\"");
+            sw.Write(",\"" + filterDoubleQuote(atf.pathName) + "\"");
             sw.Write(",\"" + elem.changed + "\"");
             sw.Write(",\"" + elem.guid + "\"");
-            sw.Write(",\"" + elem.name + "\"");
+            sw.Write(",\"" + filterDoubleQuote(elem.name) + "\"");
             sw.Write(",\"属性\"");
             sw.Write(",\"" + attr.changed + "\"");
             sw.Write(",\"" + attr.guid + "\"");
-            sw.Write(",\"" + attr.name + "\"");
+            sw.Write(",\"" + filterDoubleQuote(attr.name) + "\"");
 
             if (attr.changed == 'D' || attr.changed == 'U')
             {
@@ -262,15 +262,15 @@ namespace ProjectDiffMaker
         {
             sw.Write("\"" + atf.changed + "\"");
             sw.Write(",\"" + atf.guid + "\"");
-            sw.Write(",\"" + atf.name + "\"");
-            sw.Write(",\"" + atf.pathName + "\"");
+            sw.Write(",\"" + filterDoubleQuote(atf.name) + "\"");
+            sw.Write(",\"" + filterDoubleQuote(atf.pathName) + "\"");
             sw.Write(",\"" + elem.changed + "\"");
             sw.Write(",\"" + elem.guid + "\"");
-            sw.Write(",\"" + elem.name + "\"");
+            sw.Write(",\"" + filterDoubleQuote(elem.name) + "\"");
             sw.Write(",\"操作\"");
             sw.Write(",\"" + mth.changed + "\"");
             sw.Write(",\"" + mth.guid + "\"");
-            sw.Write(",\"" + mth.name + "\"");
+            sw.Write(",\"" + filterDoubleQuote(mth.name) + "\"");
 
             if (mth.changed == 'D' || mth.changed == 'U')
             {
@@ -293,6 +293,21 @@ namespace ProjectDiffMaker
             sw.WriteLine("");
         }
 
+        /// <summary>
+        /// CSVの文字列内でダブルクォートを表すため、
+        /// 「"」ダブルクォート → 「""」ダブルクォート２つ に変換して返す
+        /// </summary>
+        /// <param name="orig"></param>
+        /// <returns></returns>
+        private string filterDoubleQuote(string orig)
+        {
+            if( orig == null || orig.Length == 0)
+            {
+                return "";
+            }
+
+            return orig.Replace("\"", "\"\"");
+        }
 
     }
 }
