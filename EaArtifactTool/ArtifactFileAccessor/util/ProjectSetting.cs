@@ -93,6 +93,8 @@ namespace ArtifactFileAccessor.util
             }
             catch ( Exception ex )
             {
+                Console.WriteLine(ex.Message);
+
                 vo = null;
                 isLoaded = false;
             }
