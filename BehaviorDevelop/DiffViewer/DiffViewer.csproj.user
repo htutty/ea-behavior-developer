@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <StartArguments>C:\DesignHistory\ea-artifacts\ea-diff\1001_1029-0124_1029 m U {2A0A3891-F48A-4262-8549-D40DBAAA6D07} {3906E77F-BFED-4d80-95E7-5BC87AA91596}</StartArguments>
+    <StartArguments>C:\ea-artifacts\for-merge\MERGE_Y20Q1_0401\diff\Y20M04_end-Y20M01_end m U {6979744C-FBB7-4866-84BD-CE37F43CA18F} {66C8D6B2-7DA6-403d-924B-4653FDBF8AD2}</StartArguments>
   </PropertyGroup>
 </Project>

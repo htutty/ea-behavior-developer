@@ -17,6 +17,7 @@ using ArtifactFileAccessor.util;
 using ArtifactFileAccessor.vo;
 using VoidNish.Diff;
 using EA;
+using System.IO;
 
 namespace DiffViewer
 {
@@ -31,8 +32,7 @@ namespace DiffViewer
 
 		AttributeVO selectedAttribute = null;
 		MethodVO selectedMethod = null;
-		TextBox selectedTextBox = null;
-
+        
 		StringBuilder leftDiffBuffer;
 		StringBuilder rightDiffBuffer;
 
@@ -135,18 +135,20 @@ namespace DiffViewer
 						leftAttr = reader.readAttributeDiffDetail(a.guid, "L");
 						rightAttr = reader.readAttributeDiffDetail(a.guid, "R");
 						getDisagreedAttributeDesc( leftAttr, rightAttr, ref leftText, ref rightText ) ;
-
-						break;
+                        selectedAttribute = rightAttr;
+                        break;
 
 					case 'C':
 						rightAttr = reader.readAttributeDiffDetail(a.guid, "R");
 						getMonoAttributeDesc( rightAttr, ref rightText ) ;
-						break;
+                        selectedAttribute = rightAttr;
+                        break;
 
 					case 'D':
 						leftAttr = reader.readAttributeDiffDetail(a.guid, "L");
 						getMonoAttributeDesc( leftAttr, ref leftText ) ;
-						break;
+                        selectedAttribute = leftAttr;
+                        break;
 
 					default:
 						break;
@@ -223,19 +225,25 @@ namespace DiffViewer
 
 						leftText = leftDiffBuffer.ToString();
 						rightText = rightDiffBuffer.ToString();
-						leftDiffBuffer.Clear();
+
+                        selectedMethod = rightMth;
+                        leftDiffBuffer.Clear();
 						rightDiffBuffer.Clear();
 						break;
 
 					case 'C':
 						rightMth = reader.readMethodDiffDetail(m.guid, "R");
 						getMonoMethodDesc( rightMth, ref rightText ) ;
-						break;
+
+                        selectedMethod = rightMth;
+                        break;
 
 					case 'D':
 						leftMth = reader.readMethodDiffDetail(m.guid, "L");
-						getMonoMethodDesc( leftMth, ref leftText ) ;
-						break;
+						getMonoMethodDesc( leftMth, ref leftText );
+
+                        selectedMethod = leftMth;
+                        break;
 
 					default:
 						break;
@@ -347,33 +355,36 @@ namespace DiffViewer
 		/// <returns></returns>
 		private void getDisagreedAttributeDesc(AttributeVO leftAttr, AttributeVO rightAttr, ref string leftText, ref string rightText) {
 
-			System.Text.StringBuilder lsb = new System.Text.StringBuilder();
-			System.Text.StringBuilder rsb = new System.Text.StringBuilder();
+            System.Text.StringBuilder lsb = new System.Text.StringBuilder();
+            System.Text.StringBuilder rsb = new System.Text.StringBuilder();
 
-			lsb.Append(leftAttr.name + "[" + leftAttr.alias + "]" + "\r\n");
-			rsb.Append(rightAttr.name + "[" + rightAttr.alias + "]" + "\r\n");
+            lsb.Append(leftAttr.name + "[" + leftAttr.alias + "]" + "\r\n");
+            rsb.Append(rightAttr.name + "[" + rightAttr.alias + "]" + "\r\n");
 
-			lsb.Append(leftAttr.guid + "\r\n");
+            lsb.Append(leftAttr.guid + "\r\n");
 			rsb.Append(rightAttr.guid + "\r\n");
 
-			if( !compareNullable(leftAttr.stereoType, rightAttr.stereoType) ) {
-				lsb.Append("stereoType=" + leftAttr.stereoType + "\r\n");
-				rsb.Append("stereoType=" + rightAttr.stereoType + "\r\n");
-			}
-
-//			if( leftAtr.pos != rightAtr.pos ) {
-//				lsb.Append("pos=" + leftAtr.pos + "\n");
-//				rsb.Append("pos=" + rightAtr.pos + "\n");
+//			if( !compareNullable(leftAttr.stereoType, rightAttr.stereoType) ) {
+//				lsb.Append("stereoType=" + leftAttr.stereoType + "\r\n");
+//				rsb.Append("stereoType=" + rightAttr.stereoType + "\r\n");
 //			}
 
-			if( !compareNullable(leftAttr.notes, rightAttr.notes) ) {
-				lsb.Append("[notes]\r\n" + leftAttr.notes + "\r\n");
-				rsb.Append("[notes]\r\n" + rightAttr.notes + "\r\n");
-			}
+////			if( leftAtr.pos != rightAtr.pos ) {
+////				lsb.Append("pos=" + leftAtr.pos + "\n");
+////				rsb.Append("pos=" + rightAtr.pos + "\n");
+////			}
 
-			leftText = lsb.ToString();
-			rightText = rsb.ToString();
-			return;
+//			if( !compareNullable(leftAttr.notes, rightAttr.notes) ) {
+//				lsb.Append("[notes]\r\n" + leftAttr.notes + "\r\n");
+//				rsb.Append("[notes]\r\n" + rightAttr.notes + "\r\n");
+//			}
+
+            lsb.Append(leftAttr.getComparedString(rightAttr));
+            rsb.Append(rightAttr.getComparedString(leftAttr));
+
+            leftText = lsb.ToString();
+            rightText = rsb.ToString();
+            return;
 		}
 
 
@@ -599,8 +610,9 @@ namespace DiffViewer
 
 		void ReflectToEAToolStripMenuItemClick(object sender, EventArgs e)
 		{
+            EA.Repository repo = ProjectSetting.getVO().eaRepo;
 
-			if( repo != null ) {
+            if ( repo != null ) {
 
 				// 選択された属性に対する更新処理
 				if ( selectedAttribute != null ) {
@@ -657,9 +669,13 @@ namespace DiffViewer
             EA.Element elem = null;
             int tmp = -1;
 
+            // EAのAPIを使って属性をGUIDより検索
             EA.Attribute attr = (EA.Attribute)repo.GetAttributeByGuid(selectedAttribute.guid);
+
+            // 取得できなかったら（該当するGUIDの属性が存在しなかったら）
             if (attr == null)
             {
+                // この属性を持っているはずの要素をGUIDより検索
                 elem = (EA.Element)repo.GetElementByGuid(myElement.guid);
                 if (elem == null)
                 {
@@ -667,6 +683,9 @@ namespace DiffViewer
                 }
                 attr = (EA.Attribute)elem.Attributes.AddNew(selectedAttribute.name, selectedAttribute.eaType);
             }
+
+            // 更新前後で更新ログ出力
+            writeUpdateLogAttribute(attr, false);
 
             attr.Name = selectedAttribute.name;
             attr.AttributeGUID = selectedAttribute.guid;
@@ -696,6 +715,7 @@ namespace DiffViewer
             attr.Length = selectedAttribute.length.ToString();
             attr.LowerBound = selectedAttribute.lowerBound.ToString();
             attr.Precision = selectedAttribute.precision.ToString();
+            attr.Pos = selectedAttribute.pos;
             // attr.RedefinedProperty = selectedAttribute.;
             attr.Scale = selectedAttribute.scale.ToString();
             attr.Stereotype = selectedAttribute.stereoType;
@@ -709,7 +729,63 @@ namespace DiffViewer
             attr.Update();
             //						elem.Update();
 
+            // 更新前後で更新ログ出力
+            writeUpdateLogAttribute(attr, true);
         }
+
+        private void writeUpdateLogAttribute(EA.Attribute attr, bool afterUpdateFlag)
+        {
+            try
+            {
+                StreamWriter sw = new StreamWriter(@"C:\ea-artifacts\DiffViewerUpdate.log", true);
+
+                if (afterUpdateFlag)
+                {
+                    sw.WriteLine("■属性の書き込みが完了しました(ID={0}, GUID={1})。", attr.AttributeID, attr.AttributeGUID);
+                }
+                else
+                {
+                    sw.WriteLine("〇属性の更新前情報を表示します(ID={0}, GUID={1})。", attr.AttributeID, attr.AttributeGUID);
+                }
+
+                sw.WriteLine("  AttributeID = " + attr.AttributeID);
+                sw.WriteLine("  AttributeGUID = " + attr.AttributeGUID);
+                sw.WriteLine("  Name = " + attr.Name);
+                sw.WriteLine("  Alias = " + attr.Alias);
+                sw.WriteLine("  StereotypeEx = " + attr.StereotypeEx);
+                sw.WriteLine("  Notes = " + attr.Notes);
+                sw.WriteLine("  AllowDuplicate = " + attr.AllowDuplicates);
+                sw.WriteLine("  ClassifierID = " + attr.ClassifierID);
+                sw.WriteLine("  Container = " + attr.Container);
+                sw.WriteLine("  Containment = " + attr.Containment);
+                sw.WriteLine("  Default = " + attr.Default);
+                sw.WriteLine("  IsCollection = " + attr.IsCollection);
+                sw.WriteLine("  IsConst = " + attr.IsConst);
+                sw.WriteLine("  IsDerived = " + attr.IsDerived);
+                sw.WriteLine("  IsOrdered = " + attr.IsOrdered);
+                sw.WriteLine("  IsStatic = " + attr.IsStatic);
+                sw.WriteLine("  Length = " + attr.Length);
+                sw.WriteLine("  LowerBound = " + attr.LowerBound);
+                sw.WriteLine("  Precision = " + attr.Precision);
+                sw.WriteLine("  Pos = " + attr.Pos);
+                sw.WriteLine("  Scale = " + attr.Scale);
+                sw.WriteLine("  Stereotype = " + attr.Stereotype);
+                sw.WriteLine("  StyleEx = " + attr.StyleEx);
+                sw.WriteLine("  Type = " + attr.Type);
+                sw.WriteLine("  UpperBound = " + attr.UpperBound);
+                sw.WriteLine("  Visibility = " + attr.Visibility);
+                sw.WriteLine("");
+
+                sw.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+
+            }
+        }
+
+
 
 
         /// <summary>
@@ -740,7 +816,6 @@ namespace DiffViewer
         {
             EA.Repository repo = ProjectSetting.getVO().eaRepo;
             EA.Element elem = null;
-            int tmp = -1;
 
             // EA.Repository の GetMethodByGuid を呼んでEA上の該当メソッドオブジェクトを取得する
             EA.Method mth = getMethodByGuid(selectedMethod.guid);
@@ -755,6 +830,8 @@ namespace DiffViewer
 
                 mth = (EA.Method)elem.Methods.AddNew(selectedMethod.name, selectedMethod.returnType);
             }
+
+            writeUpdateLogMethod(mth, false);
 
             mth.Name = selectedMethod.name;
             mth.MethodGUID = selectedMethod.guid;
@@ -810,7 +887,68 @@ namespace DiffViewer
             }
 
             mth.Update();
+
+            writeUpdateLogMethod(mth, true);
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mth"></param>
+        /// <param name="afterUpdateFlag"></param>
+        private void writeUpdateLogMethod(EA.Method mth, bool afterUpdateFlag)
+        {
+            try
+            {
+                StreamWriter sw = new StreamWriter(@"C:\DesignHistory\DiffViewerUpdate.log", true);
+
+
+                if (afterUpdateFlag)
+                {
+                    sw.WriteLine("■操作の書き込みが完了しました(ID={0}, GUID={1})。", mth.MethodID, mth.MethodGUID);
+                }
+                else
+                {
+                    sw.WriteLine("〇操作の更新前情報を表示します(ID={0}, GUID={1})。", mth.MethodID, mth.MethodGUID);
+                }
+
+                sw.WriteLine("  MethodID =" + mth.MethodID);
+                sw.WriteLine("  MethodGUID =" + mth.MethodGUID);
+                sw.WriteLine("  Name =" + mth.Name);
+                sw.WriteLine("  Alias =" + mth.Alias);
+                sw.WriteLine("  StereotypeEx =" + mth.StereotypeEx);
+                sw.WriteLine("  Notes =" + mth.Notes);
+                sw.WriteLine("  Behavior =" + mth.Behavior);
+                sw.WriteLine("  Abstract =" + mth.Abstract);
+                sw.WriteLine("  ClassifierID =" + mth.ClassifierID);
+                sw.WriteLine("  Code =" + mth.Code);
+                sw.WriteLine("  Concurrency =" + mth.Concurrency);
+                sw.WriteLine("  IsConst =" + mth.IsConst);
+                sw.WriteLine("  IsLeaf =" + mth.IsLeaf);
+                sw.WriteLine("  IsPure =" + mth.IsPure);
+                sw.WriteLine("  IsQuery =" + mth.IsQuery);
+                sw.WriteLine("  IsRoot =" + mth.IsRoot);
+                sw.WriteLine("  IsStatic =" + mth.IsStatic);
+                sw.WriteLine("  Pos =" + mth.Pos);
+                sw.WriteLine("  ReturnIsArray =" + mth.ReturnIsArray);
+                sw.WriteLine("  ReturnType =" + mth.ReturnType);
+                sw.WriteLine("  StateFlags =" + mth.StateFlags);
+                sw.WriteLine("  StyleEx =" + mth.StyleEx);
+                sw.WriteLine("  Throws =" + mth.Throws);
+                sw.WriteLine("  Visibility =" + mth.Visibility);
+
+                sw.WriteLine("");
+
+                sw.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+
+            }
+
+        }
+
 
 
         /// <summary>
@@ -901,5 +1039,30 @@ namespace DiffViewer
 			}
 		}
         #endregion
+
+        /// <summary>
+        /// 右クリックメニュー - GUIDをコピー選択時のイベントハンドラ
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void copyGuidToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // 選択された属性に対する更新処理
+            if (selectedAttribute != null)
+            {
+                MessageBox.Show("属性のGUID: " + selectedAttribute.guid);
+                return;
+            }
+
+            // 選択された属性に対する更新処理
+            if (selectedMethod != null)
+            {
+                MessageBox.Show("操作のGUID: " + selectedMethod.guid);
+                return;
+            }
+
+            MessageBox.Show("GUIDが表示できません");
+        }
+
     }
 }
