@@ -64,6 +64,39 @@ namespace ArtifactFileAccessor.vo
             return sw.ToString();
         }
 
+        /// <summary>
+        /// 引数のオブジェクトと自身の値を比較し、差異のあった項目のみで"name = value"の文字列を返却する
+        /// </summary>
+        /// <param name="o">比較先のタグ付き値オブジェクト</param>
+        /// <returns></returns>
+        public string getComparedString(TaggedValueVO o)
+        {
+            StringWriter sw = new StringWriter();
+
+            if (name != o.name)
+            {
+                sw.WriteLine("name = " + name);
+            }
+
+            if (guid != o.guid)
+            {
+                sw.WriteLine("guid = " + guid);
+            }
+
+            if (tagValue != o.tagValue)
+            {
+                sw.WriteLine("tagValue = " + tagValue);
+            }
+
+            if (notes != o.notes)
+            {
+                sw.WriteLine("[notes]\r\n" + notes);
+            }
+
+            sw.WriteLine("notes = " + notes);
+            return sw.ToString();
+        }
+
     }
 
 
