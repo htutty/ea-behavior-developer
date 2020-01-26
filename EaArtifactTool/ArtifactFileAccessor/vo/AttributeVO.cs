@@ -385,15 +385,28 @@ namespace ArtifactFileAccessor.vo
                 sw.WriteLine("visibility = " + visibility);
             }
 
-            sw.Write("taggedValues=[");
-            foreach (var tv in taggedValues)
-            {
-                //                tv.getComparedString();
-            }
-            sw.WriteLine("]");
+            //sw.Write("taggedValues=[");
+            //foreach (var tv in taggedValues)
+            //{
+            //    //                tv.getComparedString();
+            //}
+            //sw.WriteLine("]");
 
             return sw.ToString();
         }
+
+        private string getTaggedValuesComparedString(List<TaggedValueVO> srcTaggedValues, List<TaggedValueVO> destTaggedValues)
+        {
+
+            for(int i=0, j = 0; i < srcTaggedValues.Count || j < destTaggedValues.Count; i++, j++)
+            {
+
+
+            }
+
+            return "";
+        }
+
 
         /// <summary>
         /// 
