@@ -32,7 +32,6 @@ namespace ArtifactFileExporter
 
             try
             {
-
                 // MDB名など
                 //conn.ConnectionString = @"Provider=Microsoft.ACE.OLEDB.16.0;Data Source=" + eapfile; (Access Connector Environment 2016)
                 //conn.ConnectionString = @"Provider=Microsoft.ACE.OLEDB.15.0;Data Source=" + eapfile; (Access Connector Environment 2013)
@@ -163,8 +162,6 @@ namespace ArtifactFileExporter
             {
                 return;
             }
-
-
 
             try
             {

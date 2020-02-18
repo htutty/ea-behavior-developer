@@ -12,6 +12,7 @@ namespace ArtifactFileExporter
         private Dictionary<int, List<MethodVO>> g_AllMethodsInElementMap = new Dictionary<int, List<MethodVO>>();
         // 全属性のレコードを読み込み、要素IDごとにハッシュに格納したもの
         private Dictionary<int, List<AttributeVO>>  g_AllAttributesInElementMap = new Dictionary<int, List<AttributeVO>>();
+
         // 全パラメータタグ付き値を読み込み、パラメータのGUIDごとにハッシュに格納したもの
         private Dictionary<string, List<ParamTagVO>> g_AllParamTagsInParamMap = new Dictionary<string, List<ParamTagVO>>();
 
@@ -46,10 +47,14 @@ namespace ArtifactFileExporter
         {
             this.objConn = conn;
 
-            getAllParameterTaggedValueMap();
+            // 属性を全行読み込んでMapに格納する
             getAllAttributeMap();
-            getAllMethodMap();
 
+            // パラメータのタグ付き値を全行読み込んでMapに格納する
+            getAllParameterTaggedValueMap();
+
+            // 操作を全行読み込んでMapに格納する
+            getAllMethodMap();
         }
 
 
@@ -58,8 +63,7 @@ namespace ArtifactFileExporter
         /// </summary>
         private void getAllParameterTaggedValueMap()
         {
-
-            Console.WriteLine("getAllParameterTaggedValue()");
+            Console.WriteLine("パラメータのタグ付き値を読み込んでMapに格納する処理開始：");
 
             string strSQL, strFields;
 
@@ -110,10 +114,10 @@ namespace ArtifactFileExporter
                     saveParamGuid = ptgvo.paramGuid;
                 }
 
-                // 要素IDが前行と同一の場合
+                // パラメータGUIDが前行と同一の場合
                 if (saveParamGuid == ptgvo.paramGuid)
                 {
-                    // 現在のメソッドリストにこのメソッドを追加
+                    // 現在のメソッドリストにこのタグ付き値を追加
                     paramTagListInParam.Add(ptgvo);
                 }
                 // 同一でない場合
@@ -131,6 +135,8 @@ namespace ArtifactFileExporter
 
             // 最後に溜まっている分の要素内操作リストを返却Mapに追加
             g_AllParamTagsInParamMap.Add(saveParamGuid, paramTagListInParam);
+
+            Console.WriteLine("パラメータのタグ付き値を読み込んでMapに格納する処理終了：");
         }
 
 
