@@ -420,22 +420,22 @@ namespace ArtifactFileAccessor.writer
 			sw.WriteLine( indent(depth) + "  <returnType>" + escapeXML(mth.returnType) + "</returnType>");
 
             // 1.2.3.1.1 メソッドのタグ付き値出力
-            outputMethodTags(mth, depth, sw);
+            outputMethodTags(mth, depth + 1, sw);
 
             // 1.2.3.1.2 メソッドパラメータの出力
-            outputMethodParams(mth, depth, sw);
+            outputMethodParams(mth, depth + 1, sw);
 	
 			if (mth.notes != null) {
-				sw.WriteLine(indent(depth) + "  <notes>" + escapeXML( mth.notes ) + "</notes>");
+				sw.WriteLine(indent(depth + 1) + "<notes>" + escapeXML( mth.notes ) + "</notes>");
 			}
 	
 			if (mth.behavior != null) {
-				sw.WriteLine(indent(depth) + "  <behavior>" + escapeXML( mth.behavior ) + "</behavior>");
+				sw.WriteLine(indent(depth + 1) + "<behavior>" + escapeXML( mth.behavior ) + "</behavior>");
 			}
 
             if (mth.code != null)
             {
-                sw.WriteLine(indent(depth) + "  <code>" + escapeXML(mth.code) + "</code>");
+                sw.WriteLine(indent(depth + 1) + "<code>" + escapeXML(mth.code) + "</code>");
             }
 
             // 操作の変更フラグが 'U' かつ 変更元・変更先操作がそれぞれセットされている場合
@@ -563,7 +563,7 @@ namespace ArtifactFileAccessor.writer
             {
                 if (ptagv.notes != null)
                 {
-                    sw.WriteLine(indent(depth) + "  <ptg guid=\"" + escapeXML(ptagv.guid) + "\" name=\"" + escapeXML(ptagv.name) + "\" >" + escapeXML(ptagv.notes) + "</ptg>");
+                    sw.WriteLine(indent(depth + 1) + "<ptg guid=\"" + escapeXML(ptagv.guid) + "\" name=\"" + escapeXML(ptagv.name) + "\" >" + escapeXML(ptagv.notes) + "</ptg>");
                 }
             }
 

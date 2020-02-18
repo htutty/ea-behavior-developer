@@ -71,7 +71,11 @@ namespace ArtifactFileAccessor.reader
         }
 
 
-
+        /// <summary>
+        /// repositoryノードを読み込み、voを返却する
+        /// </summary>
+        /// <param name="repoNode"></param>
+        /// <returns></returns>
         private static RepositorySettingVO readRepositoryNode(XmlNode repoNode)
         {
 

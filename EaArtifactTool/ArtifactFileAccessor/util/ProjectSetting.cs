@@ -10,7 +10,7 @@ namespace ArtifactFileAccessor.util
 	/// </summary>
 	public class ProjectSetting
 	{
-		private static ProjectSettingVO vo = null;
+		private static ProjectSettingVO projectSettingVO = null;
 
         private static bool isLoaded = false;
 
@@ -81,21 +81,17 @@ namespace ArtifactFileAccessor.util
         /// </summary>
         /// <returns>bool: 読み込み成功ならtrue</returns>
         public static Boolean load(string project_file) {
-            // dbファイル名が取得できたら、プロファイルディレクトリを追加
-            //if (settingvo.dbName != null) {
-            //	settingvo.dbName = GetAppProfileDir() + settingvo.dbName ;
-            //}
 
             try
             {
-                vo = readProjectSetting(project_file);
+                projectSettingVO = readProjectSetting(project_file);
                 isLoaded = true;
             }
             catch ( Exception ex )
             {
                 Console.WriteLine(ex.Message);
 
-                vo = null;
+                projectSettingVO = null;
                 isLoaded = false;
             }
 
@@ -129,7 +125,7 @@ namespace ArtifactFileAccessor.util
         public static ProjectSettingVO getVO( ) {
             if(isLoaded)
             {
-                return vo;
+                return projectSettingVO;
             } else {
                 return null;
             }
@@ -140,8 +136,8 @@ namespace ArtifactFileAccessor.util
         }
 
         public static EA.Repository getEARepo() {
-        	if (vo != null) {
-        		return vo.eaRepo;
+        	if (projectSettingVO != null) {
+        		return projectSettingVO.eaRepo;
         	} else {
         		return null;
         	}
