@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="shift_jis" ?>
+<EADATA version="1.0" exporter="Enterprise Architect">
+  <Dataset_0>
+    <Data>
+      <Row>
+        <SnapshotID>L20</SnapshotID>
+        <SeriesID>LOG</SeriesID>
+        <Position>43801483</Position>
+        <SnapshotName>t_attribute</SnapshotName>
+        <Notes>{871F1CE7-6B10-4a77-97E6-C27AE7801532},属性の追加テスト２,属性,{50410763-C9B4-4695-BBAF-9D1EE2834E4E},会員情報サービス,Class,</Notes>
+        <Style>INSERT</Style>
+        <ElementID>1</ElementID>
+        <ElementType>&lt;EMPTY&gt;</ElementType>
+        <StrContent/>
+        <BinContent1 xmlns:dt="urn:schemas-microsoft-com:datatypes" dt:dt="bin.base64">
+          UEsDBBQAAAAIAIRcgk+OjJJs6QEAANQIAAAHABEAc3RyLmRhdFVUDQAHIvfkXSL35F0i9+Rd
+          xVbdSgJREP6ug256gsWb6kLcNX9LgzKDICzMuopM3S0MWyV/yqJn6BV6jV4geqmob+ZoYkTg
+          ....略....
+        </BinContent1>
+        <BinContent2 xmlns:dt="urn:schemas-microsoft-com:datatypes" dt:dt="bin.base64">
+          PABtAGUAdABhAGQAYQB0AGEAPgA8AFIAbwB3ACAATgB1AG0AYgBlAHIAPQAiADAAIgAgAFMA
+          dABhAG4AZABhAHIAZAA9ACIAMQAiAD4APABMAGUAdgBlAGwAIABMAGUAdgBlAGwATgBhAG0A
+          ....略....
+        </BinContent2>
+      </Row>
+    </Data>
+  </Dataset_0>
+  <ProjectGUID>{3945651E-64BD-4b7c-85DE-E5A07B1856A3}</ProjectGUID>
+</EADATA>
+
