@@ -9,16 +9,28 @@ namespace ArtifactFileAccessor.vo
 {
     public class ElementChangeItem
     {
-        public int elementId;
-        public string elementGuid;
-        public string elementName;
+        public int elementId { get; set; }
+        public string elementGuid { get; set; }
+        public string elementName { get; set; }
+        public string changeTableName { get; set; }
 
-        public ChangeItemType targetItemType;
+        public ChangeItemType targetItemType { get; set; }
 
-        public string targetGuid;
-        public string targetName;
+        /// <summary>変更ユーザー</summary>
+        public string changeUser { get; set; }
 
-        public Dictionary<string, string[]> logItemsNewOldMap;
+        /// <summary>変更日時</summary>
+        public DateTime changeDateTime { get; set; }
+
+        /// <summary>変更の種類(INSERT/UPDATE/DELETE)</summary>
+        public string changeType { get; set; }
+
+        public string targetGuid { get; set; }
+        public string targetName { get; set; }
+
+        public List<ChangeItemColumn> changeItemColumns;
+
+        //public Dictionary<string, string[]> logItemsNewOldMap;
 
         // LogItem XMLデータのサンプル
         // EAの監査ログの機能を有効にするとこのようなログデータがXML形式で出力される。
@@ -86,7 +98,7 @@ namespace ArtifactFileAccessor.vo
                     {
                         if( rowNode.Name == "Row" )
                         {
-                            this.logItemsNewOldMap = readRowNode(rowNode);
+                            this.changeItemColumns = readRowNode(rowNode);
                             break;
                         }
 
@@ -112,22 +124,27 @@ namespace ArtifactFileAccessor.vo
         /// </summary>
         /// <param name="rowNode"></param>
         /// <returns></returns>
-        private Dictionary<string, string[]> readRowNode(XmlNode rowNode) {
-            Dictionary<string, string[]> retValMap = new Dictionary<string, string[]>();
+        private List<ChangeItemColumn> readRowNode(XmlNode rowNode) {
+            //Dictionary<string, string[]> retValMap = new Dictionary<string, string[]>();
+            List<ChangeItemColumn> retList = new List<ChangeItemColumn>();
 
             foreach ( XmlNode colNode in rowNode.ChildNodes )
             {
                 if( colNode.Name == "Column" )
                 {
+                    ChangeItemColumn colItem = new ChangeItemColumn();
                     string[] col = readColumnChildNode(colNode);
-                    string columnName = readColumnNameAttribute(colNode);
 
-                    retValMap.Add(columnName, col);
+                    colItem.columnName = readColumnNameAttribute(colNode);
+                    colItem.oldValue = col[0];
+                    colItem.newValue = col[1];
+
+                    retList.Add(colItem);
                 }
 
             }
 
-            return retValMap;
+            return retList;
         }
 
         private string[] readColumnChildNode(XmlNode colNode)
@@ -139,11 +156,11 @@ namespace ArtifactFileAccessor.vo
             {
                 switch(valNode.Name)
                 {
-                    case "OldValue":
+                    case "Old":
                         oldValue = readValueAttribute(valNode);
                         break;
 
-                    case "NewValue":
+                    case "New":
                         newValue = readValueAttribute(valNode);
                         break;
 

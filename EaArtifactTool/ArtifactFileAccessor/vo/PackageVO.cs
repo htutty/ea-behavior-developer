@@ -20,6 +20,11 @@ namespace ArtifactFileAccessor.vo
         public int packageId { get; set; }
 
         /// <summary>
+        /// 親パッケージID
+        /// </summary>
+        public int parentPackageId { get; set; }
+
+        /// <summary>
         /// 名前
         /// </summary>
         public string name { get; set; }

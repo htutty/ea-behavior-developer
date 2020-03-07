@@ -105,6 +105,14 @@ namespace ArtifactFileAccessor.reader
                         elem.parentID = p;
                         break;
 
+                    case "packageId":
+                        if (!Int32.TryParse(attr.Value, out p))
+                        {
+                            p = 0;
+                        }
+                        elem.packageId = p;
+                        break;
+
                     case "changed":
 						elem.changed = attr.Value[0];
 						break;

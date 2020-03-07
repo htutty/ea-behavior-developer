@@ -53,6 +53,7 @@
     <Compile Include="reader\ArtifactXmlReader.cs" />
     <Compile Include="reader\ConnectorXmlReader.cs" />
     <Compile Include="reader\ElementsXmlReader.cs" />
+    <Compile Include="reader\PackagesXmlReader.cs" />
     <Compile Include="util\BehaviorParser.cs" />
     <Compile Include="util\BehaviorTranslator.cs" />
     <Compile Include="util\DbUtil.cs" />
@@ -68,6 +69,7 @@
     <Compile Include="vo\AttributeVO.cs" />
     <Compile Include="vo\BehaviorChunk.cs" />
     <Compile Include="vo\BehaviorToken.cs" />
+    <Compile Include="vo\ChangeItemColumn.cs" />
     <Compile Include="vo\ChangeLogItem.cs" />
     <Compile Include="vo\ConnectorVO.cs" />
     <Compile Include="vo\CrossRefVO.cs" />

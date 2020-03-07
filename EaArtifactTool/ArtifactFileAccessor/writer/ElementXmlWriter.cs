@@ -127,6 +127,7 @@ namespace ArtifactFileAccessor.writer
             sw.Write("type=\"" + elemvo.eaType + "\" ");
             sw.Write("name=\"" + escapeXML(elemvo.name) + "\" ");
             sw.Write("alias=\"" + escapeXML(elemvo.alias) + "\" ");
+            sw.Write("pacakgeId=\"" + elemvo.packageId + "\" ");
             sw.Write("elementId=\"" + elemvo.elementId + "\" ");
             sw.Write("parentId=\"" + elemvo.parentID + "\"");
 

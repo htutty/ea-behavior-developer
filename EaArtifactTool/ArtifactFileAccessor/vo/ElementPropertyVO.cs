@@ -94,7 +94,7 @@ namespace ArtifactFileAccessor.vo
             this.created = elem.created;
             this.modified = elem.modified;
             this.objectType = elem.objectType;
-            this.packageID = elem.packageID;
+            this.packageID = elem.packageId;
             this.tag = elem.tag;
             this.treePos = elem.treePos;
             this.eaType = elem.eaType;

@@ -56,7 +56,7 @@ namespace ArtifactFileAccessor.vo
     	public string objectType { get; set; }
 
 		/// <summary>所属パッケージID</summary>
-    	public int packageID { get; set; }
+    	public int packageId { get; set; }
 
 		/// <summary>生成言語タイプ</summary>
     	public string genType { get; set; }
@@ -341,7 +341,7 @@ namespace ArtifactFileAccessor.vo
             sw.WriteLine("created = " + created);
             sw.WriteLine("modified = " + modified);
             sw.WriteLine("objectType = " + objectType);
-            sw.WriteLine("packageID = " + packageID);
+            sw.WriteLine("packageID = " + packageId);
             sw.WriteLine("tag = " + tag);
             sw.WriteLine("treePos = " + treePos);
             sw.WriteLine("eaType = " + eaType);
