@@ -912,7 +912,7 @@ namespace ArtifactFileExporter
                 elem.name = StringUtil.excludeSpecialChar("t_object", "name", elem.guid, DbUtil.readStringField(reader, 6));
                 elem.notes = DbUtil.readStringField(reader, 7);
                 elem.objectType = DbUtil.readIntField(reader, 8).ToString();
-                //elem.packageId = reader.GetValue(9);
+                elem.packageId = DbUtil.readIntField(reader,9);
                 elem.parentID = DbUtil.readIntField(reader,10);
                 elem.stereoType = DbUtil.readStringField(reader, 11);
                 elem.tag = DbUtil.readStringField(reader, 12);

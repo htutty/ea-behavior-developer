@@ -124,7 +124,7 @@ namespace ArtifactFileExporter
                 IndexDbWriter dbWriter = new IndexDbWriter(this.outputDir, ProjectSetting.getVO().dbName);
                 dbWriter.writeAllConnector(this.allconnectors);
                 dbWriter.writeAllElements(this.allArtifacts);
-                dbWriter.writeAllBehaviors(this.allArtifacts);
+                // dbWriter.writeAllBehaviors(this.allArtifacts);
             }
             catch (Exception ex)
             {
