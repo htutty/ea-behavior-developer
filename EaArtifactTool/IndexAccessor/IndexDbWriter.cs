@@ -183,10 +183,10 @@ namespace IndexAccessor
 
 			string sql = @"insert into t_element
 					(objectId, elemGuid, elemName, elemAlias, elemType, elemStereotype,
-					 artifactGuid, artifactName, elementPath
+					 artifactGuid, artifactName, packageId, elementPath
 					) values (
 					 @objectId, @elemGuid, @elemName, @elemAlias, @elemType, @elemStereotype,
-					 @artifactGuid, @artifactName, @elementPath
+					 @artifactGuid, @artifactName, @packageId, @elementPath
 					) ";
 
 	    	using (SQLiteCommand command2 = conn.CreateCommand()) {
@@ -199,7 +199,8 @@ namespace IndexAccessor
                   , new SQLiteParameter("@elemStereotype",elem.stereoType)
                   , new SQLiteParameter("@artifactGuid",atf.guid)
                   , new SQLiteParameter("@artifactName",atf.name)
-                 , new SQLiteParameter("@elementPath",elem.elementPath)
+                  , new SQLiteParameter("@packageId",elem.packageId)
+                  , new SQLiteParameter("@elementPath",elem.elementPath)
 				};
 
 				command2.CommandText = sql;
@@ -474,6 +475,7 @@ namespace IndexAccessor
 					 elemStereotype TEXT,
 					 artifactGuid TEXT,
 					 artifactName TEXT,
+                     packageId INTEGER,
 					 elementPath TEXT
 					)";
                 command.ExecuteNonQuery();
