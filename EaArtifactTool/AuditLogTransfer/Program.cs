@@ -39,7 +39,7 @@ namespace AuditLogTransfer
             else
             {
                 Console.WriteLine("引数が足りません：");
-                Console.WriteLine("使い方： AuditLogTransfer.exe <targetRepoName> ");
+                Console.WriteLine("使い方： AuditLogTransfer.exe <repositoriesFile(.xml)> <targetRepoName(ex:cuvic_aswea_master)> ");
             }
 
         }

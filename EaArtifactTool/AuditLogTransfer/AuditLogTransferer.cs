@@ -160,13 +160,47 @@ namespace AuditLogTransfer
             string[] ary = orig.Split(',');
 
             // idx値が配列の要素数の範囲内と判断されたら
-            if(idx >= 0 && idx < ary.Length)
+            if (idx >= 0 && idx < ary.Length)
             {
-                // 配列のidx列目の値を返却
-                return ary[idx];
+                return selectGuidString(ary, idx);
             }
 
             return "";
+        }
+
+        /// <summary>
+        /// 指定された配列のidx番目から文字列の内容をチェックし、GUIDとしての特徴に合致したフィールドを選択する。
+        /// ※t_operationテーブルの変更履歴の場合、要素のGUIDは４列目にセット
+        /// </summary>
+        /// <param name="ary">文字列の配列(CSVを","でsplitしたもの)</param>
+        /// <param name="idx">開始インデックス</param>
+        /// <returns></returns>
+        private string selectGuidString(string[] ary, int idx)
+        {
+            for(int i=idx; i < ary.Length; i++)
+            {
+                if (checkGuidField(ary[i]))
+                {
+                    return ary[i];
+                }
+            }
+
+            return "";
+        }
+
+        /// <summary>
+        /// 指定された文字列がGUIDであるかをチェックする
+        /// </summary>
+        /// <param name="cand"></param>
+        /// <returns></returns>
+        private bool checkGuidField(string cand)
+        {
+            // "{" で始まり, "}" で終わり、文字数が38 ならGUID項目 ex: "{11111111-2222-3333-4444-555555555555}"
+            if (cand.StartsWith("{") && cand.Length == 38 && cand.EndsWith("}"))
+            {
+                return true;
+            }
+            return false;
         }
 
 
