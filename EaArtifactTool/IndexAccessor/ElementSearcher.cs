@@ -65,6 +65,11 @@ namespace IndexAccessor
             else return null;
         }
 
+        public List<ElementSearchItem> findByPackageId(int packageId)
+        {
+            return find("packageId = " + packageId + " ");
+        }
+
 
         private List<ElementSearchItem> find(string whereCond) {
 			List<ElementSearchItem> retList = new List<ElementSearchItem>() ;

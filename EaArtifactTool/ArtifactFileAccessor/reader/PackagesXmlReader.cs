@@ -108,7 +108,7 @@ namespace ArtifactFileAccessor.reader
             {
                 switch (attr.Name)
                 {
-                    case "PackageId":
+                    case "PackageID":
                         pkg.packageId = readAttributeIntValue(attr);
                         break;
                     case "name":
@@ -117,7 +117,7 @@ namespace ArtifactFileAccessor.reader
                     case "guid":
                         pkg.guid = attr.Value;
                         break;
-                    case "alias":
+                    case "Alias":
                         pkg.alias = attr.Value;
                         break;
                     case "stereotype":
