@@ -129,6 +129,12 @@ namespace ArtifactFileAccessor.reader
                     case "changed":
                         pkg.changed = readAttributeCharValue(attr);
                         break;
+                    case "elementsCount":
+                        pkg.elementsCount = readAttributeIntValue(attr);
+                        break;
+                    case "diagramsCount":
+                        pkg.diagramsCount = readAttributeIntValue(attr);
+                        break;
                 }
             }
 

@@ -34,7 +34,7 @@ namespace ArtifactFileAccessor.vo
 
         // LogItem XMLデータのサンプル
         // EAの監査ログの機能を有効にするとこのようなログデータがXML形式で出力される。
-        // それをいい具合に画面表示させるためにkey-valueのMapに
+        // それをいい具合に画面表示させるためにList<ChangeItemColumn>に詰め直す処理
         //<LogItem>
         //  <Row Number="0">
         //    <Column Name="object_id"><Old Value=""/><New Value="277503"/></Column>

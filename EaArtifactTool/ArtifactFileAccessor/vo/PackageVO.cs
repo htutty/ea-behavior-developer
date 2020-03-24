@@ -84,6 +84,24 @@ namespace ArtifactFileAccessor.vo
         /// </summary>
         public char changed { get; set; }
 
+        /// <summary>
+        /// このパッケージ配下で保持している要素数
+        /// （子や孫以降の末端までをすべて含む）
+        /// </summary>
+        public int elementsCount { get; set; }
+
+        /// <summary>
+        /// このパッケージ配下で保持している要素のうち変更のあったものの数
+        /// （子や孫以降の末端までをすべて含む）
+        /// </summary>
+        public int changedElementsCount { get; set; }
+
+
+        /// <summary>
+        /// このパッケージ配下で保持しているダイアグラム数
+        /// </summary>
+        public int diagramsCount { get; set; }
+
 
         public PackageVO()
 		{
