@@ -21,6 +21,8 @@ namespace ArtifactFileExporter
 
         public void outputPackageXml(List<PackageVO> allPackages)
         {
+            // 子の分の要素数とダイアグラム数をカウントしてセットする処理を呼び出し
+            countPackageElementsAndDiagrams(allPackages);
 
             StreamWriter sw = null;
 
@@ -49,6 +51,65 @@ namespace ArtifactFileExporter
 
         }
 
+        /// <summary>
+        /// 子の分の要素数とダイアグラム数をカウントしてPackageVOにセットする
+        /// </summary>
+        /// <param name="allPackages"></param>
+        private void countPackageElementsAndDiagrams(List<PackageVO> allPackages)
+        {
+
+            for (int i = 0; i < allPackages.Count; i++)
+            {
+                getChildrenNodeCount(allPackages[i]);
+            }
+
+        }
+
+
+        private ChildrenCounters getChildrenNodeCount(PackageVO packageNode)
+        {
+            // 自分と子の分のカウント数を入れる入れ物を用意
+            ChildrenCounters counters = new ChildrenCounters();
+
+            // まず自分が保持する要素の数とダイアグラムの数をセット
+            if (packageNode.elements != null)
+            {
+                counters.elementsCount = packageNode.elements.Count;
+            }
+            else
+            {
+                packageNode.elementsCount = 0;
+            }
+
+            if (packageNode.diagrams != null)
+            {
+                counters.diagramsCount = packageNode.diagrams.Count;
+            }
+            else
+            {
+                packageNode.diagramsCount = 0;
+            }
+
+            // 子パッケージがある場合、子の分の数も自分に集計する
+            if (packageNode.childPackageList != null && packageNode.childPackageList.Count > 0)
+            {
+                // 子の分の要素数とダイアグラム数を取得し、それぞれ自分のカウンタに足しこむ
+                for (int i = 0; i < packageNode.childPackageList.Count; i++)
+                {
+                    ChildrenCounters childCount = getChildrenNodeCount(packageNode.childPackageList[i]);
+
+                    counters.elementsCount += childCount.elementsCount;
+                    counters.diagramsCount += childCount.diagramsCount;
+                }
+            }
+
+
+            // 最後に、要素数とダイアグラム数を自ノードにセット
+            packageNode.elementsCount = counters.elementsCount;
+            packageNode.diagramsCount = counters.diagramsCount;
+
+            return counters;
+        }
 
 
         private void outputPackageTree(List<PackageVO> packageList, int depth, string ppath, StreamWriter sw)
@@ -64,6 +125,8 @@ namespace ArtifactFileExporter
                 sw.Write(" TPos='" + pac.treePos + "'");
                 sw.Write(" name='" + StringUtil.escapeXML(pac.name) + "'");
                 sw.Write(" Alias='" + StringUtil.escapeXML(pac.alias) + "'");
+                sw.Write(" elementsCount='" + pac.elementsCount + "'");
+                sw.Write(" diagramsCount='" + pac.diagramsCount + "'");
                 sw.WriteLine(">");
 
                 sw.WriteLine(StringUtil.indent(depth + 1) + StringUtil.escapeXML(pac.pathName) );
@@ -83,4 +146,12 @@ namespace ArtifactFileExporter
 
 
     }
+
+    class ChildrenCounters
+    {
+        public int elementsCount { get; set; }
+        public int diagramsCount { get; set; }
+        public int changedElemensCount { get; set; }
+    }
+
 }
