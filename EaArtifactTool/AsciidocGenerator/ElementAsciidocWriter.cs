@@ -11,34 +11,40 @@ namespace AsciidocGenerator
 {
     public class ElementAsciidocWriter
     {
+
         /// <summary>
         /// 要素毎のAsciidoc出力
         /// </summary>
         /// <param name="outputDir"></param>
         /// <param name="elem"></param>
-        public static void doWrite(string outputDir, ElementVO elem)
+        /// <returns>出力先の相対パス</returns>
+        public static string doWrite(string outputDir, ElementVO elem)
         {
-            string filepath = outputDir + "\\elements\\" + elem.guid.Substring(1, 1) + "\\"
-                + elem.guid.Substring(2, 1) + "\\" + elem.guid.Substring(1, 36) + ".adoc";
-
             // 要素XMLを出力するフォルダ (projectDir + /elements/ 配下) が存在するかを調べ、なければ作る
-            string edir = outputDir + @"\elements\" + elem.guid.Substring(1, 1) + @"\" + elem.guid.Substring(2, 1);
-            checkAndMakeElementDir(edir);
+            string elemdir = elem.guid.Substring(1, 1) + @"\" + elem.guid.Substring(2, 1);
+
+            string adocrelpath = elemdir + @"\" + elem.guid.Substring(1, 36) + ".adoc";
+            string adocfilepath = outputDir + @"\" + adocrelpath;
+
+            checkAndMakeElementDir(outputDir + @"\" + elemdir);
 
             try
             {
                 //BOM無しのUTF8でテキストファイルを作成する
-                StreamWriter sw = new StreamWriter(filepath);
-                // atfsw.WriteLine(@":sectnums:");
+                StreamWriter sw = new StreamWriter(adocfilepath);
 
                 //
                 writeElement(elem, sw);
 
                 sw.Close();
+
+                return "../elements/" + elem.guid.Substring(1, 1) + "/" 
+                        + elem.guid.Substring(2, 1) + "/" + elem.guid.Substring(1, 36) + ".adoc";
             } catch( Exception ex ) {
                 Console.WriteLine(ex.Message);
             }
 
+            return null;
         }
 
 
@@ -284,7 +290,8 @@ namespace AsciidocGenerator
                 sw.WriteLine("##### ふるまい");
                 sw.WriteLine("");
                 sw.WriteLine("------");
-                sw.WriteLine(getParsedBehavior(method));
+                sw.WriteLine(method.behavior);
+                //                sw.WriteLine(getParsedBehavior(method));
                 sw.WriteLine("------");
 
                 sw.WriteLine("");
