@@ -143,7 +143,7 @@ namespace ArtifactFileExporter
                 foreach (ElementVO elem in atf.getOwnElements())
                 {
                     ElementXmlWriter.outputElementXmlFile(elem);
-                    outputCSharpCode(elem);
+                    // outputCSharpCode(elem);
                     // ElementAsciidocWriter.doWrite(outputDir, elem);
                 }
 
@@ -165,7 +165,8 @@ namespace ArtifactFileExporter
 
             try
             {
-                string outputDir = @"C:\ea-artifacts\in-progress\cuvic_aswea_20190401\logicsrc\" + elem.elementPath.Replace('/', '\\');
+                //string outputDir = @"C:\ea-artifacts\in-progress\cuvic_aswea_20190401\logicsrc\" + elem.elementPath.Replace('/', '\\');
+                string outputDir = ProjectSetting.getVO().projectPath + "\\logicsrc\\" + elem.elementPath.Replace('/', '\\');
                 makeSrcDirIfNotExist(outputDir);
                 Console.WriteLine("elementPath = " + elem.elementPath);
 
