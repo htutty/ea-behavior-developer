@@ -17,6 +17,9 @@ namespace IndexAccessor
 
         public LoggerElementAccess(string projectPath, string dbName)
 		{
+            this.projectPath = projectPath;
+            this.dbName = dbName;
+
             string dbFileName = ProjectSetting.getVO().projectPath + "\\" + ProjectSetting.getVO().dbName;
             this.conn = new SQLiteConnection("Data Source=" + dbFileName);
         }

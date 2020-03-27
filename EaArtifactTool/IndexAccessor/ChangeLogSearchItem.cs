@@ -34,6 +34,13 @@ namespace IndexAccessor
         /// <summary>LogItem</summary>
         public string logItem { get; set; }
 
+        /// <summary>要素名</summary>
+        public string elemName { get; set; }
+
+        /// <summary>要素パス</summary>
+        public string elemPath { get; set; }
+
+
         public ChangeLogSearchItem()
 		{
 		}

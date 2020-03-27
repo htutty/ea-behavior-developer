@@ -19,57 +19,102 @@ namespace IndexAccessor
 			this.conn = new SQLiteConnection("Data Source=" + dbFileName);
 		}
 
-		public List<ConnectorVO> findByObjectGuid(string objGuid) {
-			List<ConnectorVO> retList = new List<ConnectorVO>() ;
+        public ConnectorSearcher(string dbFilePath)
+        {
+            this.conn = new SQLiteConnection("Data Source=" + dbFilePath);
+        }
 
-			conn.Open();
 
-			using (var command = conn.CreateCommand())
-		    {
-                //クエリの実行
-                string sql =
-                    @"select connGuid, connName, connType, srcObjId, srcObjGuid, srcObjName, destObjId, destObjGuid, destObjName
-                      from t_connector where srcObjGuid = '" + objGuid + "' or destObjGuid = '" + objGuid + "'";
+        public List<ConnectorVO> findByObjectGuid(string objGuid)
+        {
+            string condStr = "srcObjGuid = '" + objGuid + "' or destObjGuid = '" + objGuid + "'";
+            return findWithCond(condStr, objGuid);
+        }
+
+
+        public List<ConnectorVO> findByConnectorId(int connectorId)
+        {
+            string condStr = "connId = " + connectorId + " ";
+            return findWithCond(condStr, null);
+        }
+
+
+        private List<ConnectorVO> findWithCond(string whereCond, string objGuid)
+        {
+            //クエリの実行
+            string sql =
+                @"select connGuid, connName, connType,
+                         srcObjId, srcObjGuid, srcObjName, 
+                         destObjId, destObjGuid, destObjName,
+                         connId
+                  from t_connector where " + whereCond;
+
+            return findBySql(sql, objGuid);
+        }
+
+
+        private List<ConnectorVO> findBySql(string sql, string objGuid)
+        {
+            List<ConnectorVO> retList = new List<ConnectorVO>();
+
+            conn.Open();
+
+            using (var command = conn.CreateCommand())
+            {
                 command.CommandText = sql;
 
                 // selectの結果がSQLiteDataReaderに入ってくるので、終端まで読み込み
                 using (var sdr = command.ExecuteReader())
-	            {
+                {
                     //
-                    while (sdr.Read()) {
-	            		ConnectorVO convo = new ConnectorVO() ;
+                    while (sdr.Read())
+                    {
+                        ConnectorVO convo = new ConnectorVO();
 
-	            		convo.guid = sdr.GetString(0);
-	            		convo.name = sdr.GetString(1);
-	            		convo.connectorType = sdr.GetString(2);
+                        convo.guid = sdr.GetString(0);
+                        convo.name = sdr.GetString(1);
+                        convo.connectorType = sdr.GetString(2);
 
                         convo.srcObjId = sdr.GetInt32(3);
                         convo.srcObjGuid = sdr.GetString(4);
-		            	convo.srcObjName =  sdr.GetString(5);
+                        convo.srcObjName = sdr.GetString(5);
 
                         convo.destObjId = sdr.GetInt32(6);
                         convo.destObjGuid = sdr.GetString(7);
-	            		convo.destObjName = sdr.GetString(8);
+                        convo.destObjName = sdr.GetString(8);
 
-	            		if ( convo.srcObjGuid.Equals(objGuid) ) {
-	            			convo.targetObjGuid = convo.destObjGuid;
-	            			convo.targetObjName = convo.destObjName;
-	            		} else {
-	            			convo.targetObjGuid = convo.srcObjGuid;
-	            			convo.targetObjName = convo.srcObjName;
-	            		}
+                        convo.connectorId = sdr.GetInt32(9);
 
-	            		retList.Add(convo);
-	            	}
-	            }
-			}
+                        if( objGuid != null )
+                        {
+                            if (convo.srcObjGuid.Equals(objGuid))
+                            {
+                                convo.targetObjGuid = convo.destObjGuid;
+                                convo.targetObjName = convo.destObjName;
+                            }
+                            else
+                            {
+                                convo.targetObjGuid = convo.srcObjGuid;
+                                convo.targetObjName = convo.srcObjName;
+                            }
+                        }
+                        else
+                        {
+                            convo.targetObjGuid = "";
+                            convo.targetObjName = "";
+                        }
 
-			conn.Close();
+                        retList.Add(convo);
+                    }
+                }
+            }
 
-	        // 取得したリストを返す
-	        // この条件でヒットしない場合は0件のリストを返す
-	        return retList;
-		}
+            conn.Close();
+
+            // 取得したリストを返す
+            // この条件でヒットしない場合は0件のリストを返す
+            return retList;
+        }
 
 
 	}
