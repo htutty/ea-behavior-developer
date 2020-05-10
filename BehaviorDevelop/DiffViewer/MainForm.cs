@@ -32,7 +32,7 @@ namespace DiffViewer
 
 		AttributeVO selectedAttribute = null;
 		MethodVO selectedMethod = null;
-        
+
 		StringBuilder leftDiffBuffer;
 		StringBuilder rightDiffBuffer;
 
@@ -491,7 +491,7 @@ namespace DiffViewer
 				sb.Append("[behavior]\r\n" + mth.behavior + "\r\n");
 			}
 
-            
+
 
 			text = sb.ToString();
 
@@ -595,20 +595,28 @@ namespace DiffViewer
 		void AttributeListClick(object sender, EventArgs e)
 		{
 			ListBox touchedList = (ListBox)sender;
-			selectedAttribute = (AttributeVO)touchedList.Tag;
-			selectedMethod = null;
-		}
+            // selectedAttribute = (AttributeVO)touchedList.Tag;
+            // selectedMethod = null;
+
+            updateEaAttributeObject();
+
+            this.Close();
+        }
 
 		void MethodListClick(object sender, EventArgs e)
 		{
 			ListBox touchedList = (ListBox)sender;
-			selectedMethod = (MethodVO)touchedList.Tag;
-			selectedAttribute = null;
-		}
+            // selectedMethod = (MethodVO)touchedList.Tag;
+            // selectedAttribute = null;
+
+            updateEaMethodObject();
+
+            this.Close();
+        }
 
 
 
-		void ReflectToEAToolStripMenuItemClick(object sender, EventArgs e)
+        void ReflectToEAToolStripMenuItemClick(object sender, EventArgs e)
 		{
             EA.Repository repo = ProjectSetting.getVO().eaRepo;
 
@@ -892,7 +900,7 @@ namespace DiffViewer
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="mth"></param>
         /// <param name="afterUpdateFlag"></param>
