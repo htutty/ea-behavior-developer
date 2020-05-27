@@ -19,7 +19,7 @@ namespace ArtifactFileAccessor.writer
         /// パラメータの要素を、要素単体のXMLファイルに出力する。
         /// 要素のGUID から "{}" を除いた文字列をファイル名とし、
         /// プロジェクトパスの要素ファイル配置ディレクトリ:elements配下に出力する。
-        /// 
+        ///
         /// ただし要素数単位となるとファイル数が大量となり、全てをelements直下に出すと
         /// ファイルアクセス時の速度低下が予測されるので GUIDの１文字目、２文字目で
         /// それぞれディレクトリを作成し、出力先を分散させる。
@@ -30,7 +30,7 @@ namespace ArtifactFileAccessor.writer
 			string outputDir = ProjectSetting.getVO().projectPath;
 			bool retFlg = false;
 			StreamWriter swe = null;
-			try { 
+			try {
 				// 要素XMLを出力するフォルダ (projectDir + /elements/ 配下) が存在するかを調べ、なければ作る
 				string edir = outputDir + @"\elements\" + elem.guid.Substring(1,1) + @"\" + elem.guid.Substring(2,1) ;
 				checkAndMakeElementDir(edir);
@@ -47,10 +47,10 @@ namespace ArtifactFileAccessor.writer
 			} finally {
 				if (swe != null) swe.Close();
 			}
-			
+
 			return retFlg;
 		}
-		
+
 
         /// <summary>
         /// 要素ディレクトリの存在チェックとディレクトリ作成
@@ -66,7 +66,7 @@ namespace ArtifactFileAccessor.writer
         #region 要素の出力処理
         /// <summary>
         /// パラメータのStreamに向けて要素配下のXML文書を出力。
-        /// 
+        ///
         /// ##タグの構成
         /// Element
         ///   +- TaggedValue
@@ -89,17 +89,17 @@ namespace ArtifactFileAccessor.writer
             if (elemvo.taggedValues.Count > 0) {
 				outputClassTags(elemvo, depth+1, sw);
 			}
-	
+
 			// クラスの属性出力
 			if (elemvo.attributes.Count > 0) {
 				outputClassAttributes(elemvo, depth+1, sw);
 			}
-	
+
 			// クラスの操作（メソッド）出力
 			if (elemvo.methods.Count > 0) {
 				outputClassMethods(elemvo, depth+1, sw);
 			}
-	
+
 			// elementの閉じタグ
 			sw.WriteLine(indent(depth) + "</element>");
 
@@ -119,7 +119,7 @@ namespace ArtifactFileAccessor.writer
                 sw.Write("changed=\"" + elemvo.changed + "\" ");
                 if(elemvo.propertyChanged != ' ')
                 {
-                    sw.Write("propChanged=\"" + elemvo.propertyChanged + "\" "); 
+                    sw.Write("propChanged=\"" + elemvo.propertyChanged + "\" ");
                 }
             }
             sw.Write("guid=\"" + escapeXML(elemvo.guid) + "\" ");
@@ -246,16 +246,16 @@ namespace ArtifactFileAccessor.writer
         /// <param name="depth">現在のインデントの深さ</param>
         /// <param name="sw">出力用に開かれたStreamWriter</param>
         private static void outputClassAttributes( ElementVO currentElement, int depth, StreamWriter sw ) {
-	
+
 			if ( currentElement.attributes.Count <= 0 ) {
 				return;
 			}
-	
+
 			//　取得できた属性の情報をファイルに展開する
 			foreach(AttributeVO m_Att in currentElement.attributes) {
 				outputAttribute(m_Att, depth, sw);
 			}
-	
+
 		}
 
 
@@ -273,7 +273,7 @@ namespace ArtifactFileAccessor.writer
 				sw.Write( "changed=\"" + att.changed + "\" " );
 			}
 			sw.Write( "guid=\"" + escapeXML(att.guid) + "\" " );
-			sw.Write( "pos=\"" + att.pos + "\" " ); 
+			sw.Write( "pos=\"" + att.pos + "\" " );
 			sw.Write( "type=\"" + escapeXML(att.eaType) + "\" " );
 			sw.Write( "name=\"" + escapeXML(att.name) + "\" " );
 			sw.Write( "alias=\"" + escapeXML(att.alias) + "\" " );
@@ -296,15 +296,16 @@ namespace ArtifactFileAccessor.writer
 			sw.Write( "scale=\"" + att.scale + "\"" );
 			sw.WriteLine( ">" );
 
-            sw.WriteLine(indent(depth) + "  <visibility>" + att.visibility + "</visibility>");
+            // attributeタグの子要素を出力
+            sw.WriteLine(indent(depth+1) + "<visibility>" + att.visibility + "</visibility>");
 
             if (att.notes != null)
             {
-                sw.WriteLine(indent(depth) + "  <notes>" + escapeXML(att.notes) + "</notes>");
+                sw.WriteLine(indent(depth+1) + "<notes>" + escapeXML(att.notes) + "</notes>");
             }
             if (att.defaultValue != null)
             {
-                sw.WriteLine(indent(depth) + "  <default>" + escapeXML(att.defaultValue) + "</default>");
+                sw.WriteLine(indent(depth+1) + "<default>" + escapeXML(att.defaultValue) + "</default>");
             }
 
             // 属性のタグ付き値の出力
@@ -336,13 +337,13 @@ namespace ArtifactFileAccessor.writer
         /// <param name="depth">現在のインデントの深さ</param>
         /// <param name="sw">出力用に開かれたStreamWriter</param>
         private static void outputAttributeTags( AttributeVO attr, int depth, StreamWriter sw ) {
-	
+
 			if (attr.taggedValues == null || attr.taggedValues.Count <= 0 ) {
 				return ;
 			}
-	
+
 			sw.WriteLine( indent(depth) + "<taggedValues>" );
-	
+
 			// 　取得できたタグ付き値の情報をファイルに展開する
 			foreach( TaggedValueVO tagv in attr.taggedValues ) {
 				if ("<memo>".Equals(tagv.tagValue)) {
@@ -353,7 +354,7 @@ namespace ArtifactFileAccessor.writer
 					sw.WriteLine( indent(depth) + "  <tv guid=\"" + escapeXML(tagv.guid) + "\" name=\"" + escapeXML(tagv.name) + "\" value=\"" + escapeXML(tagv.tagValue) + "\"/>" );
 				}
 			}
-	
+
 			sw.WriteLine( indent(depth) + "</taggedValues>" );
 		}
 #endregion
@@ -367,11 +368,11 @@ namespace ArtifactFileAccessor.writer
         /// <param name="depth">現在のインデントの深さ</param>
         /// <param name="sw">出力用に開かれたStreamWriter</param>
         private static void outputClassMethods(ElementVO currentElement, int depth, StreamWriter sw) {
-	
+
 			if(currentElement.methods.Count <= 0 ) {
 				return ;
 			}
-	
+
 			//　取得できた操作の情報をファイルに展開する
 			foreach( MethodVO mth in currentElement.methods ) {
 				outputMethod(mth, depth, sw);
@@ -411,12 +412,12 @@ namespace ArtifactFileAccessor.writer
 			sw.Write("isRoot=\"" + mth.isRoot + "\" ");
 			sw.Write("returnIsArray=\"" + mth.returnIsArray + "\" ");
 			sw.Write("stateFlags=\"" + mth.stateFlags + "\"");
-	
+
 			if (mth.throws != null) {
 				sw.Write(" throws=\"" + mth.throws + "\"");
 			}
 			sw.WriteLine( ">");
-	
+
 			sw.WriteLine( indent(depth) + "  <visibility>" + mth.visibility + "</visibility>");
 			sw.WriteLine( indent(depth) + "  <returnType>" + escapeXML(mth.returnType) + "</returnType>");
 
@@ -425,11 +426,11 @@ namespace ArtifactFileAccessor.writer
 
             // 1.2.3.1.2 メソッドパラメータの出力
             outputMethodParams(mth, depth + 1, sw);
-	
+
 			if (mth.notes != null) {
 				sw.WriteLine(indent(depth + 1) + "<notes>" + escapeXML( mth.notes ) + "</notes>");
 			}
-	
+
 			if (mth.behavior != null) {
 				sw.WriteLine(indent(depth + 1) + "<behavior>" + escapeXML( mth.behavior ) + "</behavior>");
 			}
@@ -576,13 +577,13 @@ namespace ArtifactFileAccessor.writer
         private static string indent(int depth) {
 			string retStr = "";
 			Int32  i;
-		
+
 			for(i=0; i < depth; i++) {
 				retStr = retStr + "  ";
 			}
 			return retStr;
 		}
-		
+
 
 		private static string escapeXML( string orig ) {
 			if (orig == null) {
@@ -610,6 +611,6 @@ namespace ArtifactFileAccessor.writer
 			sb.Replace("'", "&apos;");
 			return sb.ToString();
 		}
-		
+
 	}
 }

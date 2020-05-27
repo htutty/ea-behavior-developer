@@ -58,7 +58,7 @@ namespace ArtifactFileAccessor.vo
         {
             StringWriter sw = new StringWriter();
             sw.WriteLine("name = " + name);
-            sw.WriteLine("guid = " + guid); 
+            sw.WriteLine("guid = " + guid);
             sw.WriteLine("tagValue = " + tagValue);
             sw.WriteLine("notes = " + notes);
             return sw.ToString();
@@ -93,7 +93,7 @@ namespace ArtifactFileAccessor.vo
                 sw.WriteLine("[notes]\r\n" + notes);
             }
 
-            sw.WriteLine("notes = " + notes);
+            // sw.WriteLine("notes = " + notes);
             return sw.ToString();
         }
 

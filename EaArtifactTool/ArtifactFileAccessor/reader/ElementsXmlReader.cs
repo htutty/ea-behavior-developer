@@ -196,9 +196,9 @@ namespace ArtifactFileAccessor.reader
         /// <param name="guid"></param>
         /// <returns></returns>
         public static ElementVO readElementFile(string elementFilePath, string guid)
-        {   
+        {
             // 要素ファイルの場所をパラメータで指定
-            string elementFile = elementFilePath + @"\" + guid.Substring(1, 1) + @"\" + guid.Substring(2, 1) 
+            string elementFile = elementFilePath + @"\" + guid.Substring(1, 1) + @"\" + guid.Substring(2, 1)
                     + @"\" + guid.Substring(1, 36) + ".xml";
 
             // XMLテキストをロードする
@@ -514,13 +514,21 @@ namespace ArtifactFileAccessor.reader
 
 			}
 
-			if (aNode.SelectSingleNode("visibility") != null) {
+			if (aNode.SelectSingleNode("visibility") != null)
+            {
 				attvo.visibility = aNode.SelectSingleNode("visibility").InnerText;
 			}
 
-			if (aNode.SelectSingleNode("notes") != null) {
+			if (aNode.SelectSingleNode("notes") != null)
+            {
 				attvo.notes = aNode.SelectSingleNode("notes").InnerText;
 			}
+
+            // defaultValueの読み込みが行われていなかったのを対応
+            if (aNode.SelectSingleNode("default") != null)
+            {
+                attvo.defaultValue = aNode.SelectSingleNode("default").InnerText;
+            }
 
             // タグ付き値の読み込み
             if ("taggedValues".Equals(aNode.Name))

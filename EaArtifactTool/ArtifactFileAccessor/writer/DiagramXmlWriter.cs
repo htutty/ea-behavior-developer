@@ -32,6 +32,7 @@ namespace ArtifactFileAccessor.writer
             sw.Write("scale=\"" + diagvo.scale + "\" ");
             sw.Write("orientation=\"" + diagvo.orientation + "\" ");
             sw.Write("createdDate=\"" + diagvo.createdDate + "\" ");
+            sw.Write("modifiedDate=\"" + diagvo.modifiedDate + "\" ");
             sw.Write("swimlanes=\"" + diagvo.swimlanes + "\"");
             sw.WriteLine(">");
 

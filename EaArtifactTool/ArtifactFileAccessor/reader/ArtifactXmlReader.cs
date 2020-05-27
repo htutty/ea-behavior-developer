@@ -375,6 +375,9 @@ namespace ArtifactFileAccessor.reader
                     case "createdDate":
                         diag.createdDate = readAttributeDateTimeValue(attr);
                         break;
+                    case "modifiedDate":
+                        diag.modifiedDate = readAttributeDateTimeValue(attr);
+                        break;
                     case "swimlanes":
                         diag.swimlanes = attr.Value;
                         break;
