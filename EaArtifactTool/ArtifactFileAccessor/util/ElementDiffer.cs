@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using ArtifactFileAccessor.vo;
+using System.IO;
 
 namespace ArtifactFileAccessor.util
 {
@@ -22,7 +23,7 @@ namespace ArtifactFileAccessor.util
 		}
 
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="leftElm"></param>
 		/// <param name="rightElm"></param>
@@ -37,10 +38,10 @@ namespace ArtifactFileAccessor.util
 			differ.skipAttributePosFlg = false;
 			differ.skipMethodNoteFlg = false;
 			differ.skipMethodPosFlg = false;
-			
+
             return differ.getDisagreedElement(leftElm, rightElm);
 		}
-				
+
 		/// <summary>
 		/// 要素の不一致部分の抽出
 		/// </summary>
@@ -51,7 +52,7 @@ namespace ArtifactFileAccessor.util
             // 出力する要素のインスタンスは一旦左側要素のクローンとする
 			ElementVO outElm = leftElm.Clone();
             outElm.changed = ' ';
-            
+
             // 要素自体が保持するプロパティの比較
             ElementPropertyVO lProp = new ElementPropertyVO(leftElm);
             ElementPropertyVO rProp = new ElementPropertyVO(rightElm);
@@ -93,10 +94,10 @@ namespace ArtifactFileAccessor.util
 					lCnt++;
 					continue;
 				}
-				
+
 				lAtr = leftElm.attributes[lCnt];
 				rAtr = rightElm.attributes[rCnt];
-				
+
 				// GUIDの比較で一致した場合
 				if (compareAttributeGuid(lAtr, rAtr) == 0) {
 					oAtr = getDisagreedAttribute(lAtr, rAtr);
@@ -126,7 +127,7 @@ namespace ArtifactFileAccessor.util
 				}
 			}
 			outElm.attributes = outAttributeList;
-			
+
 			// 要素が保持するメソッドリストの比較
 			MethodVO lMth, rMth, oMth;
 			List<MethodVO> outMethods = new List<MethodVO>();
@@ -150,11 +151,11 @@ namespace ArtifactFileAccessor.util
 					lCnt++;
 					continue;
 				}
-				
-				
+
+
 				lMth = leftElm.methods[lCnt];
 				rMth = rightElm.methods[rCnt];
-				
+
 				// GUIDで一致するものがあった場合:
 				if (compareMethodGuid(lMth, rMth) == 0) {
 					oMth = getDisagreedMethod(lMth, rMth);
@@ -164,7 +165,7 @@ namespace ArtifactFileAccessor.util
                         oMth.destMethod = rMth;
 						outMethods.Add(oMth);
 					}
-					
+
 					lCnt++;
 					rCnt++;
 				} else {
@@ -187,7 +188,7 @@ namespace ArtifactFileAccessor.util
             // 要素が保持するタグ付き値リストの比較
             TaggedValueVO lTag, rTag, oTag;
             List<TaggedValueVO> outTaggedValues = new List<TaggedValueVO>();
-            for (lCnt = 0, rCnt = 0; lCnt < leftElm.taggedValues.Count && rCnt < rightElm.taggedValues.Count;)
+            for (lCnt = 0, rCnt = 0; lCnt < leftElm.taggedValues.Count || rCnt < rightElm.taggedValues.Count;)
             {
                 // 左側が最終の操作に達した場合
                 if (lCnt >= leftElm.taggedValues.Count)
@@ -264,8 +265,8 @@ namespace ArtifactFileAccessor.util
 			}
 
 		}
-		
-		
+
+
 		/// <summary>
 		/// 不一致な属性の抽出
 		/// </summary>
@@ -274,20 +275,20 @@ namespace ArtifactFileAccessor.util
 		/// <returns></returns>
 		private AttributeVO getDisagreedAttribute(AttributeVO leftAtr, AttributeVO rightAtr) {
 			AttributeVO outAtr;
-			
+
 			outAtr = leftAtr.Clone();
 			outAtr.changed = ' ';
-			
+
 			if( !compareNullable(leftAtr.name, rightAtr.name) ) {
 				outAtr.name = leftAtr.name + " → " + rightAtr.name;
 				outAtr.changed = 'U';
 			}
-			
+
 			if( !compareNullable(leftAtr.stereoType, rightAtr.stereoType) ) {
 				outAtr.stereoType = leftAtr.stereoType + " → " + rightAtr.stereoType;
 				outAtr.changed = 'U';
 			}
-			
+
 			if( !compareNullable(leftAtr.alias, rightAtr.alias) ) {
 				outAtr.alias = leftAtr.alias + " → " + rightAtr.alias;
 				outAtr.changed = 'U';
@@ -299,15 +300,19 @@ namespace ArtifactFileAccessor.util
 					outAtr.changed = 'U';
 				}
 			}
-			
+
 			if( !skipAttributeNoteFlg ) {
 				if( !compareNullable(leftAtr.notes, rightAtr.notes) ) {
 					outAtr.notes = leftAtr.notes + "\r\n------ ↓ ↓ ↓ ↓ ------\r\n" + rightAtr.notes;
 					outAtr.changed = 'U';
 				}
 			}
-			
-			
+
+            // TODO :
+            // if( compareTaggedValues(leftAtr.taggedValues, rightAttr.taggedValues) ) {
+            // }
+
+
 			if ( outAtr.changed == ' ' ) {
 				return null;
 			} else {
@@ -317,32 +322,136 @@ namespace ArtifactFileAccessor.util
 
 				return outAtr ;
 			}
-			
+
 		}
-		
-		
-		/// <summary>
-		/// 不一致な操作の抽出
-		/// </summary>
-		/// <param name="leftMth"></param>
-		/// <param name="rightMth"></param>
-		/// <returns></returns>
-		private MethodVO getDisagreedMethod(MethodVO leftMth, MethodVO rightMth) {
+
+        /// <summary>
+        /// 属性、操作、パラメータに付加されるタグ付き値のリストの内容比較
+        /// （string#CompareTo()メソッドを利用しての比較なので、戻り値はintを返す）
+        /// </summary>
+        /// <param name="leftTaggedValues"></param>
+        /// <param name="rightTaggedValues"></param>
+        /// <returns></returns>
+        private int compareTaggedValues(List<TaggedValueVO> leftTaggedValues, List <TaggedValueVO> rightTaggedValues)
+        {
+            // 左、右どちらか（どちらも）がnullの場合に落ちないように制御
+            if( leftTaggedValues == null )
+            {
+                if( rightTaggedValues == null )
+                {
+                    return 0;
+                }
+                else
+                {
+                    return 1;
+                }
+            }
+            else
+            {
+                if (rightTaggedValues == null)
+                {
+                    return -1;
+                }
+            }
+
+            // GUID順にソート
+            leftTaggedValues.Sort(new TaggedValueGuidComparer());
+            rightTaggedValues.Sort(new TaggedValueGuidComparer());
+
+            // 左のリスト内容をテキストに出力
+            StringWriter leftTaggedValuesText = new StringWriter();
+            foreach (TaggedValueVO tv in leftTaggedValues)
+            {
+                leftTaggedValuesText.WriteLine(tv.ToString());
+            }
+
+            // 右のリスト内容をテキストに出力
+            StringWriter rightTaggedValuesText = new StringWriter();
+            foreach (TaggedValueVO tv in rightTaggedValues)
+            {
+                rightTaggedValuesText.WriteLine(tv.ToString());
+            }
+
+            // 左のテキストと右のテキストを
+            return leftTaggedValuesText.ToString().CompareTo(rightTaggedValuesText.ToString());
+        }
+
+
+        /// <summary>
+        /// 属性、操作、パラメータに付加されるタグ付き値
+        /// </summary>
+        /// <param name="leftTaggedValues"></param>
+        /// <param name="rightTaggedValues"></param>
+        /// <returns></returns>
+        private int compareParameters(List<ParameterVO> leftParameters, List<ParameterVO> rightParameters)
+        {
+            // 左、右どちらか（どちらも）がnullの場合に落ちないように制御
+            if (leftParameters == null)
+            {
+                if (rightParameters == null)
+                {
+                    return 0;
+                }
+                else
+                {
+                    return 1;
+                }
+            }
+            else
+            {
+                if (rightParameters == null)
+                {
+                    return -1;
+                }
+            }
+
+            // GUID順にソート
+            leftParameters.Sort(new ParameterGuidComparer());
+            rightParameters.Sort(new ParameterGuidComparer());
+
+            // 左のリスト内容をテキストに出力
+            StringWriter leftParametersText = new StringWriter();
+            foreach (ParameterVO tv in leftParameters)
+            {
+                leftParametersText.WriteLine(tv.ToString());
+            }
+
+            // 右のリスト内容をテキストに出力
+            StringWriter rightParametersText = new StringWriter();
+            foreach (ParameterVO tv in rightParameters)
+            {
+                rightParametersText.WriteLine(tv.ToString());
+            }
+
+            return leftParametersText.ToString().CompareTo(rightParametersText.ToString());
+        }
+
+
+
+
+
+        /// <summary>
+        /// 不一致な操作の抽出
+        /// </summary>
+        /// <param name="leftMth"></param>
+        /// <param name="rightMth"></param>
+        /// <returns></returns>
+        private MethodVO getDisagreedMethod(MethodVO leftMth, MethodVO rightMth) {
 			MethodVO outMth;
-			
+
 			outMth = leftMth.Clone();
 			outMth.changed = ' ';
-			
+
 			if( !compareNullable(leftMth.name, rightMth.name) ) {
 				outMth.name = leftMth.name + " → " + rightMth.name;
 				outMth.changed = 'U';
 			}
-			
+
 			if( !compareNullable(leftMth.stereoType, rightMth.stereoType) ) {
 				outMth.stereoType = leftMth.stereoType + " → " + rightMth.stereoType;
 				outMth.changed = 'U';
 			}
-			
+
 			if( !compareNullable(leftMth.alias, rightMth.alias) ) {
 				outMth.alias = leftMth.alias + " → " + rightMth.alias;
 				outMth.changed = 'U';
@@ -357,7 +466,7 @@ namespace ArtifactFileAccessor.util
 				outMth.visibility = leftMth.visibility + " → " + rightMth.visibility;
 				outMth.changed = 'U';
 			}
-			
+
 			if( !skipMethodPosFlg ) {
 				if( leftMth.pos != rightMth.pos ) {
 					outMth.pos = rightMth.pos;
@@ -371,12 +480,12 @@ namespace ArtifactFileAccessor.util
 					outMth.changed = 'U';
 				}
 			}
-			
+
 			if( !compareNullable(leftMth.behavior, rightMth.behavior) ) {
 				outMth.behavior = leftMth.behavior + "\r\n------ ↓ ↓ ↓ ↓ ------\r\n" + rightMth.behavior;
 				outMth.changed = 'U';
 			}
-			
+
 			// changedの値が空白なら結果として差異がなかったため、nullを返す
 			if ( outMth.changed == ' ' ) {
 				return null;
@@ -483,7 +592,7 @@ namespace ArtifactFileAccessor.util
 				}
 			} else {
 				// 左が not null の場合
-				
+
 				// 右が null なら false
 				if ( r == null ) {
 					return false;
@@ -492,9 +601,9 @@ namespace ArtifactFileAccessor.util
 					return l.Equals(r);
 				}
 			}
-			
+
 		}
-		
-		
+
+
 	}
 }
