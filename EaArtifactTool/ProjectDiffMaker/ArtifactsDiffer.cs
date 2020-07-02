@@ -301,7 +301,7 @@ namespace ProjectDiffMaker
 		    // GUIDで一致するものが無かった場合: L > R なら Rの追加、 R < L なら Lの削除 とみなす
 			ElementVO lElm, rElm, oElm;
 			List<ElementVO> outElements = new List<ElementVO>();
-			for (lCnt = 0,rCnt = 0; lCnt < leftElements.Count && rCnt < rightElements.Count;) {
+			for (lCnt = 0,rCnt = 0; lCnt < leftElements.Count || rCnt < rightElements.Count;) {
 
 				// 左側が最終の要素に達した場合
 				if (lCnt >= leftElements.Count) {
