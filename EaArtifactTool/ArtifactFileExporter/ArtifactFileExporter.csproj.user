@@ -4,6 +4,6 @@
     <StartArguments>-index D:\DesignHistory\staging\EAPBAK_temp_cuvic_aswea_20200401_20190214.eap  ASW-DOM-BE D:\DesignHistory\aswea_20200401</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <StartArguments>-index C:\ea-artifacts\staging\EAPBAK_cuvic_aswea_20190401_20190415.eap ASW-DOM-BE C:\ea-artifacts\in-progress\cuvic_aswea_20190401</StartArguments>
+    <StartArguments>-index C:\ea-artifacts\for-merge\MERGE_FY20Q1_0701\staging\EAPBAK_cuvic_aswea_20200401_20200502.eap ASW-DOM-BE C:\ea-artifacts\for-merge\current\cuvic_aswea_20200401\20200502</StartArguments>
   </PropertyGroup>
 </Project>

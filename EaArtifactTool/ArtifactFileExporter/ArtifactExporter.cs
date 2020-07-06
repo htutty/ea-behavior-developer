@@ -103,7 +103,7 @@ namespace ArtifactFileExporter
             foreach (var atf in this.allArtifacts.artifactList)
             {
                 // 成果物の保有クラスごとにふるまい→コードへの変換を実施
-                setParsedCodeInArtifact(atf);
+                // setParsedCodeInArtifact(atf);
                 ArtifactXmlWriter.outputArtifactXml(artifactDir, atf);
             }
 

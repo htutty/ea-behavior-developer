@@ -479,7 +479,7 @@ namespace ArtifactFileExporter
                 prm.guid = DbUtil.readStringField(reader, 9);
                 string buf = DbUtil.readStringField(reader, 10);
 			    if(buf.Length > 7) {
-				    prm.alias = buf.Substring(7, buf.Length - 8);
+				    prm.alias = buf.Substring(6, buf.Length - 7);
 			    } else {
 				    prm.alias = buf;
 			    }
