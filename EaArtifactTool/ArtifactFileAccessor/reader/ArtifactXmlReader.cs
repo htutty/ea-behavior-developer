@@ -212,9 +212,7 @@ namespace ArtifactFileAccessor.reader
 			foreach (XmlNode pkgNode in parentNode.ChildNodes)
 			{
 				if ( "package".Equals(pkgNode.Name) ) {
-					pkgvo = new PackageVO {
-						name = pkgNode.SelectSingleNode("@name").Value
-					};
+                    pkgvo = readPackageNode(pkgNode);
 
 					try {
                         // 成果物のルートパッケージから再帰的に子パッケージを読み込み
@@ -257,41 +255,24 @@ namespace ArtifactFileAccessor.reader
 			List<ElementVO> retElementList = new List<ElementVO>();
             List<DiagramVO> retDiagramList = new List<DiagramVO>();
 
-			foreach (XmlNode pkgNode in parentNode.ChildNodes)
+            PackageVO pkg = null;
+
+            foreach (XmlNode pkgNode in parentNode.ChildNodes)
 			{
-				if ( "package".Equals(pkgNode.Name) ) {
-					PackageVO pkg = new PackageVO();
-					foreach(XmlAttribute attr in pkgNode.Attributes) {
-						switch( attr.Name ) {
-							case "name" :
-								pkg.name = attr.Value ;
-								break;
-							case "guid" :
-								pkg.guid = attr.Value ;
-								break;
-							case "alias" :
-								pkg.alias = attr.Value ;
-								break;
-							case "stereotype" :
-								pkg.stereoType = attr.Value ;
-								break;
-							case "TPos" :
-								pkg.treePos = readAttributeIntValue(attr);
-								break;
-							case "changed" :
-								pkg.changed = readAttributeCharValue(attr);
-								break;
-						}
-					}
 
-					readPackages(pkg, pkgNode) ;
-					retList.Add(pkg);
-				}
+                if ( "package".Equals(pkgNode.Name) )
+                {
+                    pkg = readPackageNode(pkgNode);
 
-				// package配下で elementノードを見つけたら
-				if ( "element".Equals(pkgNode.Name) ) {
+                    readPackages(pkg, pkgNode);
+                    retList.Add(pkg);
+                }
+
+                // package配下で elementノードを見つけたら
+                if ( "element".Equals(pkgNode.Name) ) {
                     // elementノード配下の情報から、 ElementVO を返却する
                     ElementVO elem = ElementsXmlReader.readElement(pkgNode, sortByPosFlg);
+                    elem.packageId = pkgvo.packageId;
 
                     // 強いてelement毎のXMLファイルを読む必要がある場合のみ
                     if ( elementFileReadFlg )
@@ -317,8 +298,49 @@ namespace ArtifactFileAccessor.reader
 			pkgvo.childPackageList = retList;
 			pkgvo.elements = retElementList;
             pkgvo.diagrams = retDiagramList;
-
 		}
+
+
+        private PackageVO readPackageNode(XmlNode pkgNode)
+        {
+            PackageVO pkg = new PackageVO();
+
+            foreach (XmlAttribute attr in pkgNode.Attributes)
+            {
+                switch (attr.Name)
+                {
+                    case "PackageID":
+                        pkg.packageId = readAttributeIntValue(attr);
+                        break;
+                    case "parentPackageId":
+                        pkg.parentPackageId = readAttributeIntValue(attr);
+                        break;
+                    case "name":
+                        pkg.name = attr.Value;
+                        break;
+                    case "isControlled":
+                        pkg.isControlled = readAttributeBooleanValue(attr);
+                        break;
+                    case "guid":
+                        pkg.guid = attr.Value;
+                        break;
+                    case "alias":
+                        pkg.alias = attr.Value;
+                        break;
+                    case "stereoType":
+                        pkg.stereoType = attr.Value;
+                        break;
+                    case "TPos":
+                        pkg.treePos = readAttributeIntValue(attr);
+                        break;
+                    case "changed":
+                        pkg.changed = readAttributeCharValue(attr);
+                        break;
+                }
+            }
+
+            return pkg;
+        }
 
 
 

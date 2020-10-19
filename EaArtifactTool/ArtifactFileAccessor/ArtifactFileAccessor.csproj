@@ -94,6 +94,7 @@
     <Compile Include="writer\DiagramXmlWriter.cs" />
     <Compile Include="writer\EAArtifactXmlMaker.cs" />
     <Compile Include="writer\ElementXmlWriter.cs" />
+    <Compile Include="writer\PackagesXmlWriter.cs" />
     <Compile Include="writer\ProjectFileWriter.cs" />
   </ItemGroup>
   <ItemGroup />

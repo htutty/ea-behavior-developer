@@ -53,14 +53,18 @@ namespace ArtifactFileAccessor.writer
 		private static void outputPackage(PackageVO pkg, int depth, StreamWriter sw) {
 
 			sw.Write(indent(depth) + "<package ");
-			sw.Write("guid=\"" + pkg.guid + "\" ");
-			sw.Write("name=\"" + escapeXML(pkg.name) + "\" ");
-			sw.Write("isControlled=\"" + pkg.isControlled + "\" ");
-			if (pkg.stereoType != null) {
-				sw.Write("stereoType=\"" + pkg.stereoType + "\" ");
-			}
-			sw.Write("changed=\"" + pkg.changed + "\" ");
-            sw.Write("TPos=\"" + pkg.treePos + "\" ");
+			sw.Write("changed='" + pkg.changed + "' ");
+            sw.Write(" PackageID='" + pkg.packageId + "'");
+            sw.Write(" guid='" + escapeXML(pkg.guid) + "'");
+            sw.Write(" parentPackageId='" + pkg.parentPackageId + "'");
+            sw.Write(" TPos='" + pkg.treePos + "'");
+            sw.Write(" name='" + escapeXML(pkg.name) + "'");
+            sw.Write(" Alias='" + escapeXML(pkg.alias) + "'");
+            if (pkg.stereoType != null)
+            {
+                sw.Write(" stereoType='" + pkg.stereoType + "'");
+            }
+            sw.Write(" isControlled='" + pkg.isControlled + "'");
             sw.WriteLine(">");
 
             if (pkg.elements != null && pkg.elements.Count > 0)

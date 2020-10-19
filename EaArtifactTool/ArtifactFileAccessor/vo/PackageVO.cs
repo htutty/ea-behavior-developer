@@ -106,7 +106,32 @@ namespace ArtifactFileAccessor.vo
         public PackageVO()
 		{
         	changed = ' ';
-		}
+
+            this.childPackageList = new List<PackageVO>();
+            this.elements = new List<ElementVO>();
+            this.diagrams = new List<DiagramVO>();
+        }
+
+        public PackageVO(PackageVO orig)
+        {
+            this.alias = orig.alias;
+            this.changed = orig.changed;
+            this.guid = orig.guid;
+            this.isControlled = orig.isControlled;
+            this.name = orig.name;
+            this.notes = orig.notes;
+            this.packageId = orig.packageId;
+            this.parentPackageId = orig.parentPackageId;
+            this.pathName = orig.pathName;
+            this.stereoType = orig.stereoType;
+            this.treePos = orig.treePos;
+            this.updateDate = orig.updateDate;
+
+            this.childPackageList = new List<PackageVO>();
+            this.elements = new List<ElementVO>();
+            this.diagrams = new List<DiagramVO>();
+        }
+
 
         public int CompareTo( PackageVO o ) {
 			return ((this.treePos - o.treePos) == 0 ? this.name.CompareTo(o.name):(this.treePos - o.treePos));

@@ -40,6 +40,9 @@ namespace ArtifactFileAccessor.reader
                 }
             }
 
+            // 読み込んだルートパッケージをソート
+            packages.Sort();
+
             return packages;
         }
 
@@ -125,6 +128,9 @@ namespace ArtifactFileAccessor.reader
                         break;
                     case "TPos":
                         pkg.treePos = readAttributeIntValue(attr);
+                        break;
+                    case "parentPackageId":
+                        pkg.parentPackageId = readAttributeIntValue(attr);
                         break;
                     case "changed":
                         pkg.changed = readAttributeCharValue(attr);
