@@ -736,12 +736,14 @@ namespace ArtifactFileExporter
 
             strSQL =
               "SELECT  pac.PACKAGE_ID " +
+              "    ,pac.ea_guid " +
               "    ,pac.NAME " +
+              "    ,obj.Alias " +
+              "    ,obj.Stereotype " +
               "    ,pac.PARENT_ID " +
               "    ,pac.TPOS " +
-              "    ,pac.ea_guid " +
               "    ,pac.IsControlled " +
-              " FROM t_package pac " +
+              " FROM t_package pac left outer join t_object obj on pac.ea_guid = obj.ea_guid " +
               " WHERE pac.PARENT_ID = 0 ";
 
             OleDbCommand dbCom = new OleDbCommand();
@@ -758,13 +760,14 @@ namespace ArtifactFileExporter
                     PackageVO rootPack = new PackageVO();
 
                     rootPack.packageId = DbUtil.readIntField(reader, 0);
-                    rootPack.guid = DbUtil.readStringField(reader, 4);
-                    rootPack.name = StringUtil.excludeSpecialChar("t_package", "name", rootPack.guid, DbUtil.readStringField(reader, 1));
-                    rootPack.alias = "";
-                    rootPack.stereoType = "";
-                    rootPack.treePos = DbUtil.readIntField(reader, 3);
-                    rootPack.isControlled = DbUtil.readBoolField(reader, 5);
-                    rootPack.pathName = rootPack.name;
+                    rootPack.guid = DbUtil.readStringField(reader, 1);
+                    rootPack.name = StringUtil.excludeSpecialChar("t_package", "name", rootPack.guid, DbUtil.readStringField(reader, 2));
+                    rootPack.alias = StringUtil.excludeSpecialChar("t_object", "alias", rootPack.guid, DbUtil.readStringField(reader, 3));
+                    rootPack.stereoType = DbUtil.readStringField(reader, 4);
+                    rootPack.parentPackageId = DbUtil.readIntField(reader, 5);
+                    rootPack.treePos = DbUtil.readIntField(reader, 6);
+                    rootPack.isControlled = DbUtil.readBoolField(reader, 7);
+                    rootPack.pathName = "/" + rootPack.name;
 
                     // このパッケージ配下の要素を読み込み
                     // readElements(rootPack);
@@ -796,10 +799,10 @@ namespace ArtifactFileExporter
 
             strSQL =
               "SELECT  pac.PACKAGE_ID " +
+              "       ,pac.ea_guid " +
               "       ,pac.NAME " +
               "       ,obj.Alias " +
               "       ,obj.Stereotype " +
-              "       ,pac.ea_guid " +
               "       ,pac.PARENT_ID " +
               "       ,pac.TPOS " +
               "       ,pac.IsControlled " +
@@ -825,10 +828,11 @@ namespace ArtifactFileExporter
                     PackageVO pack = new PackageVO();
 
                     pack.packageId = DbUtil.readIntField(reader, 0);
-                    pack.guid = DbUtil.readStringField(reader, 4);
-                    pack.name = StringUtil.excludeSpecialChar("t_package", "name", pack.guid, DbUtil.readStringField(reader, 1));
-                    pack.alias = StringUtil.excludeSpecialChar("t_object", "alias", pack.guid, DbUtil.readStringField(reader, 2));
-                    pack.stereoType = DbUtil.readStringField(reader, 3);
+                    pack.guid = DbUtil.readStringField(reader, 1);
+                    pack.name = StringUtil.excludeSpecialChar("t_package", "name", pack.guid, DbUtil.readStringField(reader, 2));
+                    pack.alias = StringUtil.excludeSpecialChar("t_object", "alias", pack.guid, DbUtil.readStringField(reader, 3));
+                    pack.stereoType = DbUtil.readStringField(reader, 4);
+                    pack.parentPackageId = DbUtil.readIntField(reader,5);
                     pack.treePos = DbUtil.readIntField(reader, 6);
                     pack.isControlled = DbUtil.readBoolField(reader, 7);
                     pack.pathName = parent.pathName + "/" + pack.name;

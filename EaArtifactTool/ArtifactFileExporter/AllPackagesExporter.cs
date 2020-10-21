@@ -3,8 +3,6 @@ using ArtifactFileAccessor.vo;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace ArtifactFileExporter
 {
@@ -111,7 +109,15 @@ namespace ArtifactFileExporter
             return counters;
         }
 
-
+        /// <summary>
+        /// 指定されたStreamWriterにPackageTreeを書き込む。
+        /// リスト内のPackageが子を持っている場合は自メソッドを再帰的に呼び出し
+        /// 末端の子まで全て記録する。
+        /// </summary>
+        /// <param name="packageList">記録対象のPackageリスト</param>
+        /// <param name="depth">深さ(インデントに使用)</param>
+        /// <param name="ppath">親パッケージパス</param>
+        /// <param name="sw"></param>
         private void outputPackageTree(List<PackageVO> packageList, int depth, string ppath, StreamWriter sw)
         {
 
@@ -122,9 +128,11 @@ namespace ArtifactFileExporter
                 sw.Write(StringUtil.indent(depth) + "<package");
                 sw.Write(" PackageID='" + pac.packageId + "'");
                 sw.Write(" guid='" + StringUtil.escapeXML(pac.guid) + "'");
+                sw.Write(" parentPackageId='" + pac.parentPackageId + "'");
                 sw.Write(" TPos='" + pac.treePos + "'");
                 sw.Write(" name='" + StringUtil.escapeXML(pac.name) + "'");
                 sw.Write(" Alias='" + StringUtil.escapeXML(pac.alias) + "'");
+                sw.Write(" stereoType='" + StringUtil.escapeXML(pac.stereoType) + "'");
                 sw.Write(" elementsCount='" + pac.elementsCount + "'");
                 sw.Write(" diagramsCount='" + pac.diagramsCount + "'");
                 sw.WriteLine(">");
@@ -140,10 +148,7 @@ namespace ArtifactFileExporter
             }
 
         }
-
-
-
-
+        
 
     }
 
