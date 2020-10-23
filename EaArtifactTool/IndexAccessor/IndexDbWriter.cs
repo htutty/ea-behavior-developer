@@ -18,6 +18,10 @@ namespace IndexAccessor
 		string projectDir = null;
         string artifactDir = null;
 
+        Dictionary<int, ElementVO> outputElementMap;
+        Dictionary<int, AttributeVO> outputAttributeMap;
+        Dictionary<int, MethodVO> outputMethodMap;
+
         BehaviorParser bhvParser;
 
         SQLiteConnection conn;
@@ -36,6 +40,10 @@ namespace IndexAccessor
                 this.db_file = dbfile;
                 this.projectDir = projectDir;
                 this.artifactDir = projectDir + "\\" + ProjectSetting.getVO().artifactsPath;
+
+                outputElementMap = new Dictionary<int, ElementVO>();
+                outputAttributeMap = new Dictionary<int, AttributeVO>();
+                outputMethodMap = new Dictionary<int, MethodVO>();
 
                 Console.WriteLine("projectdir = " + this.projectDir);
                 Console.WriteLine("artifactdir = " + this.artifactDir);
@@ -118,12 +126,29 @@ namespace IndexAccessor
         #endregion
 
         #region キャッシュDBの書き込み：t_element, t_attr_meth
+
+        /// <summary>
+        /// 成果物リスト内に存在する全ての要素をIndexDBに登録する
+        /// </summary>
+        /// <param name="artifacts">成果物VOのリスト</param>
+        public void writeAllElements(List<ArtifactVO> artifacts)
+        {
+            ArtifactsVO allArtifacts = new ArtifactsVO();
+            allArtifacts.artifactList = artifacts;
+            writeAllElements(allArtifacts);
+        }
+
+        /// <summary>
+        /// 成果物リスト内に存在する全ての要素をIndexDBに登録する
+        /// </summary>
+        /// <param name="allArtifacts">全成果物VO</param>
         public void writeAllElements(ArtifactsVO allArtifacts)
         {
             Console.Write("inserting tables for element, attribute, method ");
 
             try
             {
+                // DB接続をオープンする
                 conn.Open();
                 recreateElementTable();
                 recreateAttrMthTable();
@@ -181,6 +206,12 @@ namespace IndexAccessor
         /// <param name="elem"></param>
 		private void insertElementTable(ArtifactVO atf, ElementVO elem) {
 
+            // ElementId が既に出力済みMapに存在しているかをチェックし、存在していたらリターン
+            if( outputElementMap.ContainsKey(elem.elementId) )
+            {
+                return;
+            }
+
 			string sql = @"insert into t_element
 					(objectId, elemGuid, elemName, elemAlias, elemType, elemStereotype,
 					 artifactGuid, artifactName, packageId, elementPath
@@ -207,6 +238,8 @@ namespace IndexAccessor
 				command2.Parameters.AddRange(parameters);
 				command2.ExecuteNonQuery();
 	    	}
+
+            outputElementMap.Add(elem.elementId, elem);
 
         }
 
@@ -256,6 +289,11 @@ namespace IndexAccessor
         /// <param name="elem"></param>
         private void insertAttrTable(ArtifactVO atf, ElementVO elem, AttributeVO attr)
         {
+            // AttrbuteId が既に出力済みMapに存在しているかをチェックし、存在していたらINSERTせずリターン
+            if (outputAttributeMap.ContainsKey(attr.attributeId))
+            {
+                return;
+            }
 
             string sql = @"insert into t_attr_mth
 					(
@@ -284,6 +322,8 @@ namespace IndexAccessor
                 command2.Parameters.AddRange(parameters);
                 command2.ExecuteNonQuery();
             }
+
+            outputAttributeMap.Add(attr.attributeId, attr);
         }
 
         /// <summary>
@@ -293,6 +333,11 @@ namespace IndexAccessor
         /// <param name="elem"></param>
         private void insertMthTable(ArtifactVO atf, ElementVO elem, MethodVO mth)
         {
+            // MethodId が既に出力済みMapに存在しているかをチェックし、存在していたらINSERTせずリターン
+            if (outputMethodMap.ContainsKey(mth.methodId))
+            {
+                return;
+            }
 
             string sql = @"insert into t_attr_mth
 					(
@@ -323,6 +368,7 @@ namespace IndexAccessor
                 command2.ExecuteNonQuery();
             }
 
+            outputMethodMap.Add(mth.methodId, mth);
         }
         #endregion
 
