@@ -23,6 +23,7 @@ namespace ProjectDiffMaker
             string artifactDir =outputDir + @"\artifacts";
 
             // 差分のdetailファイルが出力されるフォルダを事前に作成する
+            // makeDetailDirIfNotExist(artifactDir);
             makeDetailDirIfNotExist(artifactDir + "\\detail");
 
             //BOM無しのUTF8でテキストファイルを作成する
@@ -31,7 +32,7 @@ namespace ProjectDiffMaker
             listsw.WriteLine("");
 
             listsw.Write("<artifacts ");
-            listsw.Write(" targetProject='asw' ");
+            listsw.Write("  targetProject='ASW-DOM-BE'  lastUpdated=''  targetModel=''  ");
             //			listsw.Write( " lastUpdated='" + artifacts.LastUpdated + "' " );
             //			listsw.Write( " targetModel='" + artifacts.TargetModel + "' " );
             listsw.WriteLine(" >");

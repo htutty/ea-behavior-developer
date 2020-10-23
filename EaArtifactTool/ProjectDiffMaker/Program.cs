@@ -33,12 +33,16 @@ namespace ProjectDiffMaker
 
 				// outputDirで指定される出力フォルダを作成する（存在しない場合）
 				createOutputDirIfNotExist(diffOutputDir) ;
+
                 // 比較クラスに出力フォルダパスを渡す
 				differ.outputDir = diffOutputDir;
 
+                // Left,Right両方の成果物をファイルから読み込み
 				differ.readBothArtifacts();
+                // 成果物単位でのマージ実行
 				differ.mergeAllArtifacts();
-				differ.outputMerged();
+                // マージ後に残った差異分の成果物をファイル出力
+                differ.outputMerged();
 			} else {
 				Console.WriteLine("引数が足りません");
 				Console.WriteLine("usage: ProjectDiffMaker.exe <動作モード(-all/-skipnotes)> <比較元Project(.bdprj)> <比較先Project(.bdprj)> <diffOutputDir> ");

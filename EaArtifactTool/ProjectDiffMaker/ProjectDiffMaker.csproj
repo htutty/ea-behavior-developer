@@ -57,6 +57,10 @@
       <Project>{b0efd60e-7d58-4600-8e30-aeaeb4424690}</Project>
       <Name>ArtifactFileAccessor</Name>
     </ProjectReference>
+    <ProjectReference Include="..\IndexAccessor\IndexAccessor.csproj">
+      <Project>{647f1691-ec36-47f1-9f21-f86d4b562974}</Project>
+      <Name>IndexAccessor</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

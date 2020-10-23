@@ -1,12 +1,12 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Xml;
 
 using ArtifactFileAccessor.reader;
 using ArtifactFileAccessor.vo;
 using ArtifactFileAccessor.util;
 using ArtifactFileAccessor.writer;
+using IndexAccessor;
 
 namespace ProjectDiffMaker
 {
@@ -22,11 +22,12 @@ namespace ProjectDiffMaker
 		public Boolean skipAttributePosFlg = false ;
 		public Boolean skipMethodPosFlg = false ;
 		public Boolean outputDetailFileFlg = true ;
+
 		private string fromProjectFile = null;
-		private string fromProjectDir = null;
+        private string fromProjectDir = null;
         private string fromArtifactDir = null;
         private string toProjectFile = null;
-		private string toProjectDir = null;
+        private string toProjectDir = null;
         private string toArtifactDir = null;
 
         public string outputDir;
@@ -34,8 +35,19 @@ namespace ProjectDiffMaker
 		private List<ArtifactVO> fromArtifacts;
 		private List<ArtifactVO> toArtifacts;
 		private List<ArtifactVO> outArtifacts;
-		private ArtifactVO procArtifact = null;
-		
+
+        private List<PackageVO> fromPackageList;
+        private List<PackageVO> toPackageList;
+        // private List<PackageVO> outPackageList;
+
+        private Dictionary<int, PackageVO> fromPackageMap = new Dictionary<int, PackageVO>();
+        private Dictionary<int, PackageVO> toPackageMap = new Dictionary<int, PackageVO>();
+        private Dictionary<int, PackageVO> outPackageMap = new Dictionary<int, PackageVO>();
+        
+        Dictionary<int, PackageVO> targetPackageMap;
+
+        private ArtifactVO procArtifact = null;
+
 		public ArtifactsDiffer() {
 		}
 
@@ -45,16 +57,17 @@ namespace ProjectDiffMaker
 		/// <param name="fromProjectFile_">比較元のプロジェクトファイル</param>
 		/// <param name="toProjectFile_">比較先のプロジェクトファイル</param>
 		public ArtifactsDiffer(string fromProjectFile, string toProjectFile, bool outputDetailFileFlg) {
-			if ( fromProjectFile != null ) {
+
+            if ( fromProjectFile != null ) {
 				this.fromProjectFile = fromProjectFile;
-				this.fromProjectDir = Path.GetDirectoryName(fromProjectFile);
-                this.fromArtifactDir = fromProjectDir + "\\artifacts";
+                this.fromProjectDir = Path.GetDirectoryName(fromProjectFile);
+                this.fromArtifactDir = this.fromProjectDir + "\\artifacts";
             }
 			
 			if ( toProjectFile != null ) {
 				this.toProjectFile = toProjectFile;
-				this.toProjectDir = Path.GetDirectoryName(toProjectFile);
-                this.toArtifactDir = toProjectDir + "\\artifacts";
+                this.toProjectDir = Path.GetDirectoryName(toProjectFile);
+                this.toArtifactDir = this.toProjectDir + "\\artifacts";
             }
 
             this.outputDetailFileFlg = outputDetailFileFlg;
@@ -71,19 +84,62 @@ namespace ProjectDiffMaker
             Console.WriteLine("readAllArtifacts(): from");
             ProjectSetting.load(this.fromProjectFile);
             this.fromArtifacts = readAllArtifacts(this.fromArtifactDir);
-			
-			Console.WriteLine("readAllArtifacts(): to");
+
+            string allPackagesFileName = this.fromProjectDir + "\\AllPackageTree.xml";
+            PackagesXmlReader fromPacReader = new PackagesXmlReader(allPackagesFileName);
+            this.fromPackageList = fromPacReader.getAllPackages();
+            this.fromPackageMap = storePackageMapFromList(this.fromPackageList);
+
+
+            Console.WriteLine("readAllArtifacts(): to");
             ProjectSetting.load(this.toProjectFile);
             this.toArtifacts = readAllArtifacts(this.toArtifactDir);
-		}
 
-		/// <summary>
-		/// プロジェクト内の全成果物の読み込み
-		///  AllArtifacts.xml → atf_xxxx.xml ファイルを読み、全ての成果物パッケージの内容をメモリに読み込む
-		/// </summary>
-		/// <param name="projectDir"></param>
-		/// <returns>全成果物のリスト</returns>
-		private List<ArtifactVO> readAllArtifacts( string artifactsDir) {
+            allPackagesFileName = this.toProjectDir + "\\AllPackageTree.xml";
+            PackagesXmlReader toPacReader = new PackagesXmlReader(allPackagesFileName);
+            this.toPackageList = toPacReader.getAllPackages();
+            this.toPackageMap = storePackageMapFromList(this.toPackageList);
+        }
+
+
+        /// <summary>
+        /// Packageリストの内容をPackegeマップに移す。
+        /// </summary>
+        /// <param name="inList"></param>
+        /// <returns></returns>
+        private Dictionary<int, PackageVO> storePackageMapFromList(List<PackageVO> inList)
+        {
+            Dictionary<int, PackageVO> outMap = new Dictionary<int, PackageVO>() ;
+            retrieveList(inList, outMap);
+
+            return outMap;
+        }
+
+
+        /// <summary>
+        /// PackageMapに移すにあたり、パッケージツリーで再帰的にリストをなめる。
+        /// </summary>
+        /// <param name="inList"></param>
+        /// <returns></returns>
+        private void retrieveList(List<PackageVO> inList, Dictionary<int, PackageVO> outMap) 
+        {
+            // 
+            foreach( PackageVO pac in inList )
+            {
+                outMap.Add(pac.packageId, new PackageVO(pac));
+                retrieveList(pac.childPackageList, outMap);
+            }
+
+        }
+
+
+        /// <summary>
+        /// プロジェクト内の全成果物の読み込み
+        ///  AllArtifacts.xml → atf_xxxx.xml ファイルを読み、全ての成果物パッケージの内容をメモリに読み込む
+        /// </summary>
+        /// <param name="projectDir"></param>
+        /// <returns>全成果物のリスト</returns>
+        private List<ArtifactVO> readAllArtifacts( string artifactsDir) {
             List<ArtifactVO> retList = ArtifactsXmlReader.readArtifactList(artifactsDir, ProjectSetting.getVO().artifactsFile);
 			ArtifactXmlReader atfReader = new ArtifactXmlReader(artifactsDir);
 			
@@ -94,8 +150,9 @@ namespace ProjectDiffMaker
                 // 成果物配下の子ノードをGUIDでソート
                 atf.sortChildNodesGuid();
             }
-			
-			// 成果物リストをソートする。 ソートキー＝GUID（自然順序付け）see: BehaviorDevelop.vo.ArtifactVO#compareTo
+
+            // 成果物リストをソートする。 ソートキー＝GUID（自然順序付け）
+            // see: ArtifactAccessor.vo.ArtifactVO#compareTo
 			retList.Sort();
 			return retList;
 		}
@@ -109,7 +166,7 @@ namespace ProjectDiffMaker
 			ArtifactVO lAtf, rAtf, outAtf;
 			List<ArtifactVO> outList = new List<ArtifactVO>();
 
-			for (lCnt=0, rCnt=0; lCnt < fromArtifacts.Count && rCnt < toArtifacts.Count; ) {
+			for (lCnt=0, rCnt=0; lCnt < fromArtifacts.Count || rCnt < toArtifacts.Count; ) {
 				lAtf = fromArtifacts[lCnt];
 				rAtf = toArtifacts[rCnt];
 				
@@ -118,8 +175,12 @@ namespace ProjectDiffMaker
 					// 現在処理対象の成果物を保持する
 					procArtifact = lAtf;
 					outAtf = getAgreedContentsOfArtifact(lAtf, rAtf);
-					outList.Add(outAtf);
-					lCnt++;
+
+                    if( outAtf.changed != ' ' )
+                    {
+                        outList.Add(outAtf);
+                    }
+                    lCnt++;
 					rCnt++;
 				} else {
 					// GUID比較で一致しなかった場合: L > R なら Rの追加、 R < L なら Lの削除 とみなす
@@ -408,7 +469,11 @@ namespace ProjectDiffMaker
 		private static int compareElementGuid(ElementVO leftElm, ElementVO rightElm) {
 			return leftElm.guid.CompareTo(rightElm.guid);
 		}
-		
+
+		/// <summary>
+        /// 成果物ごとの差異の有無をコンソール出力
+        /// </summary>
+        /// <param name="atf"></param>
 		private static void outputConsole( ArtifactVO atf ) {
 			switch( atf.changed ) {
 				case 'U':
@@ -434,7 +499,6 @@ namespace ProjectDiffMaker
 		public void outputMerged() {
 			Console.WriteLine("outputMerged: outputDir=" + this.outputDir);
 
-
             // 変更後XMLファイルを出力する
             ChangedArtifactXmlWriter changedWriter = new ChangedArtifactXmlWriter();
             changedWriter.writeChagedArtifacts(this.outputDir, this.outArtifacts);
@@ -444,7 +508,12 @@ namespace ProjectDiffMaker
             csvWriter.writeSummaryCsvFile(this.outputDir, this.outArtifacts);
             csvWriter.writeDetailCsvFile(this.outputDir, this.outArtifacts);
 
-            doMakeElementFiles();
+            // 何らかの差分があった分だけのパッケージツリーを生成し、XMLに出力
+            doOutputPackagesXml(this.outArtifacts);
+
+            // elementsフォルダ配下に要素を出力する(BehaviorDeveloperで見る用)
+            doMakeIndex(this.outArtifacts);
+            doMakeElementFiles(this.outArtifacts);
 
             // 明細ファイル出力フラグが立っていなければそのままリターン
             if (outputDetailFileFlg)
@@ -457,9 +526,263 @@ namespace ProjectDiffMaker
         }
 
         /// <summary>
+        /// 差分のあったパッケージの分でパッケージXMLを出力する。
+        /// </summary>
+        /// <param name="outArtifacts"></param>
+        private void doOutputPackagesXml(List<ArtifactVO> outArtifacts)
+        {
+            bool throughFlg;
+            List<PackageVO> rootPackages = new List<PackageVO>();
+
+            // 出力用の成果物リストを読み込み
+            foreach ( ArtifactVO atf in outArtifacts)
+            {
+                throughFlg = false;
+                switch (atf.changed)
+                {
+                    case 'U':
+                        this.targetPackageMap = this.toPackageMap;
+                        break;
+                    case 'C':
+                        this.targetPackageMap = this.toPackageMap;
+                        break;
+                    case 'D':
+                        this.targetPackageMap = this.fromPackageMap;
+                        break;
+                    default:
+                        // throw new Exception("変更区分が不正です : '" + atf.changed + "'");
+                        throughFlg = true;
+                        break;
+                }
+
+                if( !throughFlg )
+                {
+                    addPackageToOutList(atf.package, rootPackages);
+                }
+            }
+
+            PackagesXmlWriter writer = new PackagesXmlWriter(this.outputDir);
+            writer.outputPackageXml(rootPackages);
+        }
+
+        /// <summary>
+        /// 指定された成果物パッケージを出力用パッケージツリーに追加する
+        /// </summary>
+        /// <param name="atfPac"></param>
+        /// <param name="rootPackages"></param>
+        private void addPackageToOutList(PackageVO atfPac, List<PackageVO> rootPackages)
+        {
+
+            // 成果物パッケージIDが取得元のパッケージMapに含まれている場合
+            if (this.targetPackageMap.ContainsKey(atfPac.packageId))
+            {
+                // 対象のパッケージMapから、成果物パッケージのインスタンスを取得
+                // PackageVO atfpac = this.targetPackageMap[atfPac.packageId];
+
+                // ルートから成果物パッケージに辿り着くためのパッケージを親から子の順番で並べたリストを取得
+                List<PackageVO> packages = traverseFromLeafToRoot(atfPac);
+
+                // リストの個数が 0 より大きい場合
+                if (packages.Count > 0)
+                {
+                    // 成果物パッケージの階層ごとのパッケージIDのリストの0番目（ルート）を取得
+                    PackageVO rootPackage = packages[0];
+                    int rootPackageId = packages[0].packageId;
+
+                    // パッケージMapに該当のパッケージIdが存在していなければ
+                    if (!outPackageMap.ContainsKey(rootPackageId))
+                    {
+                        // ルートPackageを生成し返却値のPackageリストに追加
+                        rootPackages.Add(rootPackage);
+                        outPackageMap.Add(rootPackageId, rootPackage);
+
+                        // ２階層目以降
+                        concatChildNodes(packages, 1, atfPac, rootPackage);
+                    }
+                    // パッケージMapに該当のパッケージIdが存在していたら
+                    else
+                    {
+                        // 既にルート以降のパッケージ構造が存在しているはずなので追加するべきパッケージを探し、
+                        // 返却値のPackageリスト内にツリー構造を追加する
+                        searchAndConcatChildNodes(packages, 0, atfPac, null, rootPackages);
+                    }
+
+                }
+                
+            }
+            else
+            {
+                Console.WriteLine("PackageId が不正です : " + atfPac.packageId);
+                // throw new Exception("PackageId が不正です : " + atfPac.packageId);
+            }
+        }
+
+
+        /// <summary>
+        /// 引数のパッケージリストを１階層ずつ指定の親パッケージの子として追加する
+        /// </summary>
+        /// <param name="packages"></param>
+        /// <param name="idx"></param>
+        /// <param name="parentPackage"></param>
+        private void concatChildNodes(List<PackageVO> packages, int idx, PackageVO artifactPackage, PackageVO parentPackage)
+        {
+            if( idx >= packages.Count )
+            {
+                return;
+            }
+
+            PackageVO myPackage;
+
+            // リスト内の最後の１件は成果物パッケージ(isControlledがtrue)なので、引数の成果物パッケージの方を追加する
+            if ( idx == packages.Count -1 )
+            {
+                myPackage = artifactPackage;
+            }
+            else
+            {
+                myPackage = packages[idx];
+            }
+            
+            parentPackage.childPackageList.Add(myPackage);
+
+            if(!outPackageMap.ContainsKey(myPackage.packageId))
+            {
+                outPackageMap.Add(myPackage.packageId, myPackage);
+            }
+            else
+            {
+                Console.WriteLine("PackageIdがOutPackageMap内で重複しました : " + myPackage.packageId);
+            }
+
+            concatChildNodes(packages, idx + 1, artifactPackage, myPackage);
+        }
+
+
+        /// <summary>
+        /// 引数のPackageリストを、ルートから目的のパッケージまでの経路と見立て、
+        /// 先頭から階層順に出力パッケージツリー内の存在チェックを行い、存在しない階層が来たらそれ以降を出力パッケージツリーに加える
+        /// </summary>
+        /// <param name="packages"></param>
+        /// <param name="idx"></param>
+        /// <param name="parentPackage"></param>
+        /// <param name="targetPackages"></param>
+        private void searchAndConcatChildNodes(List<PackageVO> packages, int idx, PackageVO artifactPackage, PackageVO parentPackage, List<PackageVO> targetPackages)
+        {
+            if (idx >= packages.Count)
+            {
+                return;
+            }
+
+            PackageVO myPackage = packages[idx];
+            int myPackageId = myPackage.packageId;
+            bool foundFlg = false;
+
+            foreach ( PackageVO ppac in targetPackages)
+            {
+                // parentPackagesの中に自分のIDが存在している場合、
+                // 対象の階層で一致している間は階層を下げて自メソッドを再帰呼び出しする
+                if (ppac.packageId == myPackageId)
+                {
+                    searchAndConcatChildNodes(packages, idx+1, artifactPackage, ppac, ppac.childPackageList);
+                    foundFlg = true;
+                    break;
+                }
+
+            }
+
+            // 同レベルに見つからなかったということは、これ以降のパッケージは全て追加でよいので
+            // 以降は単純な追加処理を呼ぶ
+            if( !foundFlg )
+            {
+                concatChildNodes(packages, idx, artifactPackage, parentPackage);
+            }
+
+        }
+
+        /// <summary>
+        /// 指定したパッケージをparentPackageIdを使って先頭（ルート）まで辿り、
+        /// 辿った結果としてルートから子への順でパッケージIDのリストを作成し返却する
+        /// 
+        /// <pre>
+        /// id=1, root
+        ///   id=2, xxx
+        ///   id=3, yyy
+        ///     id=4, zzz
+        /// </pre>
+        /// というパッケージ構造があり、このうち id=4 の zzz が指定されると、
+        /// 返却値は 1,3,4 という3つのパッケージIDのパッケージが格納されたリストとなる
+        /// 
+        /// </summary>
+        /// <param name="atfpac"></param>
+        /// <returns></returns>
+        private List<PackageVO> traverseFromLeafToRoot(PackageVO atfpac)
+        {
+            List<PackageVO> outList = new List<PackageVO>();
+
+            goBackRetrievePackage(atfpac, outList);
+            return outList;
+        }
+
+
+        /// <summary>
+        /// 下から上にパッケージを辿る。
+        /// 返却リストは階層の上から順にパッケージが並ぶように、先頭に追加する
+        /// </summary>
+        /// <param name="pac"></param>
+        /// <param name="outList"></param>
+        private void goBackRetrievePackage(PackageVO pac, List<PackageVO> outList)
+        {
+            // 返却値となるパッケージのリスト
+            outList.Insert(0, pac);
+
+            // 親パッケージIDが０になったら終了
+            if ( pac.parentPackageId > 0 )
+            {
+                // 親パッケージIDから親が辿れたら、親パッケージを引数にして自メソッドを再帰呼び出しする
+                if (this.targetPackageMap.ContainsKey(pac.parentPackageId))
+                {
+                    PackageVO ppac = this.targetPackageMap[pac.parentPackageId];
+                    goBackRetrievePackage(ppac, outList);
+                }
+                else
+                {
+                    //                    throw new Exception("親PackageId が不正です : " + pac.parentPackageId);
+                    Console.WriteLine("親PackageId が不正です : " + pac.parentPackageId);
+                }
+            }
+            else
+            {
+                return;
+            }
+
+        }
+
+
+        /// <summary>
+        /// Index用データベース(SQLite)に、接続と要素（属性・操作）の情報を登録する
+        /// </summary>
+        public void doMakeIndex(List<ArtifactVO> artifacts)
+        {
+
+            try
+            {
+                ProjectSetting.load(this.outputDir + "\\project.bdprj");
+                IndexDbWriter dbWriter = new IndexDbWriter(this.outputDir, ProjectSetting.getVO().dbName);
+                // dbWriter.writeAllConnector(this.allconnectors);
+                dbWriter.writeAllElements(artifacts);
+                // dbWriter.writeAllBehaviors(this.allArtifacts);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+
+        /// <summary>
         /// 要素毎のXMLを elements 配下に出力する
         /// </summary>
-        public void doMakeElementFiles()
+        public void doMakeElementFiles(List<ArtifactVO> outArtifactList)
         {
             // outputElementXmlFile メソッドの出力先は ProjectPath 限定になるため、
             // 先に作ったばかりのプロジェクトファイルをロードしておく
@@ -468,7 +791,7 @@ namespace ProjectDiffMaker
             ProjectSetting.load(changedProjectFile);
 
             // 
-            foreach (ArtifactVO atf in this.outArtifacts)
+            foreach (ArtifactVO atf in outArtifactList)
             {
                 foreach (ElementVO elem in atf.getOwnElements())
                 {
