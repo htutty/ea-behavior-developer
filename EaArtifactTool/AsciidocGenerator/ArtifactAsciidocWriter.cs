@@ -4,10 +4,12 @@ using System.IO;
 using ArtifactFileAccessor.util;
 using ArtifactFileAccessor.vo;
 using IndexAccessor;
+using ArtifactFileAccessor.reader;
+using System.Text;
 
 namespace AsciidocGenerator
 {
-    
+
     /// <summary>
     /// 成果物単位Asciidoc出力用クラス
     /// </summary>
@@ -37,7 +39,7 @@ namespace AsciidocGenerator
         /// <param name="asciidocDir">出力先asciidocパス</param>
         private static void makeAsciidocDirIfNotExist(string asciidocDir)
         {
-            // 成果物出力先の artifacts フォルダが存在しない場合
+            // 成果物出力先の asciidocs フォルダが存在しない場合
             if (!Directory.Exists(asciidocDir))
             {
                 Directory.CreateDirectory(asciidocDir);
@@ -52,9 +54,9 @@ namespace AsciidocGenerator
         /// </summary>
         /// <param name="artifact"></param>
         /// <param name="filepath"></param>
-        public void outputAsciidocFile(ArtifactVO artifact, string adocFileName)
+        public string outputAsciidocFile(ArtifactVO artifact)
         {
-            outputAsciidocFile(artifact, adocFileName, AsciidocOutputMode.MODE_PREVIEW);
+            return outputAsciidocFile(artifact, AsciidocOutputMode.MODE_PREVIEW);
         }
 
 
@@ -64,13 +66,21 @@ namespace AsciidocGenerator
         /// <param name="artifact"></param>
         /// <param name="filepath"></param>
         /// <param name="mode">出力モード</param>
-        public void outputAsciidocFile(ArtifactVO artifact, string adocFileName, AsciidocOutputMode mode)
+        public string outputAsciidocFile(ArtifactVO artifact, AsciidocOutputMode mode)
         {
 
             try
             {
-                string filepath = this.asciidocDir + "\\" + adocFileName;
+                // Asciidoc出力フォルダが存在していなければ作成する
+                string adocPackagePath = filterPackagePath(artifact.pathName);
+                string filepath = this.asciidocDir + "\\" + adocPackagePath;
+                makeAsciidocDirIfNotExist(filepath);
 
+                // asciidocの出力ファイル名の設定
+                string adocFileName = filterSpecialChar(artifact.name) + "_" + artifact.guid.Substring(1, 8) + ".adoc";
+
+                // Asciidoc出力フォルダ上に、指定されたファイル名で出力する
+                filepath = filepath + "\\" + adocFileName;
                 //BOM無しのUTF8でテキストファイルを作成する
                 StreamWriter atfsw = new StreamWriter(filepath);
 
@@ -84,6 +94,8 @@ namespace AsciidocGenerator
                 writePackage(artifact.package, atfsw, "");
 
                 atfsw.Close();
+
+                return adocPackagePath + "/" + adocFileName;
             }
             catch (Exception ex)
             {
@@ -91,6 +103,7 @@ namespace AsciidocGenerator
                 throw ex;
             }
         }
+
 
         /// <summary>
         /// 出力モードに応じて適切なAsciiDocのヘッダー文字列を返却する
@@ -114,12 +127,12 @@ namespace AsciidocGenerator
                 default:
                     return "";
             }
-         
+
         }
 
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="package"></param>
         /// <param name="sw"></param>
@@ -262,19 +275,30 @@ namespace AsciidocGenerator
             {
                 // ダイアグラムオブジェクトのobjectIdをキーとしてt_elementから要素を取りに行く
                 ElementSearchItem elemSearchItem = this.elementSearcher.findByElementId(diaObj.objectId);
+
                 // 取得できなかったらインデックスに登録される対象の要素タイプではないので、class文を出す必要はない
-                if (elemSearchItem != null)
+                // と思っていたらNoteはインデックスに登録されており、Noteは本文をnameにする必要があるので別ロジック
+                if (elemSearchItem != null )
                 {
-                    // クラス図の中で表示されるクラス名を取得(空白を別の文字に置換するなど)
-                    string normalizedName = filterSpecialChar(elemSearchItem.elemName);
-                    // 接続線を引く時にこのクラス名を使う必要があるので、ID毎に名前をキャッシュしておく
-                    elemNameHash.Add(elemSearchItem.elementId, normalizedName);
+                    // 要素の型が "Note" の場合のみ
+                    if (elemSearchItem.elemType == "Note")
+                    {
+                        // note 要素を出力する（ひとまず全てフローティングにしておく）
+                        ElementVO elem = ElementsXmlReader.readElementFile(elemSearchItem.elemGuid);
+                        sw.WriteLine("note \"" + filterNoteString(elem.notes) + "\" " );
+                    }
+                    else
+                    {
+                        // クラス図の中で表示されるクラス名を取得(空白を別の文字に置換するなど)
+                        string normalizedName = filterSpecialChar(elemSearchItem.elemName);
+                        // 接続線を引く時にこのクラス名を使う必要があるので、ID毎に名前をキャッシュしておく
+                        elemNameHash.Add(elemSearchItem.elementId, normalizedName);
 
-                    // class 文の出力
-                    sw.WriteLine("class \"" + normalizedName + "\" " + getStereotypeStr(elemSearchItem.elemStereotype) + " {");
-                    sw.WriteLine("}");
+                        // class 文の出力
+                        sw.WriteLine("class \"" + normalizedName + "\" " + getStereotypeStr(elemSearchItem.elemStereotype) + " {");
+                        sw.WriteLine("}");
+                    }
                 }
-
             }
 
             // ダイアグラムリンク（ダイアグラム上で有効な接続）情報を元にPlantUMLの接続線を引く
@@ -287,7 +311,6 @@ namespace AsciidocGenerator
                     targetConn = conns[0];
                     outputSrcConnectLine(targetConn, sw);
                 }
-
             }
 
             sw.WriteLine("@enduml");
@@ -414,6 +437,71 @@ namespace AsciidocGenerator
             sb.Replace("？", "");
             sb.Replace("\r", "");
             sb.Replace("\n", "");
+
+            sb.Replace("/", "_");
+            sb.Replace("\\", "_");
+            sb.Replace("<", "_");
+            sb.Replace(">", "_");
+            sb.Replace("&", "_");
+            sb.Replace("?", "_");
+            sb.Replace("*", "_");
+
+            return sb.ToString();
+        }
+
+
+        /// <summary>
+        /// ノートの改行文字を\nに置き換え、文字数が100文字を
+        /// </summary>
+        /// <param name="orig"></param>
+        /// <returns></returns>
+        private static string filterNoteString(string orig)
+        {
+            StringBuilder sb = new StringBuilder(orig);
+            sb.Replace(" ", "_");
+            sb.Replace("\"", "");
+            sb.Replace("\n", "\\n");
+
+            // 得られたノート文字列が100文字より大きい場合
+            if (sb.Length > 100)
+            {
+                return  sb.ToString().Substring(0, 100) + ".." ;
+            }
+            else
+            {
+                return sb.ToString();
+            }
+        }
+
+        private static string  filterPackagePath(string orig)
+        {
+            const int shortenLen = 4;
+            var sb = new StringBuilder();
+
+            foreach ( string p in orig.Split('/') )
+            {
+                if ( p.Length > 0 )
+                {
+                    if (sb.Length > 0)
+                    {
+                        sb.Append("_");
+                    }
+
+                    sb.Append(p.Substring(0, (p.Length >= shortenLen) ? shortenLen : p.Length));
+                }
+            }
+
+            // パスに使えない文字は適当に置き換え
+            sb.Replace(" ", "_");
+            sb.Replace("/", "_");
+            sb.Replace("\\", "_");
+            sb.Replace("<", "_");
+            sb.Replace(">", "_");
+            sb.Replace("&", "_");
+            sb.Replace("?", "_");
+            sb.Replace("*", "_");
+
+            Console.WriteLine("filterPackagePath: orig=" + orig + ", ret=" + sb.ToString() );
 
             return sb.ToString();
         }
