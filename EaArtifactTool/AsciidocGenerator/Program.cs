@@ -5,6 +5,7 @@ using ArtifactFileAccessor.vo;
 using ArtifactFileAccessor.util;
 using System.IO;
 using System.Configuration;
+using System.Text;
 
 namespace AsciidocGenerator
 {
@@ -142,8 +143,10 @@ namespace AsciidocGenerator
         }
 
 
+
+
         /// <summary>
-        /// 全成果物
+        /// 全成果物のAsciidocファイルを出力する
         /// </summary>
         /// <param name="projectFile"></param>
         private static void outputAllArtifactAsciidoc(ArtifactsVO allArtifacts)
@@ -156,41 +159,56 @@ namespace AsciidocGenerator
             {
                 ArtifactVO atf = allArtifacts.artifactList[i];
 
-                // asciidocの出力ファイル名の設定
-                string adocFileName = filterSpecialChar(atf.name) + "_" + atf.guid.Substring(1, 8) + ".adoc";
-
-                // 成果物のAsciidoc出力 
-                asciidocWriter.outputAsciidocFile(atf, adocFileName);
+                // 成果物のAsciidoc出力
+                string adocFilePath = asciidocWriter.outputAsciidocFile(atf);
 
                 // 出力されたAsciidocのファイル名を成果物VOに登録（処理後、AllArtifacts.xmlを更新する）
-                atf.asciidocFilePath = adocFileName;
-                Console.WriteLine("{0}:ドキュメント出力 {1}", i + 1, adocFileName);
+                atf.asciidocFilePath = adocFilePath;
+                Console.WriteLine("{0}:ドキュメント出力 {1}", i + 1, adocFilePath);
             }
 
+            // 最後に、このドキュメント一覧を見るためのindex.htmlを出力する
+            outputIndexHtml(allArtifacts, asciidocDir);
         }
 
 
         /// <summary>
-        /// 引数の文字列から、ファイル名に使用できない文字をフィルタして返却する
+        ///
         /// </summary>
-        /// <param name="orig"></param>
-        /// <returns></returns>
-        private static string filterSpecialChar(string orig)
+        /// <param name="allArtifacts"></param>
+        private static void outputIndexHtml(ArtifactsVO allArtifacts, string asciidocDir)
         {
-            System.Text.StringBuilder sb = new System.Text.StringBuilder(orig);
-            sb.Replace("(", "（");
-            sb.Replace(")", "）");
-            sb.Replace(" ", "_");
-            sb.Replace("^", "＾");
-            sb.Replace("？", "");
-            sb.Replace("/", "_");
-            sb.Replace("\\", "_");
-            sb.Replace("\r", "");
-            sb.Replace("\n", "");
 
-            return sb.ToString();
+            // Asciidoc出力フォルダ上に、指定されたファイル名で出力する
+            string filepath = asciidocDir + "\\" + "index.html";
+            //BOM無しのUTF8でテキストファイルを作成する
+            StreamWriter sw = new StreamWriter(filepath);
+
+            sw.WriteLine(@"<!DOCTYPE html>
+                <html>
+                <head>
+                    <meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+                    <meta charset='utf-8' />
+                    < title >ASW-DOM-BE Class documents page</ title >
+                </head>
+                <body>
+            ");
+
+
+            sw.WriteLine("<ul>");
+            foreach(var atf in allArtifacts.artifactList)
+            {
+                sw.Write("<li>" + atf.pathName + " - <a href='" + atf.asciidocFilePath +"'>" + atf.name + "</a>" );
+                sw.WriteLine("</li>");
+            }
+            sw.WriteLine("</ul>");
+
+
+            sw.WriteLine("</body>");
+            sw.WriteLine("</html>");
+
+            sw.Close();
         }
-
 
     }
 }
