@@ -38,7 +38,7 @@ namespace AsciidocGenerator
 
                 sw.Close();
 
-                return "../elements/" + elem.guid.Substring(1, 1) + "/" 
+                return "../../elements/" + elem.guid.Substring(1, 1) + "/"
                         + elem.guid.Substring(2, 1) + "/" + elem.guid.Substring(1, 36) + ".adoc";
             } catch( Exception ex ) {
                 Console.WriteLine(ex.Message);
@@ -86,7 +86,7 @@ namespace AsciidocGenerator
             {
                 sw.WriteLine("- クラス概要 +");
                 sw.WriteLine("[%hardbreaks]");
-                sw.WriteLine("クラス概要 + " + element.notes + "\r\n");
+                sw.WriteLine(element.notes + "\r\n");
             }
 
             // plantUMLでクラス図を出力するための情報を書き込む
@@ -355,7 +355,6 @@ namespace AsciidocGenerator
         {
             sw.WriteLine("##### パラメータ");
             sw.WriteLine("");
-            // sw.WriteLine(".パラメータ");
             sw.WriteLine("[cols = \"1,1,3\"]");
             sw.WriteLine("|===");
             sw.WriteLine("| パラメータ型 | 名前(別名) | ノート");
@@ -363,8 +362,37 @@ namespace AsciidocGenerator
             foreach (ParameterVO param in parameters)
             {
                 sw.Write("|" + param.eaType);
-                sw.Write("|" + param.name);
+                sw.Write("|" + param.name + " [" + param.alias  + "]");
                 sw.Write("|" + param.notes);
+                sw.WriteLine("");
+            }
+            sw.WriteLine("|===");
+            sw.WriteLine("");
+
+            foreach (ParameterVO param in parameters)
+            {
+                if( param.paramTags != null && param.paramTags.Count > 0)
+                {
+                    writeTaggedValuePrm(param, param.paramTags, sw);
+                }
+            }
+
+        }
+
+
+        private static void writeTaggedValuePrm(ParameterVO param, List<ParamTagVO> paramTags, StreamWriter sw)
+        {
+            sw.WriteLine("###### パラメータタグ付き値: " + param.name);
+            sw.WriteLine("");
+
+            sw.WriteLine("[cols = \"1,3\"]");
+            sw.WriteLine("|===");
+            sw.WriteLine("| キー | 値");
+
+            foreach (ParamTagVO tv in paramTags)
+            {
+                sw.Write("|" + tv.name);
+                sw.Write(" |" + tv.notes);
                 sw.WriteLine("");
             }
             sw.WriteLine("|===");
