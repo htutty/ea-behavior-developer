@@ -90,8 +90,8 @@ namespace ArtifactFileExporter
             csvWriter.outputMthAttrCsv(this.allArtifacts);
 
             // ふるまいファイルの出力
-            AllBehaviorsWriter bhvWriter = new AllBehaviorsWriter(outputDir);
-            bhvWriter.outputBehaviorsText(this.allArtifacts);
+            // AllBehaviorsWriter bhvWriter = new AllBehaviorsWriter(outputDir);
+            // bhvWriter.outputBehaviorsText(this.allArtifacts);
         }
 
         /// <summary>
