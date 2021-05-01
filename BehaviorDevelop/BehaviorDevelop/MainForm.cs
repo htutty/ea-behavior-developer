@@ -22,24 +22,24 @@ namespace BehaviorDevelop
 	public partial class MainForm : Form
 	{
 		TreeNode rootNode;
-		
+
 		private IList<ArtifactVO> artifacts;
-		
+
 		private ElementForm elemForm { get; set; }
 
 		private SearchElementListForm searchElemListForm { get; set; }
 
 		private Dictionary<string, TreeNode> treeNodeMap = new Dictionary<string, TreeNode>();
-		
+
 		public MainForm()
 		{
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
-			
+
 			this.artifacts = new List<ArtifactVO>();
-			
+
 			// projectPath = null;
 		}
 
@@ -50,7 +50,7 @@ namespace BehaviorDevelop
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
-			
+
 			this.artifacts = new List<ArtifactVO>();
 
 			if( ProjectSetting.load(prjfile) ) {
@@ -59,17 +59,17 @@ namespace BehaviorDevelop
 				MessageBox.Show("プロジェクトファイル読み込みに失敗しました。　再度正しいファイルを選択して下さい。");
 				// projectPath = null;
 			}
-			
+
 		}
 
 		#region "フォームの初期化およびパッケージツリーの作成処理"
-		
+
 		void MainFormLoad(object sender, EventArgs e)
 		{
 			init();
 		}
 
-		
+
 		private void init() {
 
 			this.artifacts.Clear();
@@ -79,7 +79,7 @@ namespace BehaviorDevelop
 			if( this.tabControl1.TabPages.Count > 1 ) {
 				this.tabControl1.TabPages.Clear();
 			}
-			
+
             // プロジェクトファイル(.bdprj)が読み込み済みの場合
 			if (ProjectSetting.getVO() != null) {
 				initProject();
@@ -100,22 +100,22 @@ namespace BehaviorDevelop
 
             }
 
-            AttachEA();			
+            AttachEA();
 		}
-		
-		
+
+
 		private void initProject() {
 			string artifactsFileName = ProjectSetting.getVO().artifactsFile;
             string artifactDir = ProjectSetting.getVO().projectPath + "\\" + ProjectSetting.getVO().artifactsPath;
 
 			// artifactList.Items.Clear();
 			this.artifacts = ArtifactsXmlReader.readArtifactList(artifactDir, artifactsFileName);
-				
+
 			string atfnodename;
 			for ( int i=0; i < artifacts.Count; i++ ) {
 				ArtifactVO atf = artifacts[i];
 				TreeNode packageNode = addPackageNodes(atf.pathName);
-				
+
 				if (atf.changed == ' ' ) {
 					atfnodename = atf.name;
 				} else {
@@ -124,7 +124,7 @@ namespace BehaviorDevelop
 				TreeNode atfNode = new TreeNode(atfnodename, 2, 1);
 				atfNode.Tag = atf;
 				atfNode.ContextMenuStrip = contextMenuStrip1;
-				
+
 				packageNode.Nodes.Add(atfNode);
 				treeNodeMap.Add(atf.guid, atfNode);
 			}
@@ -132,11 +132,11 @@ namespace BehaviorDevelop
 			this.treeView1.Nodes.Add(rootNode);
 		}
 
-		
+
 		private TreeNode addPackageNodes( string pathName ) {
 			char[] delimiterChars = { '/' };
 			String[] paths = pathName.Split(delimiterChars);
-			
+
 			TreeNode mynode = rootNode;
 			for (int i = 0; i < paths.Length; i++) {
 				string s = paths[i];
@@ -146,15 +146,15 @@ namespace BehaviorDevelop
 	        }
 			return mynode;
 		}
-		
+
 
 		private TreeNode searchSubNodeByName( TreeNode myNode, String name ) {
 			foreach( TreeNode n in myNode.Nodes ) {
 				if ( n.Text.Equals(name) == true ) {
-			    	return n ; 
+			    	return n ;
 			    }
 			}
-			
+
 			TreeNode newNode = new TreeNode(name, 0, 1);
 			myNode.Nodes.Add(newNode);
 			return newNode;
@@ -162,7 +162,7 @@ namespace BehaviorDevelop
 
 		#endregion
 
-		
+
 		#region "外部から呼び出される公開メソッド"
 		/// <summary>
 		/// GUIDにより成果物リストを検索し、成果物パネルをアクティベートする。
@@ -177,7 +177,7 @@ namespace BehaviorDevelop
             ArtifactVO atfvo = (ArtifactVO)tn.Tag;
 			return activateArtifactPanel(atfvo);
 		}
-		
+
 		/// <summary>
 		/// 引数の要素VOで要素編集画面をモードレスで開く。
 		/// 主にクラス検索画面から呼び出される。
@@ -185,9 +185,9 @@ namespace BehaviorDevelop
 		/// <param name="elemvo"></param>
 		public void openNewElementForm(ElementVO elemvo) {
 			ElementForm eForm = new ElementForm( ref elemvo );
-			eForm.Show(this);			
+			eForm.Show(this);
 		}
-		
+
 		/// <summary>
 		/// 成果物パネルのアクティベート。
 		/// 主にパッケージツリーで成果物PKGを選択した時に呼び出され、新たに成果物情報をファイルから読んで成果物パネルを表示する。
@@ -232,8 +232,8 @@ namespace BehaviorDevelop
             elemPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             elemPanel.WrapContents = false;
             elemPanel.AutoScroll = true;
-            makeElementsPanelContents(elemPanel, atf.package);			
-			
+            makeElementsPanelContents(elemPanel, atf.package);
+
 			TabPage atfPage = new TabPage();
 			atfPage.Controls.Add(elemPanel);
 
@@ -242,29 +242,29 @@ namespace BehaviorDevelop
 			atfPage.Tag = atf.guid ;
 			// タブクローズ用のコンテキストメニューをTabPageに登録
 			atfPage.ContextMenuStrip = tabContextMenuStrip;
-			
+
 			// 作成したタブページをタブコントロールに追加し、そのタブを選択状態にする
 			tabControl1.TabPages.Add(atfPage);
 			tabControl1.SelectedTab = atfPage;
-			
+
 			return atf ;
 		}
-		
+
 		private TreeNode makePackageNode( TreeNode parentNode, PackageVO pac, Boolean isRoot ) {
 			TreeNode targetNode = new TreeNode(pac.name, 0, 1);
 			if( isRoot == false ) {
 				parentNode.Nodes.Add(targetNode);
 			}
-			
+
 			foreach( PackageVO c in pac.childPackageList ) {
 				makePackageNode( targetNode, c, false );
 			}
-			
+
 			return targetNode;
 		}
-		
+
 		#endregion
-		
+
 		#region "成果物パネル内の作成処理"
 		/// <summary>
 		/// 成果物パネルの内容を作成する。
@@ -274,8 +274,8 @@ namespace BehaviorDevelop
 		private void makeElementsPanelContents(FlowLayoutPanel elemPanel, PackageVO pac) {
 			addPackageLabels(elemPanel, pac, 0);
 		}
-		
-		
+
+
 		/// <summary>
 		/// パッケージ階層に基づいてパッケージ・要素のラベルをパネルに追加する。（再帰処理）
 		/// </summary>
@@ -286,18 +286,18 @@ namespace BehaviorDevelop
 			Label pacLabel = new Label();
 			pacLabel.Margin = new System.Windows.Forms.Padding(12*depth,3,3,3);
 			pacLabel.Text = "□" + pac.name ;
-			
+
 			pacLabel.AutoSize = true ;
 			elemPanel.Controls.Add(pacLabel);
-			
+
 			// パッケージ内の要素で変更済み(_changed)のファイルがいたら、その内容で置き換える
 			pac.elements = replaceElementIfExistChangedData(pac.elements);
 			addElementLabels(elemPanel, pac.elements, depth+1);
-			
+
 			foreach( PackageVO c in pac.childPackageList ) {
 				addPackageLabels(elemPanel, c, depth+1);
 			}
-			
+
 		}
 
 		/// <summary>
@@ -313,15 +313,15 @@ namespace BehaviorDevelop
 			foreach(ElementVO e in srcList) {
 				if(ElementsXmlReader.existChangedElementFile(e.guid)) {
 					outList.Add(ElementsXmlReader.readChangedElementFile(e.guid));
-				} else {				
+				} else {
 					outList.Add(e);
 				}
 			}
 			return outList;
 		}
-		
-		
-		
+
+
+
 		/// <summary>
 		/// 成果物内の要素を、要素編集画面を開くリンク付きでパネルに表示する。
 		/// </summary>
@@ -379,7 +379,7 @@ namespace BehaviorDevelop
 					labelElement.Tag = elem;
 					labelElement.AutoSize = true;
 					elemPanel.Controls.Add(labelElement);
-				}				
+				}
 			}
 
 		}
@@ -415,7 +415,7 @@ namespace BehaviorDevelop
 		{
 			//OpenFileDialogクラスのインスタンスを作成
 			OpenFileDialog dialog = new OpenFileDialog();
-			
+
 			//はじめに「ファイル名」で表示される文字列を指定する
 			dialog.FileName = "project.bdprj";
 			//はじめに表示されるフォルダを指定する
@@ -439,7 +439,7 @@ namespace BehaviorDevelop
 			//存在しないパスが指定されたとき警告を表示する
 			//デフォルトでTrueなので指定する必要はない
 			dialog.CheckPathExists = true;
-			
+
 			//ダイアログを表示する
 			if (dialog.ShowDialog() == DialogResult.OK)
 			{
@@ -457,9 +457,9 @@ namespace BehaviorDevelop
 					// projectPath = null;
 			    }
 			}
-			
+
 		}
-		
+
 		/// <summary>
 		/// メニュー - 検索 - クラスを検索のメニュー項目のクリックイベント
 		/// </summary>
@@ -471,7 +471,7 @@ namespace BehaviorDevelop
 			searchElemListForm = new SearchElementListForm( );
 			searchElemListForm.Show(this);
 		}
-		
+
 		/// <summary>
 		/// メニュー - 編集 - テキストとしてコピー メニュー項目のクリックイベント
 		/// </summary>
@@ -480,14 +480,14 @@ namespace BehaviorDevelop
 		void EditCopyTextToolStripMenuItemClick(object sender, EventArgs e)
 		{
 			TreeNode node = treeView1.SelectedNode;
-			
+
 			if (node != null && node.Tag != null ) {
 				ArtifactVO atfvo = (ArtifactVO)node.Tag;
 
 				try {
 					Clipboard.SetText(atfvo.package.toDescriptorString());
 					MessageBox.Show( "成果物情報テキストがクリップボードにコピーされました" );
-					
+
 				} catch(System.Runtime.InteropServices.ExternalException ex) {
 					MessageBox.Show( "クリップボードの書き込みに失敗しました。\r\n" + ex.Message );
 				}
@@ -496,7 +496,7 @@ namespace BehaviorDevelop
 			}
 		}
 
-		
+
 		/// <summary>
 		///  メニュー - 編集 - （全）成果物を更新 メニュークリックイベント
 		/// </summary>
@@ -505,47 +505,47 @@ namespace BehaviorDevelop
 		void EditRefreshArtifactToolStripMenuItemClick(object sender, EventArgs e)
 		{
 			EA.Repository repo = ProjectSetting.getEARepo();
-		
+
 			try {
 				// 確認メッセージを表示
 				MessageBox.Show( "全ての成果物パッケージの内容をEAから取得しローカルを更新します");
-				
+
 				// マウスカーソルを待機状態にする
 				Cursor.Current = Cursors.WaitCursor;
-			
+
 				// 全成果物をなめ、それぞれの成果物パッケージをEAから取得してローカルを更新
 				foreach( ArtifactVO atfvo in artifacts ) {
-					
+
 					try {
 						EA.Package atfPacObj = repo.GetPackageByGuid(atfvo.guid);
-						
+
 						EAArtifactXmlMaker maker = new EAArtifactXmlMaker(atfPacObj);
 						ArtifactVO newArtifact = maker.makeArtifactXml();
-	
+
 						// 現在読み込まれている成果物の内容を今読んだもので置き換え
 						atfvo.package = newArtifact.package;
-						
+
 						// elements配下の要素XMLファイルを今読んだもので置き換え
 						ArtifactXmlWriter writer = new ArtifactXmlWriter();
 						writer.rewriteElementXmlFiles(atfvo);
-						
+
 					} catch ( Exception ex ) {
 						MessageBox.Show(ex.Message);
 					}
-	
-				}				
+
+				}
 
 				// マウスカーソルを標準に戻す
 				Cursor.Current = Cursors.Default;
-				
+
 				MessageBox.Show( "EAの最新情報をローカルに取り込みました" );
 			} catch ( Exception ex ) {
 				MessageBox.Show(ex.Message);
 			}
-			
+
 		}
-		
-		
+
+
 		/// <summary>
 		/// メニュー - ファイル - 終了 メニュー項目のクリックイベント
 		/// </summary>
@@ -555,16 +555,16 @@ namespace BehaviorDevelop
 		{
 			this.Close();
 		}
-		
-		
+
+
 		void ViewGuidToolStripMenuItemClick(object sender, EventArgs e)
 		{
 			TreeNode tn = treeView1.SelectedNode ;
 			ArtifactVO atf = (ArtifactVO)tn.Tag;
 			MessageBox.Show("成果物パッケージGUID=" + atf.guid );
 		}
-		
-		
+
+
 		/// <summary>
 		/// メニュー - EAにアタッチ のメニュー項目クリックイベント
 		/// </summary>
@@ -574,20 +574,20 @@ namespace BehaviorDevelop
 		{
 			AttachEA();
 		}
-		
-		
-		private void AttachEA() 
+
+
+		private void AttachEA()
 		{
 			EA.App eaapp = null;
-			
+
 			if ( ProjectSetting.getVO() == null ) {
 				toolStripStatusLabel1.Text = "[ファイル]メニューの[開く]を選択しプロジェクトをオープンしてください" ;
 				return;
 			}
-			
+
 			try {
 				eaapp = (EA.App)Microsoft.VisualBasic.Interaction.GetObject(null, "EA.App");
-				
+
 				if( eaapp != null ) {
 					EA.Repository repo = eaapp.Repository;
 //					eaapp.Visible = true;
@@ -603,8 +603,8 @@ namespace BehaviorDevelop
 			} catch(Exception ex) {
 				toolStripStatusLabel1.Text = "EAが起動していなかったため、EAへの反映機能は使えません : " + ex.Message;
 				return;
-			} 
-			
+			}
+
 		}
 
         #endregion
@@ -679,7 +679,7 @@ namespace BehaviorDevelop
             treeView1.SelectedNode = tn ;
             treeView1.Focus();
 		}
-		
+
 		/// <summary>
 		/// ツリービューのノード（特に成果物のノード）クリック時イベントハンドラ
 		/// </summary>
@@ -691,10 +691,10 @@ namespace BehaviorDevelop
 			if ( e.Node.Tag != null ) {
 				// 待機状態
 				Cursor.Current = Cursors.WaitCursor;
-				
+
 				// 成果物パネルを追加する（既にこの成果物がタブで開いているなら単にアクティベートする）
 				activateArtifactPanel( (ArtifactVO)e.Node.Tag );
-				
+
 				// 標準に戻す
 				Cursor.Current = Cursors.Default;
 			}
@@ -711,7 +711,7 @@ namespace BehaviorDevelop
 			TreeNode tn = treeView1.SelectedNode ;
 			ArtifactVO atf = (ArtifactVO)tn.Tag;
 			EA.Repository repo = ProjectSetting.getVO().eaRepo;
-			
+
 			if( repo != null ) {
 				EA.Package pak =  repo.GetPackageByGuid( atf.guid );
 				repo.ShowInProjectView(pak);
@@ -720,7 +720,7 @@ namespace BehaviorDevelop
 
 		}
 
-        
+
 
 
 		/// <summary>
@@ -732,32 +732,32 @@ namespace BehaviorDevelop
 		{
 			TreeNode node = treeView1.SelectedNode;
 			EA.Repository repo = ProjectSetting.getEARepo();
-			
+
 			if (node != null && node.Tag != null ) {
 				ArtifactVO atfvo = (ArtifactVO)node.Tag;
 
 				try {
 					// 確認メッセージを表示
 					MessageBox.Show( "選択されたパッケージの内容をEAから取得しローカルを更新します");
-					
+
 					// マウスカーソルを待機状態にする
 					Cursor.Current = Cursors.WaitCursor;
-				
+
 					EA.Package atfPacObj = repo.GetPackageByGuid(atfvo.guid);
-					
+
 					EAArtifactXmlMaker maker = new EAArtifactXmlMaker(atfPacObj);
 					ArtifactVO newArtifact = maker.makeArtifactXml();
 
 					// 現在読み込まれている成果物の内容を今読んだもので置き換え
 					atfvo.package = newArtifact.package;
-					
+
 					// elements配下の要素XMLファイルを今読んだもので置き換え
 					ArtifactXmlWriter writer = new ArtifactXmlWriter();
 					writer.rewriteElementXmlFiles(atfvo);
-					
+
 					// 標準に戻す
 					Cursor.Current = Cursors.Default;
-					
+
 					MessageBox.Show( "EAの最新情報をローカルに取り込みました" );
 				} catch ( Exception ex ) {
 					MessageBox.Show(ex.Message);
@@ -767,7 +767,7 @@ namespace BehaviorDevelop
 				MessageBox.Show( "フォルダツリーから成果物パッケージを選択して下さい" );
 			}
 		}
-		
+
 		/// <summary>
 		/// コンテキストメニュー:"Close Tab"選択時イベントハンドラ
 		/// </summary>
@@ -778,7 +778,7 @@ namespace BehaviorDevelop
 			TabPage tabp = tabControl1.SelectedTab ;
 			tabControl1.TabPages.Remove(tabControl1.SelectedTab);
 		}
-		
+
 		/// <summary>
 		/// コンテキストメニュー(タブ)を開く時のイベントハンドラ（メニュー項目の活性制御）
 		/// </summary>
@@ -792,9 +792,9 @@ namespace BehaviorDevelop
 				closeTabToolStripMenuItem.Enabled = false;
 			}
 		}
-		
+
 		#endregion
-		
+
 		#region "成果物ペイン内の動的ボタンのイベントハンドラ"
 		/// <summary>
 		/// 要素リンクラベルのクリック時イベントハンドラ（要素編集画面を開く）
@@ -827,7 +827,7 @@ namespace BehaviorDevelop
         ////			MessageBox.Show( "guid =" + elem.guid );
 
         //			DiffElementForm eForm = new DiffElementForm( elemvo );
-        //			eForm.Show(this);			
+        //			eForm.Show(this);
         //		}
 
         #endregion
@@ -842,10 +842,11 @@ namespace BehaviorDevelop
             string asciidocDir = ProjectSetting.getVO().projectPath + "\\" + "asciidocs";
             makeAsciidocDirIfNotExist(asciidocDir);
 
-            string partGuid = atf.guid.Substring(1, 8);
-            string adoctFileName = asciidocDir + "\\atf_" + filterSpecialChar(atf.name) + "_" + partGuid + ".adoc";
+            //string partGuid = atf.guid.Substring(1, 8);
+            //string adoctFileName = asciidocDir + "\\atf_" + filterSpecialChar(atf.name) + "_" + partGuid + ".adoc";
 
-            ArtifactAsciidocWriter.outputAsciidocFile(atf, adoctFileName);
+            ArtifactAsciidocWriter writer = new ArtifactAsciidocWriter(asciidocDir);
+            string adoctFileName = writer.outputAsciidocFile(atf);
 
             // 出力が成功し、目的のAsciidocファイルが出力されていたら
             if( File.Exists(adoctFileName) )
