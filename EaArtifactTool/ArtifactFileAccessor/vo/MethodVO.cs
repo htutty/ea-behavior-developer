@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace ArtifactFileAccessor.vo
 {
@@ -127,10 +128,14 @@ namespace ArtifactFileAccessor.vo
 			return (MethodVO)MemberwiseClone();
 		}
 
+        /// <summary>
+        /// ToString()と同様に、プロパティ=値をつなげた文字列を返却する
+        /// </summary>
+        /// <returns>プロパティ=値をつなげた文字列</returns>
         public string getComparableString()
         {
             StringWriter sw = new StringWriter();
-            sw.WriteLine("name = " + name);
+            sw.WriteLine("name= " + name);
             sw.WriteLine("alias= " + alias);
             sw.WriteLine("guid= " + guid);
             sw.WriteLine("methodId= " + methodId);
@@ -158,20 +163,17 @@ namespace ArtifactFileAccessor.vo
             sw.WriteLine("styleEx= " + styleEx);
             sw.WriteLine("throws= " + throws);
 
-            if (taggedValues != null && taggedValues.Count > 0)
-            {
-                sw.WriteLine("taggedValues=[");
-                foreach (var tv in taggedValues)
-                {
-                    sw.WriteLine("tv=" + tv.getComparableString() + ",");
-                }
-                sw.WriteLine("]");
-            }
+            sw.WriteLine(getTaggedValuesComparableString());
+
+            sw.WriteLine(getParametersComparableString());
 
             return sw.ToString();
         }
 
-
+        /// <summary>
+        /// 引数の操作と差異のあるプロパティのみをつなげた文字列を返却する
+        /// </summary>
+        /// <returns>プロパティ=値をつなげた文字列</returns>
         public string getComparedString(MethodVO o)
         {
             StringWriter sw = new StringWriter();
@@ -199,16 +201,6 @@ namespace ArtifactFileAccessor.vo
             if (elementId != o.elementId)
             {
                 sw.WriteLine("elementId= " + elementId);
-            }
-
-            if (notes != o.notes)
-            {
-                sw.WriteLine("notes= " + notes);
-            }
-
-            if (behavior != o.behavior)
-            {
-                sw.WriteLine("behavior= " + behavior);
             }
 
             if (returnType != o.returnType)
@@ -239,11 +231,6 @@ namespace ArtifactFileAccessor.vo
             if (classifierID != o.classifierID)
             {
                 sw.WriteLine("classifierID= " + classifierID);
-            }
-
-            if (code != o.code)
-            {
-                sw.WriteLine("code= " + code);
             }
 
             if (concurrency != o.concurrency)
@@ -311,14 +298,76 @@ namespace ArtifactFileAccessor.vo
                 sw.WriteLine("throws= " + throws);
             }
 
-            //sw.WriteLine("parameters= " +  parameters  );
+            if (notes != o.notes)
+            {
+                sw.WriteLine("notes= " + notes);
+            }
 
-            //sw.WriteLine("taggedValues= " + taggedValues );
+            if (behavior != o.behavior)
+            {
+                sw.WriteLine("behavior= " + behavior);
+            }
+
+            if (code != o.code)
+            {
+                sw.WriteLine("code= " + code);
+            }
+
+            // パラメータは差異のあった項目だけでなく、全て表示する
+            sw.WriteLine("parameters=");
+            sw.WriteLine(getParametersComparableString());
+
+            // 操作のタグ付き値は差異のあった項目だけでなく、全て表示する
+            sw.WriteLine("taggedValues=");
+            sw.WriteLine(getTaggedValuesComparableString());
+
             return sw.ToString();
         }
 
         /// <summary>
-        /// 
+        /// ToString()と同様に、プロパティ=値をつなげた文字列を返却する（パラメータ）
+        /// </summary>
+        /// <returns>プロパティ=値をつなげた文字列</returns>
+        private string getParametersComparableString()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            if(parameters != null && parameters.Count > 0)
+            {
+                sb.Append("[parameters]\r\n");
+                foreach(ParameterVO prm in parameters)
+                {
+                    sb.Append(getIndentStr(1) + prm.name + "[" + prm.alias + "]:\r\n");
+                    sb.Append(prm.getComparableString(1));
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// ToString()と同様に、プロパティ=値をつなげた文字列を返却する（タグ付き値）
+        /// </summary>
+        /// <returns>プロパティ=値をつなげた文字列</returns>
+        private string getTaggedValuesComparableString()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            if (taggedValues != null && taggedValues.Count > 0)
+            {
+                sb.Append("[taggedValues]\r\n");
+                foreach (TaggedValueVO tgv in taggedValues)
+                {
+                    sb.Append(getIndentStr(1) + tgv.name + ":\r\n");
+                    sb.Append(tgv.getComparableString(1));
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// 子ノード（操作の子ノードはパラメータとタグ付き値）を通常キーでソートする
         /// </summary>
         override public void sortChildNodes()
         {
@@ -327,7 +376,7 @@ namespace ArtifactFileAccessor.vo
             {
                 parameters[i].sortChildNodes();
             }
-            
+
             if ( parameters != null && parameters.Count > 1)
             {
                 parameters.Sort();
@@ -340,6 +389,9 @@ namespace ArtifactFileAccessor.vo
 
         }
 
+        /// <summary>
+        /// 子ノード（操作の子ノードはパラメータとタグ付き値）をGUIDでソートする
+        /// </summary>
         override public void sortChildNodesGuid()
         {
             // 子ノードを持つ項目は個別に子ノード内の子ノードソート処理を呼び出す
@@ -355,7 +407,10 @@ namespace ArtifactFileAccessor.vo
             taggedValues.Sort(cmp);
         }
 
-
+        /// <summary>
+        /// この操作が持つパラメータの型を並べた文字列を返却する
+        /// </summary>
+        /// <returns>カンマ区切りでパラメータの型を並べた文字列</returns>
         public string getParamDesc()
         {
             StringWriter strw = new StringWriter();
@@ -375,7 +430,7 @@ namespace ArtifactFileAccessor.vo
 
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
         override public string generateDeclareString(int indentLv)
