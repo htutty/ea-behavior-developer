@@ -681,6 +681,41 @@ namespace ArtifactFileAccessor.reader
 
 		}
 
+        /// <summary>
+        /// detail の taggedValue XML (/detail/#taggedValue_${guid}_${LR}.xml) を読み、得られたVOを返却する
+        ///
+        /// </summary>
+        /// <returns>MethodVO</returns>
+        public TaggedValueVO readTaggedValueDiffDetail(string tagGuid, string leftRight)
+        {
+            string target_dir = ProjectSetting.getVO().projectPath;
+            string fileName = target_dir + "/detail/" + "#taggedValue_" + tagGuid.Substring(1, 36) + "_" + leftRight + ".xml";
+
+            // 指定されたfileNameでファイルが存在しなかったらnullを返す
+            if (!System.IO.File.Exists(fileName))
+            {
+                return null;
+            }
+
+            // XMLテキストをロードする
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.Load(fileName);
+
+            // taggedValues ノードに移動する
+            XmlNode tvNode = xmlDoc.SelectSingleNode("tv");
+
+            if (tvNode != null)
+            {
+                return ElementsXmlReader.readTaggedValue(tvNode);
+            }
+            else
+            {
+                return new TaggedValueVO();
+            }
+
+        }
+
+
 
         private static string readAttributeStringValue(XmlAttribute attr)
         {

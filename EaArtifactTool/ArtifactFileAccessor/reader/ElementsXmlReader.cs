@@ -795,7 +795,7 @@ namespace ArtifactFileAccessor.reader
 		}
 
 
-        private static TaggedValueVO readTaggedValue(XmlNode tagvalNode)
+        internal static TaggedValueVO readTaggedValue(XmlNode tagvalNode)
         {
             TaggedValueVO tvvo = new TaggedValueVO();
             foreach (XmlAttribute attr in tagvalNode.Attributes)
