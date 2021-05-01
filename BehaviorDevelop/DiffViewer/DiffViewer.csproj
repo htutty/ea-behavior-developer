@@ -68,10 +68,11 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="VoidNish.Diff">
-      <HintPath>..\VoidNish.Diff\bin\Debug\VoidNish.Diff.dll</HintPath>
+      <HintPath>..\VoidNish.Diff\bin\Release\VoidNish.Diff.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DiffPresenter.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
