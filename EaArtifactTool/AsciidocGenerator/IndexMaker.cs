@@ -12,8 +12,6 @@ namespace AsciidocGenerator
 {
     class IndexMaker
     {
-        private string outputDir;
-
         private ArtifactsVO allArtifacts;
         private List<ConnectorVO> allConnectors;
 
@@ -48,7 +46,7 @@ namespace AsciidocGenerator
         /// </summary>
         public void doMakeElementFiles()
         {
-            // 
+            //
             foreach (ArtifactVO atf in this.allArtifacts.getArtifactsExcludeImplModel())
             {
                 foreach (ElementVO elem in atf.getOwnElements())
