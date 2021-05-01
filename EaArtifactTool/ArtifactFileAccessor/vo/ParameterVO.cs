@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace ArtifactFileAccessor.vo
 {
 	/// <summary>
 	/// Description of ParameterVO.
 	/// </summary>
-	public class ParameterVO : IComparable<ParameterVO>
+	public class ParameterVO : AbstractValueObject, IComparable<ParameterVO>
 	{
 		// 	Public Name ' As String
 		/// <summary>名前</summary>
@@ -81,41 +82,53 @@ namespace ArtifactFileAccessor.vo
 		}
 
         /// <summary>
-        /// JavaのtoString()と同様、自身の項目値を全てつなげた文字列を生成して返却する
+        /// ToString()と同様に、プロパティ=値をつなげた文字列を返却する
         /// </summary>
-        /// <returns>自身の項目値を全てつなげた文字列</returns>
+        /// <returns>プロパティ=値をつなげた文字列</returns>
         public string getComparableString()
         {
-            StringWriter sw = new StringWriter();
-            sw.WriteLine("name = " + name);
-            sw.WriteLine("alias = " + alias);
-            sw.WriteLine("guid = " + guid);
-            sw.WriteLine("notes = " + notes);
-            sw.WriteLine("stereoType = " + stereoType);
-            sw.WriteLine("eaType = " + eaType);
-            sw.WriteLine("objectType = " + objectType);
-            sw.WriteLine("pos = " + pos);
-            sw.WriteLine("classifierID = " + classifierID);
-            sw.WriteLine("defaultValue = " + defaultValue);
-            sw.WriteLine("isConst = " + isConst);
-            // sw.WriteLine("styleEx = " + styleEx);
-            sw.WriteLine("kind = " + kind);
+            return getComparableString(1);
+        }
 
-            if( paramTags != null && paramTags.Count > 0)
+        /// <summary>
+        /// ToString()と同様に、プロパティ=値をつなげた文字列を返却する
+        /// </summary>
+        /// <param name="indentLv">インデント数（このレベル数×２個のホワイトスペースでインデントする）</param>
+        /// <returns>プロパティ=値をつなげた文字列</returns>
+        public string getComparableString(int indentLv)
+        {
+            StringWriter sw = new StringWriter();
+            sw.WriteLine(getIndentStr(indentLv) + "name = " + name);
+            sw.WriteLine(getIndentStr(indentLv) + "alias = " + alias);
+            sw.WriteLine(getIndentStr(indentLv) + "guid = " + guid);
+            sw.WriteLine(getIndentStr(indentLv) + "notes = " + notes);
+            sw.WriteLine(getIndentStr(indentLv) + "stereoType = " + stereoType);
+            sw.WriteLine(getIndentStr(indentLv) + "eaType = " + eaType);
+            sw.WriteLine(getIndentStr(indentLv) + "objectType = " + objectType);
+            sw.WriteLine(getIndentStr(indentLv) + "pos = " + pos);
+            sw.WriteLine(getIndentStr(indentLv) + "classifierID = " + classifierID);
+            sw.WriteLine(getIndentStr(indentLv) + "defaultValue = " + defaultValue);
+            sw.WriteLine(getIndentStr(indentLv) + "isConst = " + isConst);
+            // sw.WriteLine("styleEx = " + styleEx);
+            sw.WriteLine(getIndentStr(indentLv) + "kind = " + kind);
+
+            if (paramTags != null && paramTags.Count > 0)
             {
-                sw.WriteLine("taggedValues=[");
+                sw.WriteLine(getIndentStr(indentLv) + "[taggedValues]");
                 foreach (var tv in paramTags)
                 {
-                    sw.WriteLine("tv=" + tv.getComparableString() + ",");
+                    sw.WriteLine(getIndentStr(indentLv) + tv.name + ":");
+                    sw.WriteLine(getIndentStr(indentLv + 1) + tv.getComparableString());
                 }
-                sw.WriteLine("]");
             }
 
             return sw.ToString();
         }
 
-
-        public void sortChildNodes()
+        /// <summary>
+        /// 子ノード（パラメータの子ノードはタグ付き値）を通常キーでソートする
+        /// </summary>
+        override public void sortChildNodes()
         {
             if (paramTags != null && paramTags.Count > 1 )
             {
@@ -124,7 +137,10 @@ namespace ArtifactFileAccessor.vo
         }
 
 
-        public void sortChildNodesGuid()
+        /// <summary>
+        /// 子ノード（パラメータの子ノードはタグ付き値）をGUIDでソートする
+        /// </summary>
+        override public void sortChildNodesGuid()
         {
             if (paramTags != null && paramTags.Count > 1)
             {
@@ -132,6 +148,16 @@ namespace ArtifactFileAccessor.vo
                 paramTags.Sort(cmp);
             }
 
+        }
+
+        /// <summary>
+        /// コード出力時の宣言文を返却する
+        /// </summary>
+        /// <returns></returns>
+        override public string generateDeclareString(int indentLv)
+        {
+            StringWriter sw = new StringWriter();
+            return sw.ToString();
         }
 
     }

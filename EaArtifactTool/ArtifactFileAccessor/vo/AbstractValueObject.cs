@@ -50,7 +50,7 @@ namespace ArtifactFileAccessor.vo
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < indentLv; i++)
             {
-                sb.Append("\t");
+                sb.Append("  ");
             }
             return sb.ToString();
         }

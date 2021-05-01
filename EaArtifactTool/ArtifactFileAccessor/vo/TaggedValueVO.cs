@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace ArtifactFileAccessor.vo
 {
@@ -56,16 +57,26 @@ namespace ArtifactFileAccessor.vo
         /// <returns>自身の項目値を全てつなげた文字列</returns>
         public string getComparableString()
         {
+            return getComparableString(1);
+        }
+
+        /// <summary>
+        /// ToString()と同様に、プロパティ=値をつなげた文字列を返却する
+        /// </summary>
+        /// <param name="indentLv">インデント数（このレベル数×２個のホワイトスペースでインデントする）</param>
+        /// <returns>プロパティ=値をつなげた文字列</returns>
+        public string getComparableString(int indentLv)
+        {
             StringWriter sw = new StringWriter();
-            sw.WriteLine("name = " + name);
-            sw.WriteLine("guid = " + guid);
-            sw.WriteLine("tagValue = " + tagValue);
-            sw.WriteLine("notes = " + notes);
+            sw.WriteLine(getIndentString(indentLv) + "name = " + name);
+            sw.WriteLine(getIndentString(indentLv) + "guid = " + guid);
+            sw.WriteLine(getIndentString(indentLv) + "tagValue = " + tagValue);
+            sw.WriteLine(getIndentString(indentLv) + "notes = " + notes);
             return sw.ToString();
         }
 
         /// <summary>
-        /// 引数のオブジェクトと自身の値を比較し、差異のあった項目のみで"name = value"の文字列を返却する
+        /// 引数のオブジェクトと自身の値を比較し、差異のあった項目のみで"name=value"の文字列を返却する
         /// </summary>
         /// <param name="o">比較先のタグ付き値オブジェクト</param>
         /// <returns></returns>
@@ -95,6 +106,18 @@ namespace ArtifactFileAccessor.vo
 
             // sw.WriteLine("notes = " + notes);
             return sw.ToString();
+        }
+
+
+        private static string getIndentString(int indentLv)
+        {
+            int i;
+            StringBuilder sb = new StringBuilder();
+            for (i = 0; i < indentLv; i++)
+            {
+                sb.Append("  ");
+            }
+            return sb.ToString();
         }
 
     }
