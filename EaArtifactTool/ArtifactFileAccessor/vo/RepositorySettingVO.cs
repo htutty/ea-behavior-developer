@@ -11,6 +11,7 @@ namespace ArtifactFileAccessor.vo
         public string baseRepository { get; set; }
         public string localPath { get; set; }
         public string projectPath { get; set; }
+        public string changeLogDbPath { get; set; }
         public string connectionString { get; set; }
         public string indexDbPath { get; set; }
         public ProjectSettingVO projectSettingVO { get; set; }
