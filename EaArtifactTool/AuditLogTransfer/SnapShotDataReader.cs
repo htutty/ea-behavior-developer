@@ -60,7 +60,7 @@ namespace AuditLogTransfer
             finally
             {
                 // 接続を解除します。
-                this.objConn.Close();
+                // this.objConn.Close();
 
             }
 
@@ -107,17 +107,17 @@ namespace AuditLogTransfer
                 logItem.notes = DbUtil.readStringField(reader, 4);
 
                 logItem.style = DbUtil.readStringField(reader, 5);
-                logItem.elementId = Int32.Parse(DbUtil.readStringField(reader, 6)); 
+                logItem.elementId = Int32.Parse(DbUtil.readStringField(reader, 6));
                 logItem.elementType = DbUtil.readStringField(reader, 7);
                 logItem.strContent = DbUtil.readStringField(reader, 8);
 
                 logItem.binContent1 = readBinaryField(reader, 9);
-                logItem.binContent2 = readBinaryField(reader, 10);
+                logItem.binContent2 = rtrimNull(readBinaryField(reader, 10));
 
                 retList.Add(logItem);
             }
 
-            reader.Close();
+            //reader.Close();
 
             Console.WriteLine("readSnapShotTable() 終了");
 
@@ -152,7 +152,7 @@ namespace AuditLogTransfer
 
                 return ms.GetBuffer();
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 Console.WriteLine("バイナリフィールドの読み込みで例外が発生しました:");
                 Console.WriteLine(ex.Message);
@@ -160,10 +160,43 @@ namespace AuditLogTransfer
 
             return new byte[0];
 
-            // BinContent2 の内容を Base64 デコードしたものを出力
-            //MyBase64str myBase64 = new MyBase64str("UTF-16");
-            //Console.Write(myBase64.Decode(item.binContent2));
         }
+
+        private Byte[] rtrimNull(Byte[] orig)
+        {
+            int charsEnd = -1;
+
+            // ２バイト単位で 0x00 が続いている場合、Null文字とみなす
+            for(int i=0; i < orig.Length/2; i=i+2)
+            {
+                if( orig[i] == 0x00 && orig[i+1] == 0x00 && i > 0)
+                {
+                    charsEnd = i;
+                    break;
+                }
+            }
+
+            // 文字列の最後（Nullが現れる以前の最終地点）が初期値のままであれば
+            // 特にtrim対象が存在しなかったので、origをそのまま返却する
+            if( charsEnd == -1 )
+            {
+                return orig;
+            }
+
+            Console.WriteLine("rtrimNull: origLen=" + orig.Length + ", trimmed=" + charsEnd );
+
+            // Nullが現れるまでの最終位置の長さのバイト列を用意し、
+            // そちらに正常な文字列をコピーして返却する
+            Byte[] ret = new Byte[charsEnd];
+
+            for (int j=0; j < charsEnd; j++)
+            {
+                ret[j] = orig[j];
+            }
+
+            return ret;
+        }
+
 
         /// <summary>
         /// バイナリデータを受けて16進でダンプする
@@ -223,6 +256,50 @@ namespace AuditLogTransfer
 
             Console.WriteLine("deleteSnapShotTableBySnapShotId(SnapshotID = {0}) done.", snapshotId);
         }
+
+        /// <summary>
+        /// 転送が完了したSnapshotIdを削除する（リスト）
+        /// </summary>
+        /// <param name="snapshotId"></param>
+        public void deleteSnapShotTableBySnapShotIds(List<string> snapshotIds)
+        {
+            int count = 0;
+            //Console.WriteLine("deleteSnapShotTableBySnapShotIds()");
+
+            // 接続する
+            //this.objConn.Open();
+            OleDbTransaction transaction = this.objConn.BeginTransaction();
+
+            using (OleDbCommand command = this.objConn.CreateCommand())
+            {
+
+                // SQL文 を作成
+                string sql = "delete from t_snapshot " +
+                    " where SnapshotID in (";
+
+                foreach( string snapshotId in snapshotIds)
+                {
+                    if(count > 0)
+                    {
+                        sql = sql + ", ";
+                    }
+                    sql = sql + "'" + snapshotId + "'";
+                    count++;
+                }
+
+                sql = sql + ")";
+
+                command.Transaction = transaction;
+                command.CommandText = sql;
+                command.ExecuteNonQuery();
+            }
+
+            transaction.Commit();
+
+            Console.Write(".");
+        }
+
+
 
     }
 

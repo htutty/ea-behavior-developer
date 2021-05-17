@@ -24,7 +24,7 @@ namespace AuditLogTransfer
 
             try
             {
-                // 
+                //
                 xmlDoc.Load(new StringReader(xmlData));
 
                 // 一番上のmetadataノードに移動する

@@ -12,6 +12,8 @@ namespace AuditLogTransfer
         string projectDir = null;
 
         SQLiteConnection conn;
+        SQLiteTransaction sqlt;
+
         // SQLiteTransaction transaction = null;
         Int32 changeLogRecCount = 0;
 
@@ -23,6 +25,7 @@ namespace AuditLogTransfer
             {
                 string datasourceStr = this.db_file;
                 this.conn = new SQLiteConnection("Data Source=" + datasourceStr);
+                conn.Open();
 
                 // t_change_log テーブルがIndexDbに存在しない場合は再生成
                 createIfNotExistChangeLogTable();
@@ -35,23 +38,11 @@ namespace AuditLogTransfer
 
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="chItem"></param>
-        public void writeOneChangeLog(ChangeLogItem chItem)
+        public void beginTransaction()
         {
-
             try
             {
-                conn.Open();
-
-                SQLiteTransaction sqlt = conn.BeginTransaction();
-
-                insertChangeLogTable(chItem);
-
-                sqlt.Commit();
-                conn.Close();
+                sqlt = conn.BeginTransaction();
             }
             catch (Exception ex)
             {
@@ -60,15 +51,50 @@ namespace AuditLogTransfer
 
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="chItem"></param>
+        public void writeOneChangeLog(ChangeLogItem chItem)
+        {
+
+            try
+            {
+                //conn.Open();
+                //sqlt = conn.BeginTransaction();
+
+                insertChangeLogTable(chItem);
+
+                //sqlt.Commit();
+                //conn.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+        }
+
+        public void commitTransaction()
+        {
+            try
+            {
+                sqlt.Commit();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
 
 
         public void writeChangeLogs(List<ChangeLogItem> changelogs)
         {
-            Console.Write("inserting table for changelogs ");
+            //Console.Write("inserting table for changelogs ");
 
             try
             {
-                conn.Open();
+                beginTransaction();
 
                 changeLogRecCount = 0;
 
@@ -77,9 +103,13 @@ namespace AuditLogTransfer
                     insertChangeLogTable(log);
                 }
 
-                Console.WriteLine(".  done(" + changeLogRecCount + " records)");
+                sqlt.Commit();
+                Console.Write(".");
 
-                conn.Close();
+
+                //Console.WriteLine(".  done(" + changeLogRecCount + " records)");
+
+                //conn.Close();
             }
             catch (Exception ex)
             {
@@ -123,7 +153,7 @@ namespace AuditLogTransfer
                 command2.Parameters.AddRange(parameters);
                 command2.ExecuteNonQuery();
 
-                Console.WriteLine("insert t_change_log ( SnapShotID = {0} )", changelog.snapshotId);
+                // Console.WriteLine("insert t_change_log ( SnapShotID = {0} )", changelog.snapshotId);
             }
 
 
@@ -137,14 +167,14 @@ namespace AuditLogTransfer
         {
             string tableName = "t_change_log";
 
-            this.conn.Open();
+            //this.conn.Open();
 
             if (!existTargetTable(tableName))
             {
                 createChangeLogTable();
             }
 
-            this.conn.Close();
+            //this.conn.Close();
         }
 
 

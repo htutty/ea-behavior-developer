@@ -23,61 +23,164 @@ namespace AuditLogTransfer
         }
 
 
-        public void transAuditLogToChangeLog()
+        public List<ChangeLogItem> transAuditLogToChangeLog(string outputDir)
         {
-
             List<ChangeLogItem> changeLogs = new List<ChangeLogItem>();
 
-            //  t_snap
-            SnapShotDataReader reader = new SnapShotDataReader(this.fromConnStr);
+            Console.WriteLine("{0} start read SnapShot data", DateTime.Now.ToString());
 
+            // t_snapshot テーブルを読んでその中身をAuditLogItemリストに格納
+            SnapShotDataReader reader = new SnapShotDataReader(this.fromConnStr);
             List<AuditLogItem> logItems = reader.readSnapshotData();
 
+            // logItemsが空ならコンソールに出力して終了
             if (logItems == null)
             {
                 Console.WriteLine("対象のSnapShotデータがありませんでした");
-                return;
+                return changeLogs;
             }
+
+            Console.WriteLine("{0} SnapShot data record count: {1}", DateTime.Now.ToString(), logItems.Count);
 
             // reader.openConnection();
 
-            ChangeLogIndexWriter writer =
-                new ChangeLogIndexWriter(targetIndexDbFile);
+            StreamWriter sw = null;
 
-            foreach (AuditLogItem aItem in logItems)
+            try
             {
-                // このレコードが転送対象かを判断
-                if ( isTransferable(aItem) )
+                //BOM無しのUTF8でテキストファイルを作成する
+                sw = new StreamWriter(outputDir + "\\changeLogs.txt");
+                sw.WriteLine("<?xml version=\"1.0\" encoding=\"utf-8\" ?> ");
+                sw.WriteLine("");
+
+                for (int i = 0; i < logItems.Count; i++)
                 {
-                    Console.WriteLine("row: [ SnapshotID={0}, SeriesID={1}, SnapshotName={2}, Position={3} ]", aItem.snapshotId, aItem.seriesId, aItem.snapshotName, aItem.position);
+                    AuditLogItem aItem = logItems[i];
 
-                    ChangeLogItem chItem = transToChangeLog(aItem);
+                    // このレコードが転送対象かを判断
+                    if (isTransferable(aItem))
+                    {
+                        Console.WriteLine("row: [ SnapshotID={0}, SeriesID={1}, SnapshotName={2}, Position={3} ]", aItem.snapshotId, aItem.seriesId, aItem.snapshotName, aItem.position);
 
-                    // IndexDBの t_change_log テーブルに記録する(毎行commit)
-                    writer.writeOneChangeLog(chItem);
+                        ChangeLogItem chItem = transToChangeLog(aItem);
 
-                    // 成功したら該当行を t_change_log テーブルに記録する(毎行commit)
-                    reader.deleteSnapShotTableBySnapShotId(aItem.snapshotId);
+                        sw.WriteLine("--------------------------------------------------------------------------------");
+                        sw.WriteLine("SnapshotId:" + chItem.snapshotId);
+                        sw.WriteLine("seriesId:" + chItem.seriesId);
+                        sw.WriteLine("notes:" + chItem.notes);
+                        sw.WriteLine("changeType:" + chItem.changeType);
+                        sw.WriteLine("changeItemName:" + chItem.changeItemName);
+                        sw.WriteLine("elementGuid:" + chItem.elementGuid);
+                        sw.WriteLine("metadata:" + chItem.metadata);
+                        sw.WriteLine("logItem:" + chItem.logItem);
+                        sw.WriteLine("changeUser:" + chItem.changeUser);
+                        sw.WriteLine("changeDateTime:" + chItem.changeDateTime);
 
-                    // 作成したChangeLogの情報をリストに保管
-                    changeLogs.Add(chItem);
-                }
-                else
-                {
-                    Console.WriteLine("  ");
+                        // 作成したChangeLogの情報をリストに保管
+                        changeLogs.Add(chItem);
+                    }
+                    else
+                    {
+                        Console.WriteLine("row: [SnapshotID={0}] can not acceptable for ChangeLog", aItem.snapshotId);
+                    }
                 }
 
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine("----------------------------------------------");
+                Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+                if (sw != null) sw.Close();
+                reader.closeConnection();
+            }
 
-            reader.closeConnection();
+            return changeLogs;
+        }
 
-            // ChangeLogに記録
-            // writer.writeChangeLogs(changeLogs);
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="changeLogs"></param>
+        internal void writeChangeLogDb(List<ChangeLogItem> changeLogs)
+        {
+            const int commitPeriod = 1000;
+            int recCount = 0;
 
+            ChangeLogIndexWriter writer = new ChangeLogIndexWriter(this.targetIndexDbFile);
+
+            List<ChangeLogItem> commitList = new List<ChangeLogItem>();
+
+            Console.Write("inserting table for changelogs");
+            foreach (var cl in changeLogs)
+            {
+                if (recCount >= commitPeriod)
+                {
+                    // IndexDBの t_change_log テーブルに記録する(commit)
+                    writer.writeChangeLogs(commitList);
+
+                    commitList.Clear();
+                    recCount = 0;
+                }
+
+                commitList.Add(cl);
+                recCount++;
+            }
+
+            if (recCount > 0)
+            {
+                writer.writeChangeLogs(commitList);
+                //writer.commitTransaction();
+            }
+
+            Console.WriteLine();
         }
 
 
-        // 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="changeLogs"></param>
+        /// <param name="writer"></param>
+        internal void deleteSnapshotTable(List<ChangeLogItem> changeLogs)
+        {
+            const int commitPeriod = 100;
+            int recCount = 0;
+
+            List<string> deletableSnapshotIDs = new List<string>();
+
+            SnapShotDataReader reader = new SnapShotDataReader(this.fromConnStr);
+            reader.openConnection();
+
+            Console.Write("delete table for t_snapshot");
+            foreach (var cl in changeLogs)
+            {
+                if (recCount >= commitPeriod)
+                {
+                    // 読み込み元のDBから、リスト内で指定したIDのレコードを物理削除する
+                    reader.deleteSnapShotTableBySnapShotIds(deletableSnapshotIDs);
+
+                    deletableSnapshotIDs.Clear();
+                    recCount = 0;
+                }
+
+                deletableSnapshotIDs.Add(cl.snapshotId);
+                recCount++;
+            }
+
+            if (recCount > 0)
+            {
+                // 読み込み元のDBから、リスト内で指定したIDのレコードを物理削除する
+                reader.deleteSnapShotTableBySnapShotIds(deletableSnapshotIDs);
+                //writer.commitTransaction();
+            }
+
+            Console.WriteLine();
+        }
+
+        //
         private bool isTransferable(AuditLogItem aItem)
         {
             // t_snapshotの snapshotName は更新されたテーブルを示すため、 この値が "t_snapshot" なら転送不要
@@ -85,11 +188,15 @@ namespace AuditLogTransfer
             {
                 return false;
             }
-            
+
             return true;
         }
 
-
+        /// <summary>
+        /// t_snapshotから取得されたAuditLogデータをChangeLogデータに変換する
+        /// </summary>
+        /// <param name="aItem"></param>
+        /// <returns></returns>
         private ChangeLogItem transToChangeLog(AuditLogItem aItem)
         {
 
@@ -106,19 +213,59 @@ namespace AuditLogTransfer
             chItem.elementGuid = getElementGuidFromNotes(aItem);
 
             // メタデータ(更新されたテーブルのキー項目などが設定) = t_auditlog.BinContent2
-            chItem.metadata = enc.GetString(aItem.binContent2);
+            chItem.metadata = rtrim(enc.GetString(aItem.binContent2));
 
             // ログ項目(更新内容の実際値(From-To)) = t_auditlog.BinContent1 を unzip したもの
             chItem.logItem = getUnzippedString(aItem.binContent1);
 
             // metadataタグの中身からトラッカー情報（更新者、更新日時）を取得
-            Tracker trc = MetadataXmlReader.readXmlMetaData(enc.GetString(aItem.binContent2));
+            Tracker trc = MetadataXmlReader.readXmlMetaData(chItem.metadata);
             chItem.changeUser = trc.user;
             chItem.changeDateTime = trc.dateTime;
 
             return chItem;
         }
 
+        /// <summary>
+        /// 文字列の後ろにNull文字が充填されている場合、そのNull文字を除いた文字列を返却する
+        /// </summary>
+        /// <param name="orig"></param>
+        /// <returns></returns>
+        private string rtrim(string orig)
+        {
+            char[] origAry = orig.ToCharArray();
+            int charsEnd = -1;
+
+            for (int i = 0; i < origAry.Length; i++)
+            {
+                if( origAry[i] == 0x00 && i > 0)
+                {
+                        charsEnd = i;
+                        break;
+                }
+            }
+
+            // 文字列の最後（Nullが現れる以前の最終地点）が初期値のままであれば
+            // 特にtrim対象が存在しなかったので、origをそのまま返却する
+            if (charsEnd == -1)
+            {
+                return orig;
+            }
+
+            //Console.WriteLine("rtrim: origLen=" + orig.Length + ", trimmed=" + charsEnd);
+
+            // Nullが現れるまでの最終位置の長さのchar配列を用意し、
+            // そちらに正常な文字列をコピーして返却する
+            Char[] ret = new Char[charsEnd];
+
+            for (int j = 0; j < charsEnd; j++)
+            {
+                ret[j] = origAry[j];
+            }
+
+            return new String(ret);
+
+        }
 
 
         /// <summary>
