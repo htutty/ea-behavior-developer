@@ -64,6 +64,22 @@ namespace ArtifactFileAccessor.vo
             return sw.ToString();
         }
 
+        /// <summary>
+        /// JavaのtoString()と同様、自身の項目値を全てつなげた文字列を生成して返却する
+        /// </summary>
+        /// <returns>自身の項目値を全てつなげた文字列</returns>
+        public string toString()
+        {
+            StringWriter sw = new StringWriter();
+
+            sw.Write("paramGuid = " + paramGuid);
+            sw.Write(", guid = " + guid);
+            sw.Write(", name = " + name);
+            sw.Write(", notes = " + notes);
+            sw.WriteLine("");
+
+            return sw.ToString();
+        }
     }
 
 

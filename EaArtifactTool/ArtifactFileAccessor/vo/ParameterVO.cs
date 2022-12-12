@@ -125,6 +125,44 @@ namespace ArtifactFileAccessor.vo
             return sw.ToString();
         }
 
+
+        /// <summary>
+        /// ToString()と同様に、プロパティ=値をつなげた文字列を返却する
+        /// </summary>
+        /// <param name="indentLv">インデント数（このレベル数×２個のホワイトスペースでインデントする）</param>
+        /// <returns>プロパティ=値をつなげた文字列</returns>
+        public string toString()
+        {
+            StringWriter sw = new StringWriter();
+            sw.Write( "name = " + name);
+            sw.Write( ", alias = " + alias);
+            sw.Write( ", guid = " + guid);
+            sw.Write( ", notes = " + notes);
+            sw.Write( ", stereoType = " + stereoType);
+            sw.Write( ", eaType = " + eaType);
+            sw.Write( ", objectType = " + objectType);
+            sw.Write( ", pos = " + pos);
+            sw.Write( ", classifierID = " + classifierID);
+            sw.Write( ", defaultValue = " + defaultValue);
+            sw.Write( ", isConst = " + isConst);
+            sw.Write( ", kind = " + kind);
+            sw.WriteLine("");
+
+            if (paramTags != null && paramTags.Count > 0)
+            {
+                sw.WriteLine(getIndentStr(1) + "[taggedValues]");
+                foreach (var tv in paramTags)
+                {
+                    sw.WriteLine(getIndentStr(1) + tv.toString());
+                    sw.Write(", kind = " + kind);
+                    sw.WriteLine("");
+                    sw.WriteLine(getIndentStr(1) + tv.toString());
+                }
+            }
+
+            return sw.ToString();
+        }
+
         /// <summary>
         /// 子ノード（パラメータの子ノードはタグ付き値）を通常キーでソートする
         /// </summary>

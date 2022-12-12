@@ -308,12 +308,14 @@ namespace ArtifactFileAccessor.util
 				}
 			}
 
-            // TODO :
-            // if( compareTaggedValues(leftAtr.taggedValues, rightAttr.taggedValues) ) {
-            // }
+            // 属性のタグ付き値の比較
+            if (compareTaggedValues(leftAtr.taggedValues, rightAtr.taggedValues) != 0)
+            {
+                outAtr.changed = 'U';
+            }
 
 
-			if ( outAtr.changed == ' ' ) {
+            if ( outAtr.changed == ' ' ) {
 				return null;
 			} else {
 				// 空白以外なら 'U' で何かしら変更があったとみなされるため、左を比較元、右を比較先として情報を残す
@@ -378,59 +380,6 @@ namespace ArtifactFileAccessor.util
 
 
         /// <summary>
-        /// 属性、操作、パラメータに付加されるタグ付き値
-        /// </summary>
-        /// <param name="leftTaggedValues"></param>
-        /// <param name="rightTaggedValues"></param>
-        /// <returns></returns>
-        private int compareParameters(List<ParameterVO> leftParameters, List<ParameterVO> rightParameters)
-        {
-            // 左、右どちらか（どちらも）がnullの場合に落ちないように制御
-            if (leftParameters == null)
-            {
-                if (rightParameters == null)
-                {
-                    return 0;
-                }
-                else
-                {
-                    return 1;
-                }
-            }
-            else
-            {
-                if (rightParameters == null)
-                {
-                    return -1;
-                }
-            }
-
-            // GUID順にソート
-            leftParameters.Sort(new ParameterGuidComparer());
-            rightParameters.Sort(new ParameterGuidComparer());
-
-            // 左のリスト内容をテキストに出力
-            StringWriter leftParametersText = new StringWriter();
-            foreach (ParameterVO tv in leftParameters)
-            {
-                leftParametersText.WriteLine(tv.ToString());
-            }
-
-            // 右のリスト内容をテキストに出力
-            StringWriter rightParametersText = new StringWriter();
-            foreach (ParameterVO tv in rightParameters)
-            {
-                rightParametersText.WriteLine(tv.ToString());
-            }
-
-            return leftParametersText.ToString().CompareTo(rightParametersText.ToString());
-        }
-
-
-
-
-
-        /// <summary>
         /// 不一致な操作の抽出
         /// </summary>
         /// <param name="leftMth"></param>
@@ -486,8 +435,19 @@ namespace ArtifactFileAccessor.util
 				outMth.changed = 'U';
 			}
 
-			// changedの値が空白なら結果として差異がなかったため、nullを返す
-			if ( outMth.changed == ' ' ) {
+			// メソッドのタグ付き値の比較
+			if( compareTaggedValues(leftMth.taggedValues, rightMth.taggedValues) != 0 ) {
+                outMth.changed = 'U';
+            }
+
+			// パラメータ以降（パラメータ、パラメータタグ）の比較
+			if( compareParameters(leftMth.parameters, rightMth.parameters) != 0 ) {
+                outMth.changed = 'U';
+            }
+
+
+            // changedの値が空白なら結果として差異がなかったため、nullを返す
+            if ( outMth.changed == ' ' ) {
 				return null;
 			} else {
 				// 空白以外なら 'U' で何かしら変更があったとみなされるため、左を比較元、右を比較先として情報を残す
@@ -496,6 +456,58 @@ namespace ArtifactFileAccessor.util
 				return outMth ;
 			}
 		}
+
+        /// <summary>
+        /// 属性、操作、パラメータに付加されるタグ付き値
+        /// </summary>
+        /// <param name="leftTaggedValues"></param>
+        /// <param name="rightTaggedValues"></param>
+        /// <returns></returns>
+        private int compareParameters(List<ParameterVO> leftParameters, List<ParameterVO> rightParameters)
+        {
+            // 左、右どちらか（どちらも）がnullの場合に落ちないように制御
+            if (leftParameters == null)
+            {
+                if (rightParameters == null)
+                {
+                    return 0;
+                }
+                else
+                {
+                    return 1;
+                }
+            }
+            else
+            {
+                if (rightParameters == null)
+                {
+                    return -1;
+                }
+            }
+
+            // GUID順にソート
+            leftParameters.Sort(new ParameterGuidComparer());
+            rightParameters.Sort(new ParameterGuidComparer());
+
+            // 左のリスト内容をテキストに出力
+            StringWriter leftParametersText = new StringWriter();
+            foreach (ParameterVO prm in leftParameters)
+            {
+                leftParametersText.WriteLine(prm.ToString());
+            }
+
+            // 右のリスト内容をテキストに出力
+            StringWriter rightParametersText = new StringWriter();
+            foreach (ParameterVO prm in rightParameters)
+            {
+                rightParametersText.WriteLine(prm.ToString());
+            }
+
+            return leftParametersText.ToString().CompareTo(rightParametersText.ToString());
+        }
+
+
+
 
 
         /// <summary>
@@ -604,6 +616,5 @@ namespace ArtifactFileAccessor.util
 
 		}
 
-
-	}
+    }
 }
